@@ -13,10 +13,8 @@ if(CMAKE_BUILD_TYPE MATCHES Release)
     add_definitions(-DRELEASE_BUILD)
 endif()
 
-
 add_executable(${EXECUTABLE_NAME}
     src/glad.c
-    src/textrendering.cpp
     src/main.cpp
 )
 
@@ -62,8 +60,9 @@ elseif(UNIX)
 
 endif()
 
-target_include_directories(${EXECUTABLE_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${EXECUTABLE_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/include/external)
 
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/models DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
