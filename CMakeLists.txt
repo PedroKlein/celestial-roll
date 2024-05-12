@@ -64,5 +64,21 @@ target_include_directories(${EXECUTABLE_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/inclu
 
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/models DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(GLOB SHADER_FILES ${CMAKE_SOURCE_DIR}/src/shaders/*)
+file(GLOB MODEL_FILES ${CMAKE_SOURCE_DIR}/models/*)
+
+add_custom_target(CopyModels ALL
+                  COMMAND ${CMAKE_COMMAND} -E remove_directory
+                  ${CMAKE_CURRENT_BINARY_DIR}/models
+                  COMMAND ${CMAKE_COMMAND} -E copy_directory
+                  ${CMAKE_SOURCE_DIR}/models ${CMAKE_CURRENT_BINARY_DIR}/models
+                  DEPENDS ${MODEL_FILES})
+add_custom_target(CopyShaders ALL
+                  COMMAND ${CMAKE_COMMAND} -E remove_directory
+                  ${CMAKE_CURRENT_BINARY_DIR}/shaders
+                  COMMAND ${CMAKE_COMMAND} -E copy_directory
+                  ${CMAKE_SOURCE_DIR}/src/shaders ${CMAKE_CURRENT_BINARY_DIR}/shaders
+                  DEPENDS ${SHADER_FILES})
+
+add_dependencies(${EXECUTABLE_NAME} CopyShaders)
+add_dependencies(${EXECUTABLE_NAME} CopyModels)

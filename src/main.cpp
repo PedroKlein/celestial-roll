@@ -37,6 +37,11 @@ int main()
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow *window = glfwCreateWindow(800, 600, "Test", nullptr, nullptr);
@@ -55,9 +60,16 @@ int main()
         return -1;
     }
 
+    const GLubyte *vendor = glGetString(GL_VENDOR);
+    const GLubyte *rendererType = glGetString(GL_RENDERER);
+    const GLubyte *glversion = glGetString(GL_VERSION);
+    const GLubyte *glslversion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+    printf("GPU: %s, %s, OpenGL %s, GLSL %s\n", vendor, rendererType, glversion, glslversion);
+
     Shader shader("shaders/shader_vertex.glsl", "shaders/shader_fragment.glsl");
 
-    Camera camera(glm::vec4(0.0f, 0.0f, 3.0f, 1.0f));
+    Camera camera(glm::vec4(0.0f, 0.0f, -3.0f, 1.0f));
 
     ObjLoader objLoader("models/cow.obj");
     if (!objLoader.LoadModel())
@@ -69,6 +81,10 @@ int main()
     Mesh mesh(objLoader);
 
     Renderer renderer;
+
+    std::vector<Mesh> scene = {mesh};
+
+    glm::mat4 projection = Camera::perspectiveMatrix(glm::radians(45.0f), 800.0f / 600.0f, -0.1f, -10.0f);
 
     float lastFrame = 0.0f;
     while (!glfwWindowShouldClose(window))
@@ -82,9 +98,8 @@ int main()
         renderer.Clear();
 
         glm::mat4 view = camera.GetViewMatrix();
-        glm::mat4 projection = Camera::perspectiveMatrix(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-        renderer.RenderScene(std::vector<Mesh>{mesh}, shader, view, projection);
+        renderer.RenderScene(scene, shader, view, projection);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

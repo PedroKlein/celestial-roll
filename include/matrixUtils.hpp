@@ -10,30 +10,43 @@
 class MatrixUtils
 {
   public:
+    static glm::mat4 Matrix(float m00, float m01, float m02, float m03, // Line 1
+                            float m10, float m11, float m12, float m13, // Line 2
+                            float m20, float m21, float m22, float m23, // Line 3
+                            float m30, float m31, float m32, float m33  // Line 4
+    )
+    {
+        return glm::mat4(m00, m10, m20, m30, // Column 1
+                         m01, m11, m21, m31, // Column 2
+                         m02, m12, m22, m32, // Column 3
+                         m03, m13, m23, m33  // Column 4
+        );
+    }
+
     static glm::mat4 identityMatrix()
     {
-        return glm::mat4(1.0f, 0.0f, 0.0f, 0.0f, // Line 1
-                         0.0f, 1.0f, 0.0f, 0.0f, // Line 2
-                         0.0f, 0.0f, 1.0f, 0.0f, // Line 3
-                         0.0f, 0.0f, 0.0f, 1.0f  // Line 4
+        return Matrix(1.0f, 0.0f, 0.0f, 0.0f, // Line 1
+                      0.0f, 1.0f, 0.0f, 0.0f, // Line 2
+                      0.0f, 0.0f, 1.0f, 0.0f, // Line 3
+                      0.0f, 0.0f, 0.0f, 1.0f  // Line 4
         );
     }
 
     static glm::mat4 translateMatrix(float tx, float ty, float tz)
     {
-        return glm::mat4(1.0f, 0.0f, 0.0f, tx,  // Line 1
-                         0.0f, 1.0f, 0.0f, ty,  // Line 2
-                         0.0f, 0.0f, 1.0f, tz,  // Line 3
-                         0.0f, 0.0f, 0.0f, 1.0f // Line 4
+        return Matrix(1.0f, 0.0f, 0.0f, tx,  // Line 1
+                      0.0f, 1.0f, 0.0f, ty,  // Line 2
+                      0.0f, 0.0f, 1.0f, tz,  // Line 3
+                      0.0f, 0.0f, 0.0f, 1.0f // Line 4
         );
     }
 
     static glm::mat4 scaleMatrix(float sx, float sy, float sz)
     {
-        return glm::mat4(sx, 0.0f, 0.0f, 0.0f,  // Line 1
-                         0.0f, sy, 0.0f, 0.0f,  // Line 2
-                         0.0f, 0.0f, sz, 0.0f,  // Line 3
-                         0.0f, 0.0f, 0.0f, 1.0f // Line 4
+        return Matrix(sx, 0.0f, 0.0f, 0.0f,  // Line 1
+                      0.0f, sy, 0.0f, 0.0f,  // Line 2
+                      0.0f, 0.0f, sz, 0.0f,  // Line 3
+                      0.0f, 0.0f, 0.0f, 1.0f // Line 4
         );
     }
 
@@ -41,10 +54,10 @@ class MatrixUtils
     {
         float c = cos(angle);
         float s = sin(angle);
-        return glm::mat4(1, 0.0f, 0.0f, 0.0f,   // Line 1
-                         0.0f, c, -s, 0.0f,     // Line 2
-                         0.0f, s, c, 0.0f,      // Line 3
-                         0.0f, 0.0f, 0.0f, 1.0f // Line 4
+        return Matrix(1, 0.0f, 0.0f, 0.0f,   // Line 1
+                      0.0f, c, -s, 0.0f,     // Line 2
+                      0.0f, s, c, 0.0f,      // Line 3
+                      0.0f, 0.0f, 0.0f, 1.0f // Line 4
         );
     }
 
@@ -52,10 +65,10 @@ class MatrixUtils
     {
         float c = cos(angle);
         float s = sin(angle);
-        return glm::mat4(c, 0.0f, s, 0.0f,       // Line 1
-                         0.0f, 1.0f, 0.0f, 0.0f, // Line 2
-                         -s, 0.0f, c, 0.0f,      // Line 3
-                         0.0f, 0.0f, 0.0f, 1.0f  // Line 4
+        return Matrix(c, 0.0f, s, 0.0f,       // Line 1
+                      0.0f, 1.0f, 0.0f, 0.0f, // Line 2
+                      -s, 0.0f, c, 0.0f,      // Line 3
+                      0.0f, 0.0f, 0.0f, 1.0f  // Line 4
         );
     }
 
@@ -63,10 +76,10 @@ class MatrixUtils
     {
         float c = cos(angle);
         float s = sin(angle);
-        return glm::mat4(c, -s, 0.0f, 0.0f,      // Line 1
-                         s, c, 0.0f, 0.0f,       // Line 2
-                         0.0f, 0.0f, 1.0f, 0.0f, // Line 3
-                         0.0f, 0.0f, 0.0f, 1.0f  // Line 4
+        return Matrix(c, -s, 0.0f, 0.0f,      // Line 1
+                      s, c, 0.0f, 0.0f,       // Line 2
+                      0.0f, 0.0f, 1.0f, 0.0f, // Line 3
+                      0.0f, 0.0f, 0.0f, 1.0f  // Line 4
         );
     }
 

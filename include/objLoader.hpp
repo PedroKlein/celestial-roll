@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cassert>
+#include <glm/glm.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -27,6 +29,11 @@ class ObjLoader
             return false;
         }
 
+        if (!err.empty())
+        {
+            std::cerr << "TinyObjLoader Warning: " << err << std::endl;
+        }
+
         return LoadAttributes(attrib, shapes);
     }
 
@@ -34,17 +41,14 @@ class ObjLoader
     {
         return vertices;
     }
-
     const std::vector<unsigned int> &GetIndices() const
     {
         return indices;
     }
-
     const std::vector<float> &GetNormals() const
     {
         return normals;
     }
-
     const std::vector<float> &GetTexCoords() const
     {
         return texcoords;
@@ -59,30 +63,44 @@ class ObjLoader
 
     bool LoadAttributes(const tinyobj::attrib_t &attrib, const std::vector<tinyobj::shape_t> &shapes)
     {
+        size_t index_offset = 0;
+
         for (const auto &shape : shapes)
         {
-            for (const auto &index : shape.mesh.indices)
+            for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); f++)
             {
-                vertices.push_back(attrib.vertices[3 * index.vertex_index + 0]);
-                vertices.push_back(attrib.vertices[3 * index.vertex_index + 1]);
-                vertices.push_back(attrib.vertices[3 * index.vertex_index + 2]);
+                assert(shape.mesh.num_face_vertices[f] == 3);
 
-                if (!attrib.normals.empty())
+                for (size_t v = 0; v < 3; v++)
                 {
-                    normals.push_back(attrib.normals[3 * index.normal_index + 0]);
-                    normals.push_back(attrib.normals[3 * index.normal_index + 1]);
-                    normals.push_back(attrib.normals[3 * index.normal_index + 2]);
+                    tinyobj::index_t idx = shape.mesh.indices[index_offset + v];
+
+                    vertices.push_back(attrib.vertices[3 * idx.vertex_index + 0]);
+                    vertices.push_back(attrib.vertices[3 * idx.vertex_index + 1]);
+                    vertices.push_back(attrib.vertices[3 * idx.vertex_index + 2]);
+                    vertices.push_back(1.0f); // Add w-coordinate for homogeneous coordinates
+
+                    indices.push_back(index_offset + v);
+
+                    if (idx.normal_index != -1)
+                    {
+                        normals.push_back(attrib.normals[3 * idx.normal_index + 0]);
+                        normals.push_back(attrib.normals[3 * idx.normal_index + 1]);
+                        normals.push_back(attrib.normals[3 * idx.normal_index + 2]);
+                        vertices.push_back(0.0f); // Add w-coordinate for homogeneous coordinates
+                    }
+
+                    if (idx.texcoord_index != -1)
+                    {
+                        texcoords.push_back(attrib.texcoords[2 * idx.texcoord_index + 0]);
+                        texcoords.push_back(attrib.texcoords[2 * idx.texcoord_index + 1]);
+                    }
                 }
 
-                if (!attrib.texcoords.empty())
-                {
-                    texcoords.push_back(attrib.texcoords[2 * index.texcoord_index + 0]);
-                    texcoords.push_back(attrib.texcoords[2 * index.texcoord_index + 1]);
-                }
-
-                indices.push_back(indices.size());
+                index_offset += 3;
             }
         }
+
         return true;
     }
 };

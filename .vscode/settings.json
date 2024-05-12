@@ -3,6 +3,24 @@
         "iosfwd": "cpp",
         "iostream": "cpp",
         "string.h": "c",
-        "glad.h": "c"
+        "glad.h": "c",
+        "limits": "cpp",
+        "__availability": "cpp",
+        "__hash_table": "cpp",
+        "__locale": "cpp",
+        "deque": "cpp",
+        "memory_resource": "cpp",
+        "locale": "cpp",
+        "new": "cpp",
+        "tuple": "cpp",
+        "*.tcc": "cpp",
+        "chrono": "cpp",
+        "format": "cpp",
+        "istream": "cpp",
+        "mutex": "cpp",
+        "sstream": "cpp",
+        "streambuf": "cpp",
+        "functional": "cpp",
+        "variant": "cpp"
     }
 }

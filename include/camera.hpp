@@ -26,13 +26,10 @@ class Camera
     float pitch;
     float movementSpeed;
     float mouseSensitivity;
-    float zoom;
 
     Camera(glm::vec4 position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4 up = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),
-           float yaw = -90.0f, float pitch = 0.0f, float movementSpeed = 2.5f, float mouseSensitivity = 0.1f,
-           float zoom = 45.0f)
-        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), movementSpeed(movementSpeed), mouseSensitivity(mouseSensitivity),
-          zoom(zoom)
+           float yaw = 0.0f, float pitch = 0.0f, float movementSpeed = 2.5f, float mouseSensitivity = 0.5f)
+        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), movementSpeed(movementSpeed), mouseSensitivity(mouseSensitivity)
     {
         this->position = position;
         this->worldUp = up;
@@ -45,10 +42,10 @@ class Camera
     {
 
         glm::vec4 w = -front;
-        glm::vec4 u = MatrixUtils::crossProduct(up, w);
+        glm::vec4 u = MatrixUtils::crossProduct(worldUp, w);
 
-        w = normalize(w);
-        u = normalize(u);
+        w = MatrixUtils::normalize(w);
+        u = MatrixUtils::normalize(u);
 
         glm::vec4 v = MatrixUtils::crossProduct(w, u);
 
@@ -66,10 +63,10 @@ class Camera
         float wy = w.y;
         float wz = w.z;
 
-        return glm::mat4(ux, uy, uz, MatrixUtils::dotProduct(-u, vector), // Line 1
-                         vx, vy, vz, MatrixUtils::dotProduct(-v, vector), // Line 2
-                         wx, wy, wz, MatrixUtils::dotProduct(-w, vector), // Line 3
-                         0.0f, 0.0f, 0.0f, 1.0f                           // Line 4
+        return MatrixUtils::Matrix(ux, uy, uz, MatrixUtils::dotProduct(-u, vector), // Line 1
+                                   vx, vy, vz, MatrixUtils::dotProduct(-v, vector), // Line 2
+                                   wx, wy, wz, MatrixUtils::dotProduct(-w, vector), // Line 3
+                                   0.0f, 0.0f, 0.0f, 1.0f                           // Line 4
         );
     }
 
@@ -108,24 +105,13 @@ class Camera
         updateCameraVectors();
     }
 
-    void ProcessMouseScroll(float yoffset)
-    {
-        zoom -= yoffset;
-        if (zoom < 1.0f)
-            zoom = 1.0f;
-        if (zoom > 45.0f)
-            zoom = 45.0f;
-    }
-
     static glm::mat4 orthographicMatrix(float left, float right, float bottom, float top, float near, float far)
     {
-        glm::mat4 M = glm::mat4(2 / (right - left), 0.0f, 0.0f, -(right + left) / (right - left), // Line 1
-                                0.0f, 2 / (top - bottom), 0.0f, -(top + bottom) / (top - bottom), // Line 2
-                                0.0f, 0.0f, 2 / (far - near), -(far + near) / (far - near),       // Line 3
-                                0.0f, 0.0f, 0.0f, 1.0f                                            // Line 4
+        return MatrixUtils::Matrix(2 / (right - left), 0.0f, 0.0f, -(right + left) / (right - left), // Line 1
+                                   0.0f, 2 / (top - bottom), 0.0f, -(top + bottom) / (top - bottom), // Line 2
+                                   0.0f, 0.0f, 2 / (far - near), -(far + near) / (far - near),       // Line 3
+                                   0.0f, 0.0f, 0.0f, 1.0f                                            // Line 4
         );
-
-        return M;
     }
 
     static glm::mat4 perspectiveMatrix(float fieldOfView, float aspect, float near, float far)
@@ -135,10 +121,10 @@ class Camera
         float r = t * aspect;
         float l = -r;
 
-        glm::mat4 P = glm::mat4(near, 0.0f, 0.0f, 0.0f,              // Line 1
-                                0.0f, near, 0.0f, 0.0f,              // Line 2
-                                0.0f, 0.0f, near + far, -far * near, // Line 3
-                                0.0f, 0.0f, 1, 0.0f                  // Line 4
+        glm::mat4 P = MatrixUtils::Matrix(near, 0.0f, 0.0f, 0.0f,              // Line 1
+                                          0.0f, near, 0.0f, 0.0f,              // Line 2
+                                          0.0f, 0.0f, near + far, -far * near, // Line 3
+                                          0.0f, 0.0f, 1, 0.0f                  // Line 4
         );
 
         glm::mat4 M = orthographicMatrix(l, r, b, t, near, far);
@@ -149,14 +135,16 @@ class Camera
   private:
     void updateCameraVectors()
     {
+        const float radYaw = glm::radians(yaw);
+        const float radPitch = glm::radians(pitch);
+
         glm::vec4 direction;
-        direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        direction.y = sin(glm::radians(pitch));
-        direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+        direction.x = cos(radPitch) * sin(radYaw);
+        direction.y = sin(radPitch);
+        direction.z = cos(radPitch) * cos(radPitch);
         direction.w = 0.0f;
 
-        front = MatrixUtils::normalize(direction);
-        right = MatrixUtils::normalize(MatrixUtils::crossProduct(front, worldUp));
-        up = MatrixUtils::normalize(MatrixUtils::crossProduct(right, front));
+        front = direction;
+        right = MatrixUtils::crossProduct(front, worldUp);
     }
 };
