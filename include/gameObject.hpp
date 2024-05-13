@@ -11,17 +11,17 @@ class GameObject
     }
 
     GameObject(const Mesh &mesh, const glm::vec3 &position)
-        : mesh(mesh), position(position), rotation(0.0f), scale(1.0f)
+        : mesh(mesh), position(position, 1.0f), rotation(0.0f), scale(1.0f)
     {
     }
 
     GameObject(const Mesh &mesh, const glm::vec3 &position, const glm::vec3 &scale)
-        : mesh(mesh), position(position), scale(scale), rotation(0.0f)
+        : mesh(mesh), position(position, 1.0f), scale(scale, 1.0f), rotation(0.0f)
     {
     }
 
     GameObject(const Mesh &mesh, const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale)
-        : mesh(mesh), position(position), rotation(rotation), scale(scale)
+        : mesh(mesh), position(position, 1.0f), rotation(rotation, 1.0f), scale(scale, 1.0f)
     {
     }
 
@@ -43,14 +43,14 @@ class GameObject
         mesh.draw(shader);
     }
 
-    glm::vec3 getPosition() const
+    const glm::vec4 getPosition() const
     {
         return position;
     }
 
   private:
     Mesh mesh;
-    glm::vec3 position;
-    glm::vec3 rotation;
-    glm::vec3 scale;
+    glm::vec4 position;
+    glm::vec4 rotation;
+    glm::vec4 scale;
 };

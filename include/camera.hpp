@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gameObject.hpp"
 #include "glm/trigonometric.hpp"
 #include "inputObserver.hpp"
 #include "matrixUtils.hpp"
@@ -18,25 +19,24 @@ enum CameraMovement
 class Camera : public InputObserver
 {
   public:
-    glm::vec4 position;
-    glm::vec4 front;
-    glm::vec4 up;
-    glm::vec4 right;
-    glm::vec4 worldUp;
-
-    float yaw;
-    float pitch;
-    float movementSpeed;
-    float mouseSensitivity;
-
     Camera(glm::vec4 position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4 up = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),
            float yaw = 0.0f, float pitch = 0.0f, float movementSpeed = 2.5f, float mouseSensitivity = 0.5f)
-        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), movementSpeed(movementSpeed), mouseSensitivity(mouseSensitivity)
+        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), movementSpeed(movementSpeed), mouseSensitivity(mouseSensitivity),
+          isFreeCam(true)
     {
         this->position = position;
         this->worldUp = up;
         this->yaw = glm::radians(yaw);
         this->pitch = glm::radians(pitch);
+        updateCameraVectors();
+    }
+
+    void setTarget(const GameObject &target, float distance)
+    {
+        this->target = &target;
+        this->position = target.getPosition() - glm::normalize(front) * distance;
+        this->distance = distance;
+        isFreeCam = false;
         updateCameraVectors();
     }
 
@@ -74,6 +74,9 @@ class Camera : public InputObserver
 
     void processKeyboard(int key, int action, float deltaTime) override
     {
+        if (!isFreeCam)
+            return;
+
         float velocity = movementSpeed * deltaTime;
         glm::vec4 movement(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -134,6 +137,22 @@ class Camera : public InputObserver
     }
 
   private:
+    const GameObject *target;
+
+    glm::vec4 position;
+    glm::vec4 front;
+    glm::vec4 up;
+    glm::vec4 right;
+    glm::vec4 worldUp;
+
+    float yaw;
+    float pitch;
+    float distance;
+    float movementSpeed;
+    float mouseSensitivity;
+
+    bool isFreeCam;
+
     void updateCameraVectors()
     {
         glm::vec4 direction;
@@ -142,7 +161,16 @@ class Camera : public InputObserver
         direction.z = cos(pitch) * cos(yaw);
         direction.w = 0.0f;
 
-        front = direction;
-        right = MatrixUtils::crossProduct(front, worldUp);
+        if (isFreeCam)
+        {
+            front = direction;
+            right = MatrixUtils::crossProduct(front, worldUp);
+        }
+        else
+        {
+            position = target->getPosition() - distance * direction;
+            front = MatrixUtils::normalize(target->getPosition() - position);
+            right = MatrixUtils::crossProduct(front, worldUp);
+        }
     }
 };

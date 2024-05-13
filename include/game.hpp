@@ -17,9 +17,14 @@ class Game
 
         Mesh cowMesh("models/cow.obj");
 
-        GameObject cow(cowMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-                       glm::vec3(0.01f, 0.01f, 0.01f));
+        GameObject cow(cowMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+        GameObject littleCow(cowMesh, glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+                             glm::vec3(0.1f, 0.1f, 0.1f));
+
         scene.push_back(cow);
+        scene.push_back(littleCow);
+        camera.setTarget(scene.front(), 5.0f);
 
         inputHandler.addObserver(&camera);
     }
@@ -32,7 +37,7 @@ class Game
         renderer.clear();
 
         glm::mat4 view = camera.getViewMatrix();
-        glm::mat4 projection = Camera::perspectiveMatrix(glm::radians(45.0f), viewRatio, -0.1f, -10.0f);
+        glm::mat4 projection = Camera::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -100.0f);
 
         renderer.renderScene(scene, shader, view, projection);
     }
