@@ -1,10 +1,12 @@
 #pragma once
 
 #include "glm/trigonometric.hpp"
+#include "inputObserver.hpp"
 #include "matrixUtils.hpp"
 #include <cmath>
 #include <glm/vec4.hpp>
 
+// TODO: this enum should be elsewhere defining all commands
 enum CameraMovement
 {
     FORWARD,
@@ -13,7 +15,7 @@ enum CameraMovement
     RIGHT
 };
 
-class Camera
+class Camera : public InputObserver
 {
   public:
     glm::vec4 position;
@@ -70,23 +72,24 @@ class Camera
         );
     }
 
-    void processKeyboard(CameraMovement direction, float deltaTime)
+    void processKeyboard(int key, int action, float deltaTime) override
     {
         float velocity = movementSpeed * deltaTime;
         glm::vec4 movement(0.0f, 0.0f, 0.0f, 0.0f);
-        if (direction == FORWARD)
+
+        if (key == FORWARD)
             movement += front * velocity;
-        if (direction == BACKWARD)
+        if (key == BACKWARD)
             movement -= front * velocity;
-        if (direction == LEFT)
+        if (key == LEFT)
             movement -= right * velocity;
-        if (direction == RIGHT)
+        if (key == RIGHT)
             movement += right * velocity;
 
         position += glm::vec4(movement.x, movement.y, movement.z, 0.0f);
     }
 
-    void processMouseMovement(float dx, float dy)
+    void processMouseMovement(double dx, double dy) override
     {
         yaw -= 0.01f * dx * mouseSensitivity;
         pitch += 0.01f * dy * mouseSensitivity;

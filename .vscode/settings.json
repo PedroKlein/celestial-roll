@@ -21,6 +21,7 @@
         "sstream": "cpp",
         "streambuf": "cpp",
         "functional": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "vector": "cpp"
     }
 }

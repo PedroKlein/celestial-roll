@@ -1,13 +1,14 @@
 #include <glad/glad.h>
 
+#include "camera.hpp"
 #include "game.hpp"
+#include "inputHandler.hpp"
 #include "matrixUtils.hpp"
 #include "mesh.hpp"
 #include "objLoader.hpp"
 #include "renderer.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
-#include <camera.hpp>
 
 #include <GLFW/glfw3.h>
 
@@ -19,20 +20,20 @@ constexpr float INITIAL_HEIGHT = 600.0f;
 void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
-    game->keyCallback(key, action);
+    game->getInputHandler()->keyCallback(key, action);
 }
 
 void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
     Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
-    game->mouseButtonCallback(button, action,
-                              [&window](double *xpos, double *ypos) { glfwGetCursorPos(window, xpos, ypos); });
+    game->getInputHandler()->mouseButtonCallback(
+        button, action, [&window](double *xpos, double *ypos) { glfwGetCursorPos(window, xpos, ypos); });
 }
 
 void cursorPosCallback(GLFWwindow *window, double xpos, double ypos)
 {
     Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
-    game->cursorPosCallback(xpos, ypos);
+    game->getInputHandler()->cursorPosCallback(xpos, ypos);
 }
 
 void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
