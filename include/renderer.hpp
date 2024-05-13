@@ -12,7 +12,7 @@ class Renderer
         glEnable(GL_DEPTH_TEST);
     }
 
-    void RenderScene(const std::vector<Mesh> &meshes, Shader &shader, const glm::mat4 &viewMatrix,
+    void renderScene(const std::vector<Mesh> &meshes, Shader &shader, const glm::mat4 &viewMatrix,
                      const glm::mat4 &projectionMatrix)
     {
         shader.use();
@@ -21,11 +21,11 @@ class Renderer
 
         for (auto &mesh : meshes)
         {
-            mesh.Draw(shader);
+            mesh.draw(shader);
         }
     }
 
-    void Clear()
+    void clear()
     {
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

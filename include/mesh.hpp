@@ -1,5 +1,4 @@
-#ifndef MESH_H
-#define MESH_H
+#pragma once
 
 #include "objLoader.hpp"
 #include "shader.hpp"
@@ -10,13 +9,17 @@
 class Mesh
 {
   public:
-    std::vector<unsigned int> indices;
-    std::vector<Texture> textures;
-    unsigned int VAO, VBO, EBO;
-
-    Mesh(const ObjLoader &loader)
+    Mesh(const std::string &filename) : loader(filename)
     {
-        indices = loader.GetIndices();
+        if (!loader.loadModel())
+        {
+            std::cerr << "Failed to load model" << std::endl;
+            return;
+        }
+
+        indices = loader.getIndices();
+
+        std::cout << "Loaded " << loader.getVertices().size() << " vertices" << std::endl;
 
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
@@ -25,25 +28,25 @@ class Mesh
         glBindVertexArray(VAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, loader.GetVertices().size() * sizeof(float), &loader.GetVertices()[0],
+        glBufferData(GL_ARRAY_BUFFER, loader.getVertices().size() * sizeof(float), &loader.getVertices()[0],
                      GL_STATIC_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, loader.GetIndices().size() * sizeof(unsigned int),
-                     &loader.GetIndices()[0], GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, loader.getIndices().size() * sizeof(unsigned int),
+                     &loader.getIndices()[0], GL_STATIC_DRAW);
 
         // Position attribute
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(0);
 
-        if (loader.GetNormals().size() > 0)
+        if (loader.getNormals().size() > 0)
         {
             // Normal attribute
             glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
             glEnableVertexAttribArray(1);
         }
 
-        if (loader.GetTexCoords().size() > 0)
+        if (loader.getTexCoords().size() > 0)
         {
             // Texture Coord attribute
             glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
@@ -53,7 +56,7 @@ class Mesh
         glBindVertexArray(0);
     }
 
-    void Draw(Shader &shader) const
+    void draw(Shader &shader) const
     {
         // unsigned int diffuseNr = 1;
         // unsigned int specularNr = 1;
@@ -82,6 +85,11 @@ class Mesh
 
         // glActiveTexture(GL_TEXTURE0);
     }
-};
 
-#endif
+  private:
+    std::vector<unsigned int> indices;
+    std::vector<Texture> textures;
+    unsigned int VAO, VBO, EBO;
+
+    ObjLoader loader;
+};

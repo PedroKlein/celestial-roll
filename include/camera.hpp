@@ -5,7 +5,7 @@
 #include <cmath>
 #include <glm/vec4.hpp>
 
-enum Camera_Movement
+enum CameraMovement
 {
     FORWARD,
     BACKWARD,
@@ -33,12 +33,12 @@ class Camera
     {
         this->position = position;
         this->worldUp = up;
-        this->yaw = yaw;
-        this->pitch = pitch;
+        this->yaw = glm::radians(yaw);
+        this->pitch = glm::radians(pitch);
         updateCameraVectors();
     }
 
-    glm::mat4 GetViewMatrix()
+    glm::mat4 getViewMatrix()
     {
 
         glm::vec4 w = -front;
@@ -70,7 +70,7 @@ class Camera
         );
     }
 
-    void ProcessKeyboard(Camera_Movement direction, float deltaTime)
+    void processKeyboard(CameraMovement direction, float deltaTime)
     {
         float velocity = movementSpeed * deltaTime;
         glm::vec4 movement(0.0f, 0.0f, 0.0f, 0.0f);
@@ -86,21 +86,19 @@ class Camera
         position += glm::vec4(movement.x, movement.y, movement.z, 0.0f);
     }
 
-    void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true)
+    void processMouseMovement(float dx, float dy)
     {
-        xoffset *= mouseSensitivity;
-        yoffset *= mouseSensitivity;
+        yaw -= 0.01f * dx * mouseSensitivity;
+        pitch += 0.01f * dy * mouseSensitivity;
 
-        yaw += xoffset;
-        pitch += yoffset;
+        float pitchMax = glm::radians(89.0f);
+        float pitchMin = -pitchMax;
 
-        if (constrainPitch)
-        {
-            if (pitch > 89.0f)
-                pitch = 89.0f;
-            if (pitch < -89.0f)
-                pitch = -89.0f;
-        }
+        if (pitch > pitchMax)
+            pitch = pitchMax;
+
+        if (pitch < pitchMin)
+            pitch = pitch;
 
         updateCameraVectors();
     }
@@ -135,13 +133,10 @@ class Camera
   private:
     void updateCameraVectors()
     {
-        const float radYaw = glm::radians(yaw);
-        const float radPitch = glm::radians(pitch);
-
         glm::vec4 direction;
-        direction.x = cos(radPitch) * sin(radYaw);
-        direction.y = sin(radPitch);
-        direction.z = cos(radPitch) * cos(radPitch);
+        direction.x = cos(pitch) * sin(yaw);
+        direction.y = sin(pitch);
+        direction.z = cos(pitch) * cos(yaw);
         direction.w = 0.0f;
 
         front = direction;

@@ -46,7 +46,7 @@ class Texture
         stbi_image_free(data);
     }
 
-    void Bind() const
+    void bind() const
     {
         glBindTexture(GL_TEXTURE_2D, ID);
     }

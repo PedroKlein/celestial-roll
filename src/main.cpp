@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 
+#include "game.hpp"
 #include "matrixUtils.hpp"
 #include "mesh.hpp"
 #include "objLoader.hpp"
@@ -12,24 +13,39 @@
 
 #include <iostream>
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+constexpr float INITIAL_WIDTH = 800.0f;
+constexpr float INITIAL_HEIGHT = 600.0f;
+
+void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-    glViewport(0, 0, width, height);
+    Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
+    game->keyCallback(key, action);
 }
 
-void processInput(GLFWwindow *window, Camera &camera, float deltaTime)
+void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+    Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
+    game->mouseButtonCallback(button, action,
+                              [&window](double *xpos, double *ypos) { glfwGetCursorPos(window, xpos, ypos); });
+}
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+void cursorPosCallback(GLFWwindow *window, double xpos, double ypos)
+{
+    Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
+    game->cursorPosCallback(xpos, ypos);
+}
+
+void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
+{
+    Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
+}
+
+void framebufferSizeCallback(GLFWwindow *window, int width, int height)
+{
+    Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
+    game->setViewRatio(width, height);
+
+    glViewport(0, 0, width, height);
 }
 
 int main()
@@ -44,15 +60,20 @@ int main()
 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *window = glfwCreateWindow(800, 600, "Test", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "Celestial Roll", nullptr, nullptr);
     if (window == nullptr)
     {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
+
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetKeyCallback(window, keyCallback);
+    glfwSetCursorPosCallback(window, cursorPosCallback);
+    glfwSetScrollCallback(window, scrollCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -60,46 +81,12 @@ int main()
         return -1;
     }
 
-    const GLubyte *vendor = glGetString(GL_VENDOR);
-    const GLubyte *rendererType = glGetString(GL_RENDERER);
-    const GLubyte *glversion = glGetString(GL_VERSION);
-    const GLubyte *glslversion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+    Game game(INITIAL_WIDTH, INITIAL_HEIGHT);
+    glfwSetWindowUserPointer(window, &game);
 
-    printf("GPU: %s, %s, OpenGL %s, GLSL %s\n", vendor, rendererType, glversion, glslversion);
-
-    Shader shader("shaders/shader_vertex.glsl", "shaders/shader_fragment.glsl");
-
-    Camera camera(glm::vec4(0.0f, 0.0f, -3.0f, 1.0f));
-
-    ObjLoader objLoader("models/cow.obj");
-    if (!objLoader.LoadModel())
-    {
-        std::cerr << "Failed to load the model" << std::endl;
-        return -1;
-    }
-
-    Mesh mesh(objLoader);
-
-    Renderer renderer;
-
-    std::vector<Mesh> scene = {mesh};
-
-    glm::mat4 projection = Camera::perspectiveMatrix(glm::radians(45.0f), 800.0f / 600.0f, -0.1f, -10.0f);
-
-    float lastFrame = 0.0f;
     while (!glfwWindowShouldClose(window))
     {
-        float currentFrame = glfwGetTime();
-        float deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-
-        processInput(window, camera, deltaTime);
-
-        renderer.Clear();
-
-        glm::mat4 view = camera.GetViewMatrix();
-
-        renderer.RenderScene(scene, shader, view, projection);
+        game.tick();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

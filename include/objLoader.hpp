@@ -16,7 +16,7 @@ class ObjLoader
     {
     }
 
-    bool LoadModel()
+    bool loadModel()
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
@@ -34,22 +34,22 @@ class ObjLoader
             std::cerr << "TinyObjLoader Warning: " << err << std::endl;
         }
 
-        return LoadAttributes(attrib, shapes);
+        return loadAttributes(attrib, shapes);
     }
 
-    const std::vector<float> &GetVertices() const
+    const std::vector<float> &getVertices() const
     {
         return vertices;
     }
-    const std::vector<unsigned int> &GetIndices() const
+    const std::vector<unsigned int> &getIndices() const
     {
         return indices;
     }
-    const std::vector<float> &GetNormals() const
+    const std::vector<float> &getNormals() const
     {
         return normals;
     }
-    const std::vector<float> &GetTexCoords() const
+    const std::vector<float> &getTexCoords() const
     {
         return texcoords;
     }
@@ -61,7 +61,7 @@ class ObjLoader
     std::vector<float> normals;
     std::vector<float> texcoords;
 
-    bool LoadAttributes(const tinyobj::attrib_t &attrib, const std::vector<tinyobj::shape_t> &shapes)
+    bool loadAttributes(const tinyobj::attrib_t &attrib, const std::vector<tinyobj::shape_t> &shapes)
     {
         size_t index_offset = 0;
 
