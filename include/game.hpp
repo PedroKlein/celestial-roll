@@ -1,11 +1,11 @@
 #pragma once
 
 #include "camera.hpp"
+#include "gameObject.hpp"
 #include "inputHandler.hpp"
 #include "renderer.hpp"
 #include "shader.hpp"
 
-// TODO: separate input handling from game logic
 class Game
 {
   public:
@@ -15,8 +15,11 @@ class Game
     {
         viewRatio = initialWidth / initialHeight;
 
-        Mesh mesh("models/cow.obj");
-        scene.push_back(mesh);
+        Mesh cowMesh("models/cow.obj");
+
+        GameObject cow(cowMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+                       glm::vec3(0.01f, 0.01f, 0.01f));
+        scene.push_back(cow);
 
         inputHandler.addObserver(&camera);
     }
@@ -48,7 +51,7 @@ class Game
     Camera camera;
     Shader shader;
     Renderer renderer;
-    std::vector<Mesh> scene;
+    std::vector<GameObject> scene;
     InputHandler inputHandler;
     float viewRatio;
 

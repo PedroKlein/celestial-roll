@@ -56,7 +56,7 @@ class Mesh
         glBindVertexArray(0);
     }
 
-    void draw(Shader &shader) const
+    void draw(const Shader &shader) const
     {
         // unsigned int diffuseNr = 1;
         // unsigned int specularNr = 1;
@@ -77,9 +77,6 @@ class Mesh
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
-
-        glm::mat4 model = MatrixUtils::identityMatrix();
-        shader.setMat4("model", model);
 
         glBindVertexArray(0);
 
