@@ -1,9 +1,11 @@
 #pragma once
 
+#include "action.hpp"
+
 class InputObserver
 {
   public:
-    virtual void processKeyboard(int key, int action, float deltaTime)
+    virtual void processKeyboard(Action action, float deltaTime)
     {
     }
     virtual void processMouseMovement(double dx, double dy)

@@ -24,13 +24,13 @@ class InputHandler
     void processInput(float deltaTime)
     {
         if (wKeyPressed)
-            notifyObserversOfKeyboard(FORWARD, GLFW_PRESS, deltaTime);
+            notifyObserversOfKeyboard(FORWARD, deltaTime);
         if (aKeyPressed)
-            notifyObserversOfKeyboard(LEFT, GLFW_PRESS, deltaTime);
+            notifyObserversOfKeyboard(LEFT, deltaTime);
         if (sKeyPressed)
-            notifyObserversOfKeyboard(BACKWARD, GLFW_PRESS, deltaTime);
+            notifyObserversOfKeyboard(BACKWARD, deltaTime);
         if (dKeyPressed)
-            notifyObserversOfKeyboard(RIGHT, GLFW_PRESS, deltaTime);
+            notifyObserversOfKeyboard(RIGHT, deltaTime);
     }
 
     void keyCallback(int key, int action)
@@ -84,13 +84,13 @@ class InputHandler
     double lastCursorPosX;
     double lastCursorPosY;
 
-    void notifyObserversOfKeyboard(int key, int action, float deltaTime = 0.0f)
+    void notifyObserversOfKeyboard(Action action, float deltaTime = 0.0f)
     {
         for (InputObserver *observer : observers)
         {
             if (observer->inputEnabled)
             {
-                observer->processKeyboard(key, action, deltaTime);
+                observer->processKeyboard(action, deltaTime);
             }
         }
     }

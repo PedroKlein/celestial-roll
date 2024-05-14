@@ -129,4 +129,31 @@ class MatrixUtils
 
         return u1 * v1 + u2 * v2 + u3 * v3;
     }
+
+    static glm::mat4 orthographicMatrix(float left, float right, float bottom, float top, float near, float far)
+    {
+        return Matrix(2 / (right - left), 0.0f, 0.0f, -(right + left) / (right - left), // Line 1
+                      0.0f, 2 / (top - bottom), 0.0f, -(top + bottom) / (top - bottom), // Line 2
+                      0.0f, 0.0f, 2 / (far - near), -(far + near) / (far - near),       // Line 3
+                      0.0f, 0.0f, 0.0f, 1.0f                                            // Line 4
+        );
+    }
+
+    static glm::mat4 perspectiveMatrix(float fieldOfView, float aspect, float near, float far)
+    {
+        float t = fabs(near) * tanf(fieldOfView / 2.0f);
+        float b = -t;
+        float r = t * aspect;
+        float l = -r;
+
+        glm::mat4 P = Matrix(near, 0.0f, 0.0f, 0.0f,              // Line 1
+                             0.0f, near, 0.0f, 0.0f,              // Line 2
+                             0.0f, 0.0f, near + far, -far * near, // Line 3
+                             0.0f, 0.0f, 1, 0.0f                  // Line 4
+        );
+
+        glm::mat4 M = orthographicMatrix(l, r, b, t, near, far);
+
+        return -M * P;
+    }
 };

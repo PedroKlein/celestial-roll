@@ -7,15 +7,6 @@
 #include <cmath>
 #include <glm/vec4.hpp>
 
-// TODO: this enum should be elsewhere defining all commands
-enum CameraMovement
-{
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT
-};
-
 class Camera : public InputObserver
 {
   public:
@@ -72,21 +63,24 @@ class Camera : public InputObserver
         );
     }
 
-    void processKeyboard(int key, int action, float deltaTime) override
+    void processKeyboard(Action action, float deltaTime) override
     {
         if (!isFreeCam)
+        {
+            updateCameraVectors();
             return;
+        }
 
         float velocity = movementSpeed * deltaTime;
         glm::vec4 movement(0.0f, 0.0f, 0.0f, 0.0f);
 
-        if (key == FORWARD)
+        if (action == FORWARD)
             movement += front * velocity;
-        if (key == BACKWARD)
+        if (action == BACKWARD)
             movement -= front * velocity;
-        if (key == LEFT)
+        if (action == LEFT)
             movement -= right * velocity;
-        if (key == RIGHT)
+        if (action == RIGHT)
             movement += right * velocity;
 
         position += glm::vec4(movement.x, movement.y, movement.z, 0.0f);
@@ -107,33 +101,6 @@ class Camera : public InputObserver
             pitch = pitch;
 
         updateCameraVectors();
-    }
-
-    static glm::mat4 orthographicMatrix(float left, float right, float bottom, float top, float near, float far)
-    {
-        return MatrixUtils::Matrix(2 / (right - left), 0.0f, 0.0f, -(right + left) / (right - left), // Line 1
-                                   0.0f, 2 / (top - bottom), 0.0f, -(top + bottom) / (top - bottom), // Line 2
-                                   0.0f, 0.0f, 2 / (far - near), -(far + near) / (far - near),       // Line 3
-                                   0.0f, 0.0f, 0.0f, 1.0f                                            // Line 4
-        );
-    }
-
-    static glm::mat4 perspectiveMatrix(float fieldOfView, float aspect, float near, float far)
-    {
-        float t = fabs(near) * tanf(fieldOfView / 2.0f);
-        float b = -t;
-        float r = t * aspect;
-        float l = -r;
-
-        glm::mat4 P = MatrixUtils::Matrix(near, 0.0f, 0.0f, 0.0f,              // Line 1
-                                          0.0f, near, 0.0f, 0.0f,              // Line 2
-                                          0.0f, 0.0f, near + far, -far * near, // Line 3
-                                          0.0f, 0.0f, 1, 0.0f                  // Line 4
-        );
-
-        glm::mat4 M = orthographicMatrix(l, r, b, t, near, far);
-
-        return -M * P;
     }
 
   private:

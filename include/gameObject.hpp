@@ -48,9 +48,12 @@ class GameObject
         return position;
     }
 
+  protected:
+    glm::vec4 position;
+
   private:
     Mesh mesh;
-    glm::vec4 position;
+
     glm::vec4 rotation;
     glm::vec4 scale;
 };

@@ -3,6 +3,7 @@
 #include "gameObject.hpp"
 #include "mesh.hpp"
 #include "shader.hpp"
+#include <memory>
 #include <vector>
 
 class Renderer
@@ -13,8 +14,8 @@ class Renderer
         glEnable(GL_DEPTH_TEST);
     }
 
-    void renderScene(const std::vector<GameObject> &gameObjects, Shader &shader, const glm::mat4 &viewMatrix,
-                     const glm::mat4 &projectionMatrix)
+    void renderScene(const std::vector<std::shared_ptr<GameObject>> &gameObjects, Shader &shader,
+                     const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix)
     {
         shader.use();
         shader.setMat4("view", viewMatrix);
@@ -22,7 +23,7 @@ class Renderer
 
         for (auto &gameObject : gameObjects)
         {
-            gameObject.draw(shader);
+            gameObject->draw(shader);
         }
     }
 
