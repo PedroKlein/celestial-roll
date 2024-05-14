@@ -26,6 +26,21 @@ class Camera : public InputObserver
         updateCameraVectors();
     }
 
+    glm::vec4 getPosition() const
+    {
+        return position;
+    }
+
+    glm::vec4 getFront() const
+    {
+        return front;
+    }
+
+    glm::vec4 getRight() const
+    {
+        return right;
+    }
+
     glm::mat4 getViewMatrix()
     {
 

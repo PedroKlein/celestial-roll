@@ -27,12 +27,10 @@ class Game
         auto littleCow = std::make_shared<GameObject>(cowMesh, glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
                                                       glm::vec3(0.5f, 0.1f, 0.1f));
 
-        this->player = std::make_unique<Player>(cow);
+        this->player = std::make_unique<Player>(cow, *playerCam.get());
 
         scene.push_back(std::shared_ptr<Player>(this->player.get(), [](Player *) {})); // use a no-op deleter
         scene.push_back(littleCow);
-
-        this->playerCam->setTarget(*this->player, 5.0f);
 
         inputHandler.addObserver(player.get());
         inputHandler.addObserver(freeCam.get());
