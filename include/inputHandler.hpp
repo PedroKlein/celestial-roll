@@ -43,6 +43,11 @@ class InputHandler
             sKeyPressed = (action != GLFW_RELEASE);
         if (key == GLFW_KEY_D)
             dKeyPressed = (action != GLFW_RELEASE);
+
+        if (key == GLFW_KEY_P && action == GLFW_PRESS)
+            notifyObserversOfKeyboard(PAUSE);
+        if (key == GLFW_KEY_E && action == GLFW_PRESS)
+            notifyObserversOfKeyboard(EAGLE_VIEW);
     }
 
     void cursorPosCallback(double xpos, double ypos)
@@ -88,7 +93,7 @@ class InputHandler
     {
         for (InputObserver *observer : observers)
         {
-            if (observer->inputEnabled)
+            if (observer->getInputEnabled())
             {
                 observer->processKeyboard(action, deltaTime);
             }
@@ -99,7 +104,7 @@ class InputHandler
     {
         for (InputObserver *observer : observers)
         {
-            if (observer->inputEnabled)
+            if (observer->getInputEnabled())
                 observer->processMouseMovement(dx, dy);
         }
     }
@@ -108,7 +113,7 @@ class InputHandler
     {
         for (InputObserver *observer : observers)
         {
-            if (observer->inputEnabled)
+            if (observer->getInputEnabled())
                 observer->processMouseButton(button, action);
         }
     }

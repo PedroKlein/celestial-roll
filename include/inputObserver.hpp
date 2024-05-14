@@ -15,5 +15,16 @@ class InputObserver
     {
     }
 
+    void setInputEnabled(bool enabled)
+    {
+        inputEnabled = enabled;
+    }
+
+    bool getInputEnabled()
+    {
+        return inputEnabled;
+    }
+
+  protected:
     bool inputEnabled = true;
 };
