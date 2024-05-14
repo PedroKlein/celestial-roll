@@ -10,15 +10,10 @@
 class Camera : public InputObserver
 {
   public:
-    Camera(glm::vec4 position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4 up = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),
-           float yaw = 0.0f, float pitch = 0.0f, float movementSpeed = 2.5f, float mouseSensitivity = 0.5f)
-        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), movementSpeed(movementSpeed), mouseSensitivity(mouseSensitivity),
-          isFreeCam(true)
+    Camera(glm::vec4 position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f))
+        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), isFreeCam(true), position(position),
+          worldUp(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f))
     {
-        this->position = position;
-        this->worldUp = up;
-        this->yaw = glm::radians(yaw);
-        this->pitch = glm::radians(pitch);
         updateCameraVectors();
     }
 
@@ -112,11 +107,11 @@ class Camera : public InputObserver
     glm::vec4 right;
     glm::vec4 worldUp;
 
-    float yaw;
-    float pitch;
-    float distance;
-    float movementSpeed;
-    float mouseSensitivity;
+    float yaw = 0.0f;
+    float pitch = 0.0f;
+    float distance = 0.0f;
+    float movementSpeed = 2.5f;
+    float mouseSensitivity = 0.5f;
 
     bool isFreeCam;
 

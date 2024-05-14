@@ -19,8 +19,6 @@ class Mesh
 
         indices = loader.getIndices();
 
-        std::cout << "Loaded " << loader.getVertices().size() << " vertices" << std::endl;
-
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
         glGenBuffers(1, &EBO);

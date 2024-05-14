@@ -13,26 +13,30 @@ class Game
   public:
     Game(float initialWidth, float initialHeight)
         : deltaTime(0.0f), lastFrame(0.0f), shader("shaders/shader_vertex.glsl", "shaders/shader_fragment.glsl"),
-          renderer(), camera(glm::vec4(0.0f, 0.0f, -3.0f, 1.0f)), inputHandler()
+          renderer(), inputHandler()
     {
         viewRatio = initialWidth / initialHeight;
+
+        this->freeCam = std::make_unique<Camera>(glm::vec4(0.0f, 0.0f, -3.0f, 1.0f));
+        this->playerCam = std::make_unique<Camera>();
 
         Mesh cowMesh("models/cow.obj");
 
         GameObject cow(cowMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.5f, 0.5f, 0.5f));
 
         auto littleCow = std::make_shared<GameObject>(cowMesh, glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-                                                      glm::vec3(0.1f, 0.1f, 0.1f));
+                                                      glm::vec3(0.5f, 0.1f, 0.1f));
 
-        this->player = std::make_shared<Player>(cow);
+        this->player = std::make_unique<Player>(cow);
 
-        scene.push_back(this->player);
+        scene.push_back(std::shared_ptr<Player>(this->player.get(), [](Player *) {})); // use a no-op deleter
         scene.push_back(littleCow);
 
-        camera.setTarget(*scene.front().get(), 5.0f);
+        this->playerCam->setTarget(*this->player, 5.0f);
 
-        inputHandler.addObserver(&camera);
         inputHandler.addObserver(player.get());
+        inputHandler.addObserver(freeCam.get());
+        inputHandler.addObserver(playerCam.get());
     }
 
     void tick()
@@ -42,7 +46,7 @@ class Game
 
         renderer.clear();
 
-        glm::mat4 view = camera.getViewMatrix();
+        glm::mat4 view = playerCam->getViewMatrix();
         glm::mat4 projection = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -100.0f);
 
         renderer.renderScene(scene, shader, view, projection);
@@ -59,8 +63,9 @@ class Game
     }
 
   private:
-    Camera camera;
-    std::shared_ptr<Player> player;
+    std::unique_ptr<Camera> freeCam;
+    std::unique_ptr<Camera> playerCam;
+    std::unique_ptr<Player> player;
     Shader shader;
     Renderer renderer;
     std::vector<std::shared_ptr<GameObject>> scene;
