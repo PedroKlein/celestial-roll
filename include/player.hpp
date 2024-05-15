@@ -1,12 +1,12 @@
 #pragma once
 
-#include "gameObject.hpp"
 #include "inputObserver.hpp"
+#include "physicsObject.hpp"
 
-class Player : public GameObject, public InputObserver
+class Player : public PhysicsObject, public InputObserver
 {
   public:
-    Player(GameObject &gameObject, Camera &camera) : GameObject(gameObject), camera(camera)
+    Player(PhysicsObject &physicsObject, Camera &camera) : PhysicsObject(physicsObject), camera(camera)
     {
         camera.setTarget(*this, 5.0f);
     }
@@ -41,6 +41,13 @@ class Player : public GameObject, public InputObserver
         {
             position += cameraRightInXZ * deltaTime * movementSpeed;
         }
+    }
+
+    void update(float deltaTime)
+    {
+        PhysicsObject::update(deltaTime);
+
+        camera.updateCameraVectors();
     }
 
   private:

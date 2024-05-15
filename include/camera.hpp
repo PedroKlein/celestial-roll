@@ -113,23 +113,6 @@ class Camera : public InputObserver
         updateCameraVectors();
     }
 
-  private:
-    const GameObject *target;
-
-    glm::vec4 position;
-    glm::vec4 front;
-    glm::vec4 up;
-    glm::vec4 right;
-    glm::vec4 worldUp;
-
-    float yaw = 0.0f;
-    float pitch = 0.0f;
-    float distance = 0.0f;
-    float movementSpeed = 2.5f;
-    float mouseSensitivity = 0.5f;
-
-    bool isFreeCam;
-
     void updateCameraVectors()
     {
         glm::vec4 direction;
@@ -150,4 +133,21 @@ class Camera : public InputObserver
             right = MatrixUtils::crossProduct(front, worldUp);
         }
     }
+
+  private:
+    const GameObject *target;
+
+    glm::vec4 position;
+    glm::vec4 front;
+    glm::vec4 up;
+    glm::vec4 right;
+    glm::vec4 worldUp;
+
+    float yaw = 0.0f;
+    float pitch = 0.0f;
+    float distance = 0.0f;
+    float movementSpeed = 2.5f;
+    float mouseSensitivity = 0.5f;
+
+    bool isFreeCam;
 };

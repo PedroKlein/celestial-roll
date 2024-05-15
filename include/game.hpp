@@ -4,6 +4,7 @@
 #include "gameObject.hpp"
 #include "gameState.hpp"
 #include "inputHandler.hpp"
+#include "physicsObject.hpp"
 #include "player.hpp"
 #include "renderer.hpp"
 #include "shader.hpp"
@@ -23,7 +24,8 @@ class Game
 
         Mesh cowMesh("models/cow.obj");
 
-        GameObject cow(cowMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+        PhysicsObject cow(cowMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+                          glm::vec3(0.5f, 0.5f, 0.5f), 10.0f);
 
         auto littleCow = std::make_shared<GameObject>(cowMesh, glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
                                                       glm::vec3(0.5f, 0.1f, 0.1f));
@@ -48,6 +50,13 @@ class Game
 
         renderer.clear();
 
+        for (auto &obj : physicsObjects)
+        {
+            player->addGravitationalForce(*obj.get());
+        }
+
+        player->update(deltaTime);
+
         glm::mat4 view = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
         glm::mat4 projection = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -100.0f);
 
@@ -71,6 +80,7 @@ class Game
     Shader shader;
     Renderer renderer;
     std::vector<std::shared_ptr<GameObject>> scene;
+    std::vector<std::shared_ptr<PhysicsObject>> physicsObjects;
     InputHandler inputHandler;
     std::unique_ptr<GameState> gameState;
 
