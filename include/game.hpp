@@ -1,5 +1,6 @@
 #pragma once
 
+#include "boxCollider.hpp"
 #include "camera.hpp"
 #include "gameObject.hpp"
 #include "gameState.hpp"
@@ -23,6 +24,7 @@ class Game
         this->playerCam = std::make_unique<Camera>();
 
         Mesh cowMesh("models/cow.obj");
+        Mesh platformMesh("models/platform.obj");
 
         PhysicsObject cow(cowMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
                           glm::vec3(0.5f, 0.5f, 0.5f), 10.0f);
@@ -30,12 +32,18 @@ class Game
         auto littleCow = std::make_shared<GameObject>(cowMesh, glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
                                                       glm::vec3(0.5f, 0.1f, 0.1f));
 
+        auto platform = std::make_shared<GameObject>(platformMesh, glm::vec3(0.0f, -20.0f, 0.0f));
+
+        platform->createBoxCollider(glm::vec3(-1.0f, -0.1f, -1.0f), glm::vec3(1.0f, 0.1f, 1.0f));
+
         this->player = std::make_unique<Player>(cow, *playerCam.get());
+        this->player->createBoxCollider(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f));
 
         this->gameState = std::make_unique<GameState>(*freeCam.get(), *playerCam.get(), *player.get());
 
         scene.push_back(std::shared_ptr<Player>(this->player.get(), [](Player *) {})); // use a no-op deleter
         scene.push_back(littleCow);
+        scene.push_back(platform);
 
         inputHandler.addObserver(player.get());
         inputHandler.addObserver(freeCam.get());
@@ -56,6 +64,24 @@ class Game
         }
 
         player->update(deltaTime);
+
+        // check collisions
+        for (auto &obj : scene)
+        {
+            if (obj->getCollider())
+            {
+                for (auto &other : scene)
+                {
+                    if (obj != other && other->getCollider())
+                    {
+                        if (obj->checkCollision(*other))
+                        {
+                            std::cout << "Collision detected!" << std::endl;
+                        }
+                    }
+                }
+            }
+        }
 
         glm::mat4 view = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
         glm::mat4 projection = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -100.0f);

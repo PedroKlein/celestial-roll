@@ -63,41 +63,35 @@ class ObjLoader
 
     bool loadAttributes(const tinyobj::attrib_t &attrib, const std::vector<tinyobj::shape_t> &shapes)
     {
-        size_t index_offset = 0;
-
         for (const auto &shape : shapes)
         {
             for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); f++)
             {
-                assert(shape.mesh.num_face_vertices[f] == 3);
+                int fv = shape.mesh.num_face_vertices[f];
 
-                for (size_t v = 0; v < 3; v++)
+                for (int v = 0; v < fv; v++)
                 {
-                    tinyobj::index_t idx = shape.mesh.indices[index_offset + v];
+                    tinyobj::index_t idx = shape.mesh.indices[f * fv + v];
 
                     vertices.push_back(attrib.vertices[3 * idx.vertex_index + 0]);
                     vertices.push_back(attrib.vertices[3 * idx.vertex_index + 1]);
                     vertices.push_back(attrib.vertices[3 * idx.vertex_index + 2]);
-                    vertices.push_back(1.0f); // Add w-coordinate for homogeneous coordinates
+                    vertices.push_back(1.0f); // Homogeneous coordinate for vertex
 
-                    indices.push_back(index_offset + v);
-
-                    if (idx.normal_index != -1)
+                    indices.push_back(vertices.size() / 4 - 1);
+                    if (idx.normal_index >= 0)
                     {
                         normals.push_back(attrib.normals[3 * idx.normal_index + 0]);
                         normals.push_back(attrib.normals[3 * idx.normal_index + 1]);
                         normals.push_back(attrib.normals[3 * idx.normal_index + 2]);
-                        vertices.push_back(0.0f); // Add w-coordinate for homogeneous coordinates
                     }
 
-                    if (idx.texcoord_index != -1)
+                    if (idx.texcoord_index >= 0)
                     {
                         texcoords.push_back(attrib.texcoords[2 * idx.texcoord_index + 0]);
                         texcoords.push_back(attrib.texcoords[2 * idx.texcoord_index + 1]);
                     }
                 }
-
-                index_offset += 3;
             }
         }
 

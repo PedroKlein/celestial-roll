@@ -1,59 +1,83 @@
 #pragma once
 
+#include "boxCollider.hpp"
+#include "collider.hpp"
 #include "matrixUtils.hpp"
 #include "mesh.hpp"
+#include "sphereCollider.hpp"
+#include "transform.hpp"
+#include <memory>
 
 class GameObject
 {
   public:
-    GameObject(const Mesh &mesh) : mesh(mesh), position(0.0f), rotation(0.0f), scale(1.0f)
+    GameObject(const Mesh &mesh) : mesh(mesh), transform()
     {
     }
 
-    GameObject(const Mesh &mesh, const glm::vec3 &position)
-        : mesh(mesh), position(position, 1.0f), rotation(0.0f), scale(1.0f)
+    GameObject(const Mesh &mesh, const glm::vec3 &position) : mesh(mesh), transform(position)
     {
     }
 
     GameObject(const Mesh &mesh, const glm::vec3 &position, const glm::vec3 &scale)
-        : mesh(mesh), position(position, 1.0f), scale(scale, 1.0f), rotation(0.0f)
+        : mesh(mesh), transform(position, scale)
     {
     }
 
     GameObject(const Mesh &mesh, const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale)
-        : mesh(mesh), position(position, 1.0f), rotation(rotation, 1.0f), scale(scale, 1.0f)
+        : mesh(mesh), transform(position, rotation, scale)
     {
     }
 
-    glm::mat4 getModelMatrix() const
+    GameObject(const GameObject &other) : mesh(other.mesh), transform(other.transform)
     {
-        glm::mat4 model = MatrixUtils::identityMatrix();
-        model *= MatrixUtils::translateMatrix(position.x, position.y, position.z);
-
-        model *= MatrixUtils::rotateXMatrix(glm::radians(rotation.x));
-        model *= MatrixUtils::rotateYMatrix(glm::radians(rotation.y));
-        model *= MatrixUtils::rotateZMatrix(glm::radians(rotation.z));
-        model *= MatrixUtils::scaleMatrix(scale.x, scale.y, scale.z);
-        return model;
+        if (other.collider)
+        {
+            collider = other.collider->clone();
+        }
     }
 
     void draw(const Shader &shader) const
     {
-        shader.setMat4("model", getModelMatrix());
+        shader.setMat4("model", transform.getModelMatrix());
         mesh.draw(shader);
     }
 
     const glm::vec4 getPosition() const
     {
-        return position;
+        return glm::vec4(transform.position, 1.0f);
+    }
+
+    bool checkCollision(const GameObject &other) const
+    {
+        if (collider && other.getCollider())
+        {
+            return collider->checkCollision(*other.getCollider());
+        }
+        return false;
+    }
+
+    // create Box Collider
+    void createBoxCollider(const glm::vec3 &minBounds, const glm::vec3 &maxBounds)
+    {
+        collider = std::make_unique<BoxCollider>(transform, minBounds, maxBounds);
+    }
+
+    // crate Sphere Collider
+    void createSphereCollider(float radius)
+    {
+        collider = std::make_unique<SphereCollider>(transform, radius);
+    }
+
+    Collider *getCollider() const
+    {
+        return collider.get();
     }
 
   protected:
-    glm::vec4 position;
-
-  private:
+    Transform transform;
     Mesh mesh;
 
-    glm::vec4 rotation;
-    glm::vec4 scale;
+  private:
+    std::unique_ptr<Collider> collider;
 };

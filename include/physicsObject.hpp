@@ -30,8 +30,8 @@ class PhysicsObject : public GameObject
     {
         static const float G = 6.67430e-11; // Gravitational constant
 
-        glm::vec4 r = source.position - position;
-        float distance = glm::length(r);
+        glm::vec4 r = source.getPosition() - getPosition();
+        float distance = MatrixUtils::norm(r);
         glm::vec4 direction = MatrixUtils::normalize(r);
 
         glm::vec4 force = G * (mass * source.mass) / (distance * distance) * direction;
@@ -48,7 +48,7 @@ class PhysicsObject : public GameObject
 
         velocity += netForce / mass * deltaTime;
 
-        position += velocity * deltaTime;
+        transform.position += glm::vec3(velocity) * deltaTime;
 
         forces.clear();
     }
