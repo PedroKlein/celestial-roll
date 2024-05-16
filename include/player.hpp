@@ -43,11 +43,32 @@ class Player : public PhysicsObject, public InputObserver
         }
     }
 
-    void update(float deltaTime)
+    void update(float deltaTime, std::vector<std::shared_ptr<GameObject>> scene)
     {
+        for (auto &obj : scene)
+        {
+            if (this->checkCollision(*obj))
+            {
+                this->handleCollision(*obj);
+                return;
+            }
+        }
+
         PhysicsObject::update(deltaTime);
 
         camera.updateCameraVectors();
+    }
+
+    void handleCollision(GameObject &other)
+    {
+        if (typeid(other) == typeid(GameObject))
+        {
+            glm::vec4 normal = glm::vec4(other.getNormal(), 0.0f);
+
+            glm::vec4 projectedVelocity = MatrixUtils::dotProduct(velocity, normal) * normal;
+
+            velocity -= 2.0f * projectedVelocity;
+        }
     }
 
   private:

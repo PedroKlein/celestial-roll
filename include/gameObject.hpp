@@ -74,6 +74,11 @@ class GameObject
         return collider.get();
     }
 
+    glm::vec3 getNormal() const
+    {
+        return transform.getNormal();
+    }
+
   protected:
     Transform transform;
     Mesh mesh;

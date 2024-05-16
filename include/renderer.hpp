@@ -2,6 +2,7 @@
 
 #include "gameObject.hpp"
 #include "mesh.hpp"
+#include "scene.hpp"
 #include "shader.hpp"
 #include <memory>
 #include <vector>
@@ -14,19 +15,23 @@ class Renderer
         glEnable(GL_DEPTH_TEST);
     }
 
-    void renderScene(const std::vector<std::shared_ptr<GameObject>> &gameObjects, Shader &shader,
-                     const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix)
+    void renderScene(const Scene &scene, Shader &shader)
     {
-        shader.use();
-        shader.setMat4("view", viewMatrix);
-        shader.setMat4("projection", projectionMatrix);
+        clear();
 
-        for (auto &gameObject : gameObjects)
+        shader.use();
+        shader.setMat4("view", scene.getViewMatrix());
+        shader.setMat4("projection", scene.getProjectionMatrix());
+
+        for (auto &objects : scene.getObjects())
         {
-            gameObject->draw(shader);
+            objects->draw(shader);
         }
+
+        scene.getPlayer()->draw(shader);
     }
 
+  private:
     void clear()
     {
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);

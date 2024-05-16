@@ -1,13 +1,8 @@
 #pragma once
 
-#include "boxCollider.hpp"
-#include "camera.hpp"
-#include "gameObject.hpp"
-#include "gameState.hpp"
 #include "inputHandler.hpp"
-#include "physicsObject.hpp"
-#include "player.hpp"
 #include "renderer.hpp"
+#include "scene.hpp"
 #include "shader.hpp"
 #include <memory>
 
@@ -16,39 +11,15 @@ class Game
   public:
     Game(float initialWidth, float initialHeight)
         : deltaTime(0.0f), lastFrame(0.0f), shader("shaders/shader_vertex.glsl", "shaders/shader_fragment.glsl"),
-          renderer(), inputHandler()
+          renderer(), inputHandler(), scene()
     {
         viewRatio = initialWidth / initialHeight;
 
-        this->freeCam = std::make_unique<Camera>(glm::vec4(0.0f, 0.0f, -3.0f, 1.0f));
-        this->playerCam = std::make_unique<Camera>();
+        scene.init();
 
-        Mesh cowMesh("models/cow.obj");
-        Mesh platformMesh("models/platform.obj");
-
-        PhysicsObject cow(cowMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-                          glm::vec3(0.5f, 0.5f, 0.5f), 10.0f);
-
-        auto littleCow = std::make_shared<GameObject>(cowMesh, glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-                                                      glm::vec3(0.5f, 0.1f, 0.1f));
-
-        auto platform = std::make_shared<GameObject>(platformMesh, glm::vec3(0.0f, -20.0f, 0.0f));
-
-        platform->createBoxCollider(glm::vec3(-1.0f, -0.1f, -1.0f), glm::vec3(1.0f, 0.1f, 1.0f));
-
-        this->player = std::make_unique<Player>(cow, *playerCam.get());
-        this->player->createBoxCollider(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.5f, 0.5f));
-
-        this->gameState = std::make_unique<GameState>(*freeCam.get(), *playerCam.get(), *player.get());
-
-        scene.push_back(std::shared_ptr<Player>(this->player.get(), [](Player *) {})); // use a no-op deleter
-        scene.push_back(littleCow);
-        scene.push_back(platform);
-
-        inputHandler.addObserver(player.get());
-        inputHandler.addObserver(freeCam.get());
-        inputHandler.addObserver(playerCam.get());
-        inputHandler.addObserver(gameState.get());
+        inputHandler.addObserver(scene.getPlayer());
+        inputHandler.addObserver(scene.getFreeCam());
+        inputHandler.addObserver(scene.getPlayerCam());
     }
 
     void tick()
@@ -56,37 +27,9 @@ class Game
         updateDeltaTime();
         inputHandler.processInput(deltaTime);
 
-        renderer.clear();
+        scene.update(deltaTime, viewRatio);
 
-        for (auto &obj : physicsObjects)
-        {
-            player->addGravitationalForce(*obj.get());
-        }
-
-        player->update(deltaTime);
-
-        // check collisions
-        for (auto &obj : scene)
-        {
-            if (obj->getCollider())
-            {
-                for (auto &other : scene)
-                {
-                    if (obj != other && other->getCollider())
-                    {
-                        if (obj->checkCollision(*other))
-                        {
-                            std::cout << "Collision detected!" << std::endl;
-                        }
-                    }
-                }
-            }
-        }
-
-        glm::mat4 view = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
-        glm::mat4 projection = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -100.0f);
-
-        renderer.renderScene(scene, shader, view, projection);
+        renderer.renderScene(scene, shader);
     }
 
     InputHandler *getInputHandler()
@@ -100,15 +43,10 @@ class Game
     }
 
   private:
-    std::unique_ptr<Camera> freeCam;
-    std::unique_ptr<Camera> playerCam;
-    std::unique_ptr<Player> player;
     Shader shader;
     Renderer renderer;
-    std::vector<std::shared_ptr<GameObject>> scene;
-    std::vector<std::shared_ptr<PhysicsObject>> physicsObjects;
+    Scene scene;
     InputHandler inputHandler;
-    std::unique_ptr<GameState> gameState;
 
     float viewRatio;
 

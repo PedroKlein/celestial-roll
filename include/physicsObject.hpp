@@ -53,7 +53,7 @@ class PhysicsObject : public GameObject
         forces.clear();
     }
 
-  private:
+  protected:
     std::vector<glm::vec4> forces;
 
     glm::vec4 velocity;
