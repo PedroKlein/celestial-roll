@@ -8,7 +8,7 @@
 class GravityComponent : public Component
 {
   public:
-    GravityComponent(const glm::vec3 &gravity = glm::vec3(0.0f, -9.81f, 0.0f)) : gravity(gravity)
+    GravityComponent(const glm::vec4 &gravity = glm::vec4(0.0f, -9.81f, 0.0f, 0.0f)) : gravity(gravity)
     {
     }
 
@@ -29,17 +29,17 @@ class GravityComponent : public Component
         }
     }
 
-    void setGravity(const glm::vec3 &newGravity)
+    void setGravity(const glm::vec4 &newGravity)
     {
         gravity = newGravity;
     }
 
-    glm::vec3 getGravity() const
+    glm::vec4 getGravity() const
     {
         return gravity;
     }
 
   private:
-    glm::vec3 gravity;
+    glm::vec4 gravity;
     std::shared_ptr<RigidBody> rigidBody;
 };

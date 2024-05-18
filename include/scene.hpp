@@ -14,17 +14,16 @@ class Scene
 
     void init()
     {
-        this->freeCam = std::make_unique<Camera>(glm::vec4(0.0f, 0.0f, -3.0f, 1.0f));
+        std::shared_ptr<Mesh> cowMesh = std::make_shared<Mesh>("models/cow.obj");
+
+        this->freeCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, -3.0f));
         this->playerCam = std::make_unique<Camera>();
 
-        this->player = std::make_unique<Player>(*playerCam.get());
+        this->player = std::make_unique<Player>(cowMesh, *playerCam.get());
 
-        std::shared_ptr<Mesh> cowMesh = std::make_shared<Mesh>("models/cow.obj");
         Mesh platformMesh("models/platform.obj");
 
         this->gameState = std::make_unique<GameState>(*freeCam.get(), *playerCam.get(), *player.get());
-
-        this->player->initialize(cowMesh);
     }
 
     void update(float deltaTime, float viewRatio)

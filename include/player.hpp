@@ -3,6 +3,7 @@
 #include "boxCollider.hpp"
 #include "camera.hpp"
 #include "gameObject.hpp"
+#include "gravityComponent.hpp"
 #include "inputObserver.hpp"
 #include "renderer.hpp"
 #include "rigidBody.hpp"
@@ -10,11 +11,7 @@
 class Player : public GameObject, public InputObserver
 {
   public:
-    Player(Camera &camera) : camera(camera)
-    {
-    }
-
-    void initialize(const std::shared_ptr<Mesh> &mesh)
+    Player(const std::shared_ptr<Mesh> &mesh, Camera &camera) : camera(camera)
     {
         transform = std::make_shared<Transform>(glm::vec3(0.0f, 0.0f, 0.0f));
         addComponent(transform);
@@ -28,6 +25,9 @@ class Player : public GameObject, public InputObserver
 
         rigidBody = std::make_shared<RigidBody>(20.0f);
         addComponent(rigidBody);
+
+        gravity = std::make_shared<GravityComponent>();
+        addComponent(gravity);
     }
 
     void processKeyboard(Action action, float deltaTime) override
@@ -38,8 +38,8 @@ class Player : public GameObject, public InputObserver
         }
 
         // moves the player only in the xz plane
-        glm::vec3 cameraFrontInXZ = glm::vec3(camera.getFront().x, 0.0f, camera.getFront().z);
-        glm::vec3 cameraRightInXZ = glm::vec3(camera.getRight().x, 0.0f, camera.getRight().z);
+        glm::vec4 cameraFrontInXZ = glm::vec4(camera.getFront().x, 0.0f, camera.getFront().z, 0.0f);
+        glm::vec4 cameraRightInXZ = glm::vec4(camera.getRight().x, 0.0f, camera.getRight().z, 0.0f);
 
         cameraFrontInXZ = glm::normalize(cameraFrontInXZ);
         cameraRightInXZ = glm::normalize(cameraRightInXZ);
@@ -62,9 +62,16 @@ class Player : public GameObject, public InputObserver
         }
     }
 
+    void update(float deltaTime)
+    {
+        GameObject::update(deltaTime);
+
+        camera.updateCameraVectors();
+    }
+
     glm::vec4 getPosition() const
     {
-        return transform->getPositionHom();
+        return transform->getPosition();
     }
 
     void setPosition(const glm::vec3 &position)
@@ -77,22 +84,6 @@ class Player : public GameObject, public InputObserver
     {
         return boxCollider;
     }
-
-    // void update(float deltaTime, std::vector<std::shared_ptr<GameObject>> scene)
-    // {
-    //     for (auto &obj : scene)
-    //     {
-    //         if (this->checkCollision(*obj))
-    //         {
-    //             this->handleCollision(*obj);
-    //             return;
-    //         }
-    //     }
-
-    //     PhysicsObject::update(deltaTime);
-
-    //     camera.updateCameraVectors();
-    // }
 
     // void handleCollision(GameObject &other)
     // {
@@ -111,6 +102,7 @@ class Player : public GameObject, public InputObserver
     std::shared_ptr<Transform> transform;
     std::shared_ptr<RigidBody> rigidBody;
     std::shared_ptr<BoxCollider> boxCollider;
+    std::shared_ptr<GravityComponent> gravity;
 
     float movementSpeed = 5.0f;
 };

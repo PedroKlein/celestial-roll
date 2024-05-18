@@ -8,40 +8,36 @@
 class Transform : public Component
 {
   public:
-    glm::vec3 position;
+    glm::vec4 position;
     glm::vec3 scale;
     glm::vec3 rotation;
 
-    Transform() : position(0.0f), rotation(0.0f), scale(1.0f)
+    Transform() : position(0.0f, 0.0f, 0.0f, 1.0f), rotation(0.0f), scale(1.0f)
     {
     }
 
-    Transform(const glm::vec3 &position) : position(position), rotation(0.0f), scale(1.0f)
+    Transform(const glm::vec3 &position) : position(position, 1.0f), rotation(0.0f), scale(1.0f)
     {
     }
 
-    Transform(const glm::vec3 &position, const glm::vec3 &scale) : position(position), scale(scale), rotation(0.0f)
+    Transform(const glm::vec3 &position, const glm::vec3 &scale)
+        : position(position, 1.0f), scale(scale), rotation(0.0f)
     {
     }
 
     Transform(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale)
-        : position(position), rotation(rotation), scale(scale)
+        : position(position, 1.0f), rotation(rotation), scale(scale)
     {
     }
 
-    glm::vec3 getPosition() const
+    glm::vec4 getPosition() const
     {
         return position;
     }
 
-    glm::vec4 getPositionHom() const
-    {
-        return glm::vec4(position, 1.0f);
-    }
-
     void setPosition(const glm::vec3 &position)
     {
-        this->position = position;
+        this->position = glm::vec4(position, 1.0f);
     }
 
     glm::vec3 getScale() const

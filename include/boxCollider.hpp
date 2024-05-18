@@ -6,7 +6,7 @@
 class BoxCollider : public Collider
 {
   public:
-    BoxCollider(const glm::vec3 &min, const glm::vec3 &max) : minBounds(min), maxBounds(max)
+    BoxCollider(const glm::vec3 &min, const glm::vec3 &max) : minBounds(min, 0.0f), maxBounds(max, 0.0f)
     {
     }
 
@@ -24,15 +24,15 @@ class BoxCollider : public Collider
         return false;
     }
 
-    glm::vec3 getMinBounds() const
+    glm::vec4 getMinBounds() const
     {
         return transform->getPosition() + minBounds;
     }
-    glm::vec3 getMaxBounds() const
+    glm::vec4 getMaxBounds() const
     {
         return transform->getPosition() + maxBounds;
     }
 
   private:
-    glm::vec3 minBounds, maxBounds;
+    glm::vec4 minBounds, maxBounds;
 };

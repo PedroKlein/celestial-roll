@@ -7,21 +7,22 @@
 #include <cmath>
 #include <glm/vec4.hpp>
 
-// TODO: Convert Camera to a GameObject
-class Camera : public InputObserver
+class Camera : public GameObject, public InputObserver
 {
   public:
-    Camera(glm::vec4 position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f))
-        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), isFreeCam(true), position(position),
-          worldUp(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f))
+    Camera(const glm::vec3 &position = glm::vec3(0.0f, 0.0f, 0.0f))
+        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), isFreeCam(true), worldUp(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f))
     {
+        transform = std::make_shared<Transform>(position);
+        addComponent(transform);
+
         updateCameraVectors();
     }
 
     void setTarget(const Transform &transform, float distance)
     {
         this->target = &transform;
-        this->position = target->getPositionHom() - glm::normalize(front) * distance;
+        this->transform->position = target->getPosition() - glm::normalize(front) * distance;
         this->distance = distance;
         isFreeCam = false;
         updateCameraVectors();
@@ -29,7 +30,7 @@ class Camera : public InputObserver
 
     glm::vec4 getPosition() const
     {
-        return position;
+        return transform->getPosition();
     }
 
     glm::vec4 getFront() const
@@ -55,7 +56,7 @@ class Camera : public InputObserver
 
         glm::vec4 origin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-        glm::vec4 vector = position - origin;
+        glm::vec4 vector = transform->getPosition() - origin;
 
         float ux = u.x;
         float uy = u.y;
@@ -94,7 +95,7 @@ class Camera : public InputObserver
         if (action == RIGHT)
             movement += right * velocity;
 
-        position += glm::vec4(movement.x, movement.y, movement.z, 0.0f);
+        transform->position += movement;
     }
 
     void processMouseMovement(double dx, double dy) override
@@ -129,8 +130,8 @@ class Camera : public InputObserver
         }
         else
         {
-            position = target->getPositionHom() - distance * direction;
-            front = MatrixUtils::normalize(target->getPositionHom() - position);
+            transform->position = target->getPosition() - distance * direction;
+            front = MatrixUtils::normalize(target->getPosition() - transform->getPosition());
             right = MatrixUtils::crossProduct(front, worldUp);
         }
     }
@@ -138,7 +139,8 @@ class Camera : public InputObserver
   private:
     const Transform *target;
 
-    glm::vec4 position;
+    std::shared_ptr<Transform> transform;
+
     glm::vec4 front;
     glm::vec4 up;
     glm::vec4 right;
