@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 
-#include "game.hpp"
-#include "shader.hpp"
+#include "game/game.hpp"
+#include "graphics/shader.hpp"
 
 #include <GLFW/glfw3.h>
 

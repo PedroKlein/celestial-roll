@@ -1,12 +1,12 @@
 #pragma once
 
-#include "boxCollider.hpp"
 #include "camera.hpp"
-#include "gameObject.hpp"
-#include "gravityComponent.hpp"
-#include "inputObserver.hpp"
-#include "renderer.hpp"
-#include "rigidBody.hpp"
+#include "collision/boxCollider.hpp"
+#include "game/gameObject.hpp"
+#include "graphics/renderer.hpp"
+#include "input/inputObserver.hpp"
+#include "physics/gravityComponent.hpp"
+#include "physics/rigidBody.hpp"
 
 class Player : public GameObject, public InputObserver
 {
@@ -26,8 +26,8 @@ class Player : public GameObject, public InputObserver
         rigidBody = std::make_shared<RigidBody>(20.0f);
         addComponent(rigidBody);
 
-        gravity = std::make_shared<GravityComponent>();
-        addComponent(gravity);
+        // gravity = std::make_shared<GravityComponent>();
+        // addComponent(gravity);
     }
 
     void processKeyboard(Action action, float deltaTime) override

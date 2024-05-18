@@ -1,8 +1,8 @@
 #pragma once
 
+#include "matrixUtils.hpp"
 #include <glm/glm.hpp>
 #include <iostream>
-#include <matrixUtils.hpp>
 
 class CollisionDetector
 {

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "camera.hpp"
-#include "gameObject.hpp"
-#include "gameState.hpp"
-#include "player.hpp"
+#include "game/gameObject.hpp"
+#include "game/gameState.hpp"
+#include "objects/camera.hpp"
+#include "objects/player.hpp"
 #include <memory>
 #include <vector>
 

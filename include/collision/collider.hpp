@@ -1,6 +1,7 @@
 #pragma once
 
-#include "component.hpp"
+#include "game/component.hpp"
+#include "game/gameObject.hpp"
 #include "transform.hpp"
 #include <iostream>
 #include <memory>

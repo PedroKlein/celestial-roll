@@ -1,9 +1,9 @@
 #pragma once
 
-#include "component.hpp"
-#include "gameObject.hpp"
+#include "game/component.hpp"
+#include "game/gameObject.hpp"
+#include "graphics/mesh.hpp"
 #include "matrixUtils.hpp"
-#include "mesh.hpp"
 #include "transform.hpp"
 #include <glm/glm.hpp>
 #include <iostream>

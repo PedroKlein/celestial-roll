@@ -1,9 +1,9 @@
 #pragma once
 
-#include "inputHandler.hpp"
-#include "renderer.hpp"
-#include "scene.hpp"
-#include "shader.hpp"
+#include "game/scene.hpp"
+#include "graphics/renderer.hpp"
+#include "graphics/shader.hpp"
+#include "input/inputHandler.hpp"
 #include <memory>
 
 class Game

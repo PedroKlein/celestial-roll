@@ -1,9 +1,10 @@
 #pragma once
 
-#include "gameObject.hpp"
+#include "game/gameObject.hpp"
 #include "glm/trigonometric.hpp"
-#include "inputObserver.hpp"
+#include "input/inputObserver.hpp"
 #include "matrixUtils.hpp"
+#include "transform.hpp"
 #include <cmath>
 #include <glm/vec4.hpp>
 

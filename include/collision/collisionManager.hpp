@@ -1,7 +1,7 @@
 #pragma once
 
 #include "collider.hpp"
-#include "player.hpp"
+#include "objects/player.hpp"
 #include <iostream>
 #include <memory>
 #include <vector>

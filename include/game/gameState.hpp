@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Camera.hpp"
-#include "InputObserver.hpp"
-#include "Player.hpp"
+#include "input/inputObserver.hpp"
+#include "objects/camera.hpp"
+#include "objects/player.hpp"
 
 class GameState : public InputObserver
 {
