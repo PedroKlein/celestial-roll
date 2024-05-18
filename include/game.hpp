@@ -9,9 +9,7 @@
 class Game
 {
   public:
-    Game(float initialWidth, float initialHeight)
-        : deltaTime(0.0f), lastFrame(0.0f), shader("shaders/shader_vertex.glsl", "shaders/shader_fragment.glsl"),
-          renderer(), inputHandler(), scene()
+    Game(float initialWidth, float initialHeight) : deltaTime(0.0f), lastFrame(0.0f), inputHandler(), scene()
     {
         viewRatio = initialWidth / initialHeight;
 
@@ -20,6 +18,7 @@ class Game
         inputHandler.addObserver(scene.getPlayer());
         inputHandler.addObserver(scene.getFreeCam());
         inputHandler.addObserver(scene.getPlayerCam());
+        inputHandler.addObserver(scene.getGameState());
     }
 
     void tick()
@@ -28,8 +27,6 @@ class Game
         inputHandler.processInput(deltaTime);
 
         scene.update(deltaTime, viewRatio);
-
-        renderer.renderScene(scene, shader);
     }
 
     InputHandler *getInputHandler()
@@ -43,8 +40,6 @@ class Game
     }
 
   private:
-    Shader shader;
-    Renderer renderer;
     Scene scene;
     InputHandler inputHandler;
 

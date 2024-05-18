@@ -7,6 +7,7 @@
 #include <cmath>
 #include <glm/vec4.hpp>
 
+// TODO: Convert Camera to a GameObject
 class Camera : public InputObserver
 {
   public:
@@ -17,10 +18,10 @@ class Camera : public InputObserver
         updateCameraVectors();
     }
 
-    void setTarget(const GameObject &target, float distance)
+    void setTarget(const Transform &transform, float distance)
     {
-        this->target = &target;
-        this->position = target.getPosition() - glm::normalize(front) * distance;
+        this->target = &transform;
+        this->position = target->getPositionHom() - glm::normalize(front) * distance;
         this->distance = distance;
         isFreeCam = false;
         updateCameraVectors();
@@ -128,14 +129,14 @@ class Camera : public InputObserver
         }
         else
         {
-            position = target->getPosition() - distance * direction;
-            front = MatrixUtils::normalize(target->getPosition() - position);
+            position = target->getPositionHom() - distance * direction;
+            front = MatrixUtils::normalize(target->getPositionHom() - position);
             right = MatrixUtils::crossProduct(front, worldUp);
         }
     }
 
   private:
-    const GameObject *target;
+    const Transform *target;
 
     glm::vec4 position;
     glm::vec4 front;

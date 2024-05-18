@@ -1,40 +1,43 @@
 #pragma once
 
+#include "component.hpp"
 #include "gameObject.hpp"
+#include "matrixUtils.hpp"
 #include "mesh.hpp"
-#include "scene.hpp"
-#include "shader.hpp"
+#include "transform.hpp"
+#include <glm/glm.hpp>
+#include <iostream>
 #include <memory>
-#include <vector>
 
-class Renderer
+class Renderer : public Component
 {
   public:
-    Renderer()
+    std::shared_ptr<Mesh> mesh;
+    std::shared_ptr<Transform> cachedTransform;
+
+    Renderer(const std::shared_ptr<Mesh> &mesh) : mesh(mesh)
     {
-        glEnable(GL_DEPTH_TEST);
     }
 
-    void renderScene(const Scene &scene, Shader &shader)
+    void initialize() override
     {
-        clear();
-
-        shader.use();
-        shader.setMat4("view", scene.getViewMatrix());
-        shader.setMat4("projection", scene.getProjectionMatrix());
-
-        for (auto &objects : scene.getObjects())
+        // Cache the Transform component at initialization
+        cachedTransform = gameObject->getComponent<Transform>();
+        if (!cachedTransform)
         {
-            objects->draw(shader);
+            std::cerr << "Renderer requires a Transform component." << std::endl;
+        }
+    }
+
+    void update(float deltaTime) override
+    {
+        if (!mesh || !cachedTransform)
+        {
+            std::cerr << "Renderer component is not properly initialized." << std::endl;
+            return;
         }
 
-        scene.getPlayer()->draw(shader);
-    }
-
-  private:
-    void clear()
-    {
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        globalShader.setMat4("model", cachedTransform->getModelMatrix());
+        mesh->draw(globalShader);
     }
 };

@@ -12,7 +12,7 @@ class Shader
   public:
     unsigned int ID;
 
-    Shader(const char *vertexPath, const char *fragmentPath)
+    void initialize(const char *vertexPath, const char *fragmentPath)
     {
         std::string vertexCode;
         std::string fragmentCode;
@@ -136,3 +136,6 @@ class Shader
         }
     }
 };
+
+// TODO: temporary, think of a better way to handle this
+Shader globalShader;

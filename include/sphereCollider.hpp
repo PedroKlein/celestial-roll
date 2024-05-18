@@ -6,34 +6,20 @@
 class SphereCollider : public Collider
 {
   public:
-    SphereCollider(const Transform &transform, float radius) : Collider(transform), radius(radius)
+    SphereCollider(float radius) : radius(radius)
     {
-    }
-
-    float getRadius() const
-    {
-        return radius;
-    }
-
-    void setRadius(float newRadius)
-    {
-        radius = newRadius;
     }
 
     bool checkCollision(const Collider &other) const override
     {
-        const SphereCollider *otherSphere = dynamic_cast<const SphereCollider *>(&other);
-        if (otherSphere)
+        auto otherSphere =
+            std::dynamic_pointer_cast<SphereCollider>(std::shared_ptr<Collider>(const_cast<Collider *>(&other)));
+        if (otherSphere && transform)
         {
-            return CollisionDetector::pointSphere(transform.position, otherSphere->transform.position, radius);
+            return CollisionDetector::pointSphere(transform->getPosition(), otherSphere->transform->getPosition(),
+                                                  radius + otherSphere->radius);
         }
-
         return false;
-    }
-
-    std::unique_ptr<Collider> clone() const override
-    {
-        return std::make_unique<SphereCollider>(*this);
     }
 
   private:

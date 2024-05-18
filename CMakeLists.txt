@@ -15,6 +15,7 @@ endif()
 
 add_executable(${EXECUTABLE_NAME}
     src/glad.c
+    src/component.cpp
     src/main.cpp
 )
 

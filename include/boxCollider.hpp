@@ -2,46 +2,37 @@
 
 #include "collider.hpp"
 #include "collisionDetector.hpp"
-#include <glm/glm.hpp>
-#include <iostream>
 
 class BoxCollider : public Collider
 {
   public:
-    BoxCollider(const Transform &transform, const glm::vec3 &min, const glm::vec3 &max)
-        : Collider(transform), minBounds(min), maxBounds(max)
+    BoxCollider(const glm::vec3 &min, const glm::vec3 &max) : minBounds(min), maxBounds(max)
     {
     }
 
     bool checkCollision(const Collider &other) const override
     {
-        const BoxCollider *otherbox = dynamic_cast<const BoxCollider *>(&other);
-
-        if (otherbox)
+        const BoxCollider *otherBox = dynamic_cast<const BoxCollider *>(&other);
+        if (otherBox && transform)
         {
-            return CollisionDetector::cubeCube(getMinBounds(), getMaxBounds(), otherbox->getMinBounds(),
-                                               otherbox->getMaxBounds());
+
+            return CollisionDetector::cubeCube(transform->getPosition() + minBounds,
+                                               transform->getPosition() + maxBounds,
+                                               otherBox->transform->getPosition() + otherBox->minBounds,
+                                               otherBox->transform->getPosition() + otherBox->maxBounds);
         }
-
         return false;
-    }
-
-    std::unique_ptr<Collider> clone() const override
-    {
-        return std::make_unique<BoxCollider>(*this);
     }
 
     glm::vec3 getMinBounds() const
     {
-        return transform.position + minBounds;
+        return transform->getPosition() + minBounds;
     }
-
     glm::vec3 getMaxBounds() const
     {
-        return transform.position + maxBounds;
+        return transform->getPosition() + maxBounds;
     }
 
   private:
-    glm::vec3 minBounds;
-    glm::vec3 maxBounds;
+    glm::vec3 minBounds, maxBounds;
 };

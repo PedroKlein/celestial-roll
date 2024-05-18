@@ -1,88 +1,45 @@
 #pragma once
 
-#include "boxCollider.hpp"
-#include "collider.hpp"
-#include "matrixUtils.hpp"
-#include "mesh.hpp"
-#include "sphereCollider.hpp"
-#include "transform.hpp"
+#include "component.hpp"
 #include <memory>
+#include <vector>
 
 class GameObject
 {
   public:
-    GameObject(const Mesh &mesh) : mesh(mesh), transform()
+    ~GameObject()
     {
+        components.clear();
     }
 
-    GameObject(const Mesh &mesh, const glm::vec3 &position) : mesh(mesh), transform(position)
+    void addComponent(std::shared_ptr<Component> component)
     {
+        components.push_back(component);
+        component->setGameObject(this);
+        component->initialize();
     }
 
-    GameObject(const Mesh &mesh, const glm::vec3 &position, const glm::vec3 &scale)
-        : mesh(mesh), transform(position, scale)
+    template <typename T> std::shared_ptr<T> getComponent() const
     {
-    }
-
-    GameObject(const Mesh &mesh, const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale)
-        : mesh(mesh), transform(position, rotation, scale)
-    {
-    }
-
-    GameObject(const GameObject &other) : mesh(other.mesh), transform(other.transform)
-    {
-        if (other.collider)
+        for (const auto &comp : components)
         {
-            collider = other.collider->clone();
+            std::shared_ptr<T> castComp = std::dynamic_pointer_cast<T>(comp);
+            if (castComp)
+            {
+                return castComp;
+            }
+        }
+        return nullptr;
+    }
+
+    void update(float deltaTime)
+    {
+        for (auto &comp : components)
+        {
+            comp->update(deltaTime);
         }
     }
-
-    void draw(const Shader &shader) const
-    {
-        shader.setMat4("model", transform.getModelMatrix());
-        mesh.draw(shader);
-    }
-
-    const glm::vec4 getPosition() const
-    {
-        return glm::vec4(transform.position, 1.0f);
-    }
-
-    bool checkCollision(const GameObject &other) const
-    {
-        if (collider && other.getCollider())
-        {
-            return collider->checkCollision(*other.getCollider());
-        }
-        return false;
-    }
-
-    // create Box Collider
-    void createBoxCollider(const glm::vec3 &minBounds, const glm::vec3 &maxBounds)
-    {
-        collider = std::make_unique<BoxCollider>(transform, minBounds, maxBounds);
-    }
-
-    // crate Sphere Collider
-    void createSphereCollider(float radius)
-    {
-        collider = std::make_unique<SphereCollider>(transform, radius);
-    }
-
-    Collider *getCollider() const
-    {
-        return collider.get();
-    }
-
-    glm::vec3 getNormal() const
-    {
-        return transform.getNormal();
-    }
-
-  protected:
-    Transform transform;
-    Mesh mesh;
 
   private:
-    std::unique_ptr<Collider> collider;
+    std::vector<std::shared_ptr<Component>> components;
 };

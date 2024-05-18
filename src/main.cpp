@@ -1,14 +1,7 @@
 #include <glad/glad.h>
 
-#include "camera.hpp"
 #include "game.hpp"
-#include "inputHandler.hpp"
-#include "matrixUtils.hpp"
-#include "mesh.hpp"
-#include "objLoader.hpp"
-#include "renderer.hpp"
 #include "shader.hpp"
-#include "texture.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -82,8 +75,14 @@ int main()
         return -1;
     }
 
+    globalShader.initialize("shaders/shader_vertex.glsl", "shaders/shader_fragment.glsl");
+
     Game game(INITIAL_WIDTH, INITIAL_HEIGHT);
     glfwSetWindowUserPointer(window, &game);
+
+    glEnable(GL_DEPTH_TEST);
+
+    globalShader.use();
 
     while (!glfwWindowShouldClose(window))
     {
