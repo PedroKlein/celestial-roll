@@ -6,7 +6,8 @@
 class BoxCollider : public Collider
 {
   public:
-    BoxCollider(const glm::vec3 &min, const glm::vec3 &max) : minBounds(min, 0.0f), maxBounds(max, 0.0f)
+    BoxCollider(const glm::vec3 &min, const glm::vec3 &max)
+        : minBounds(min, 0.0f), maxBounds(max, 0.0f), Collider(ColliderType::Box)
     {
     }
 

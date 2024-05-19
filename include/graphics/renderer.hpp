@@ -1,4 +1,5 @@
 #pragma once
+#include "globals.hpp"
 
 #include "game/component.hpp"
 #include "game/gameObject.hpp"
@@ -37,7 +38,7 @@ class Renderer : public Component
             return;
         }
 
-        globalShader.setMat4("model", cachedTransform->getModelMatrix());
-        mesh->draw(globalShader);
+        _globalShader.setMat4("model", cachedTransform->getModelMatrix());
+        mesh->draw(_globalShader);
     }
 };

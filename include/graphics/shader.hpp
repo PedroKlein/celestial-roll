@@ -136,6 +136,3 @@ class Shader
         }
     }
 };
-
-// TODO: temporary, think of a better way to handle this
-Shader globalShader;

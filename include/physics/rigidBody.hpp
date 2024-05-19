@@ -9,6 +9,9 @@
 class RigidBody : public Component
 {
   public:
+    glm::vec4 velocity;
+    glm::vec4 acceleration;
+
     RigidBody(float mass) : mass(mass), velocity(0), acceleration(0), forceAccumulator(0)
     {
         if (mass != 0)
@@ -61,7 +64,7 @@ class RigidBody : public Component
 
         velocity += acceleration * deltaTime;
 
-        velocity *= pow(0.99f, deltaTime); // example damping
+        velocity *= pow(0.99f, deltaTime); // example of damping
 
         clearAccumulator();
     }
@@ -86,8 +89,6 @@ class RigidBody : public Component
 
   private:
     std::shared_ptr<Transform> transform;
-    glm::vec4 velocity;
-    glm::vec4 acceleration;
     glm::vec4 forceAccumulator;
     float mass;
     float inverseMass;

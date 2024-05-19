@@ -6,7 +6,7 @@
 class SphereCollider : public Collider
 {
   public:
-    SphereCollider(float radius) : radius(radius)
+    SphereCollider(float radius) : radius(radius), Collider(ColliderType::Sphere)
     {
     }
 

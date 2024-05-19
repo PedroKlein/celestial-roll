@@ -137,6 +137,11 @@ class Camera : public GameObject, public InputObserver
         }
     }
 
+    ObjectType getObjectType() const override
+    {
+        return ObjectType::Camera;
+    }
+
   private:
     const Transform *target;
 

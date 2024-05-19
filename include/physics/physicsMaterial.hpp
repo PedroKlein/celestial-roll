@@ -1,6 +1,6 @@
 #pragma once
 
-#include "component.hpp"
+#include "game/component.hpp"
 #include <memory>
 
 class PhysicsMaterial : public Component

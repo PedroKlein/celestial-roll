@@ -3,6 +3,7 @@
 #include "camera.hpp"
 #include "collision/boxCollider.hpp"
 #include "game/gameObject.hpp"
+#include "graphics/mesh.hpp"
 #include "graphics/renderer.hpp"
 #include "input/inputObserver.hpp"
 #include "physics/gravityComponent.hpp"
@@ -26,8 +27,8 @@ class Player : public GameObject, public InputObserver
         rigidBody = std::make_shared<RigidBody>(20.0f);
         addComponent(rigidBody);
 
-        // gravity = std::make_shared<GravityComponent>();
-        // addComponent(gravity);
+        gravity = std::make_shared<GravityComponent>();
+        addComponent(gravity);
     }
 
     void processKeyboard(Action action, float deltaTime) override
@@ -79,23 +80,33 @@ class Player : public GameObject, public InputObserver
         transform->position = glm::vec4(position, 1.0f);
     }
 
-    // get collider
     std::shared_ptr<BoxCollider> getCollider() const
     {
         return boxCollider;
     }
 
-    // void handleCollision(GameObject &other)
-    // {
-    //     if (typeid(other) == typeid(GameObject))
-    //     {
-    //         glm::vec4 normal = glm::vec4(other.getNormal(), 0.0f);
+    void handleCollision(GameObject &other)
+    {
+        std::shared_ptr<Transform> otherTransform = other.getComponent<Transform>();
 
-    //         glm::vec4 projectedVelocity = MatrixUtils::dotProduct(velocity, normal) * normal;
+        glm::vec4 normal = glm::vec4(otherTransform->getNormal(), 0.0f);
+        glm::vec4 projectedVelocity = MatrixUtils::dotProduct(rigidBody->velocity, normal) * normal;
 
-    //         velocity -= 2.0f * projectedVelocity;
-    //     }
-    // }
+        switch (other.getObjectType())
+        {
+        case ObjectType::Platform:
+            rigidBody->velocity -= 2.0f * projectedVelocity;
+            break;
+        default:
+            // Handle collision with generic GameObject
+            break;
+        }
+    }
+
+    ObjectType getObjectType() const override
+    {
+        return ObjectType::Player;
+    }
 
   private:
     Camera &camera;

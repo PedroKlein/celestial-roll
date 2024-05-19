@@ -1,8 +1,10 @@
 #pragma once
 
+#include "collision/collisionManager.hpp"
 #include "game/gameObject.hpp"
 #include "game/gameState.hpp"
 #include "objects/camera.hpp"
+#include "objects/platform.hpp"
 #include "objects/player.hpp"
 #include <memory>
 #include <vector>
@@ -21,9 +23,13 @@ class Scene
 
         this->player = std::make_unique<Player>(cowMesh, *playerCam.get());
 
-        Mesh platformMesh("models/platform.obj");
+        std::shared_ptr<Mesh> platformMesh = std::make_shared<Mesh>("models/platform.obj");
 
         this->gameState = std::make_unique<GameState>(*freeCam.get(), *playerCam.get(), *player.get());
+
+        addObject(std::make_shared<Platform>(platformMesh, glm::vec3(0.0f, -5.0f, 0.0f)));
+
+        _collisionManager.setPlayer(player.get());
     }
 
     void update(float deltaTime, float viewRatio)
@@ -32,8 +38,8 @@ class Scene
 
         projectionMatrix = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -100.0f);
 
-        globalShader.setMat4("view", viewMatrix);
-        globalShader.setMat4("projection", projectionMatrix);
+        _globalShader.setMat4("view", viewMatrix);
+        _globalShader.setMat4("projection", projectionMatrix);
 
         clear();
 
@@ -43,10 +49,17 @@ class Scene
         }
 
         player->update(deltaTime);
+
+        _collisionManager.checkCollisions();
     }
 
     void addObject(std::shared_ptr<GameObject> object)
     {
+        std::shared_ptr<Collider> collider = object->getComponent<Collider>();
+        if (collider)
+        {
+            _collisionManager.registerObject(object);
+        }
         objects.push_back(object);
     }
 

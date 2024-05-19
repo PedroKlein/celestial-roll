@@ -6,10 +6,16 @@
 #include <iostream>
 #include <memory>
 
+enum class ColliderType
+{
+    Box,
+    Sphere,
+};
+
 class Collider : public Component
 {
   public:
-    Collider() : transform(nullptr)
+    Collider(ColliderType type) : transform(nullptr), type(type)
     {
     }
 
@@ -22,8 +28,19 @@ class Collider : public Component
         }
     }
 
+    std::shared_ptr<Transform> getTransform() const
+    {
+        return transform;
+    }
+
+    ColliderType getType() const
+    {
+        return type;
+    }
+
     virtual bool checkCollision(const Collider &other) const = 0;
 
   protected:
+    ColliderType type;
     std::shared_ptr<Transform> transform;
 };

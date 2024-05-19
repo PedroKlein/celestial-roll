@@ -9,38 +9,32 @@
 class CollisionManager
 {
   public:
-    void setPlayer(std::shared_ptr<Player> player)
+    void setPlayer(Player *player)
     {
-        player = player;
+        this->player = player;
     }
 
-    void registerCollider(std::shared_ptr<Collider> collider)
+    void registerObject(std::shared_ptr<GameObject> object)
     {
-        colliders.push_back(collider);
+        objectsWithColliders.push_back(object);
     }
 
     void checkCollisions()
     {
-        if (!player || colliders.empty())
+        if (!player || objectsWithColliders.empty())
             return;
 
-        for (const auto &collider : colliders)
+        for (auto &object : objectsWithColliders)
         {
+            std::shared_ptr<Collider> collider = object->getComponent<Collider>();
             if (player->getCollider()->checkCollision(*collider))
             {
-                handleCollision(player->getCollider(), collider);
+                player->handleCollision(*object.get());
             }
         }
     }
 
-    void handleCollision(std::shared_ptr<Collider> playerCollider, std::shared_ptr<Collider> otherCollider)
-    {
-        std::cout << "Collision Detected!" << std::endl;
-    }
-
   private:
-    std::shared_ptr<Player> player;
-    std::vector<std::shared_ptr<Collider>> colliders;
+    Player *player;
+    std::vector<std::shared_ptr<GameObject>> objectsWithColliders;
 };
-
-CollisionManager collisionManager();

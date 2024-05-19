@@ -1,3 +1,7 @@
+#define TINYOBJLOADER_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+
+#include "globals.hpp"
 #include <glad/glad.h>
 
 #include "game/game.hpp"
@@ -9,6 +13,9 @@
 
 constexpr float INITIAL_WIDTH = 800.0f;
 constexpr float INITIAL_HEIGHT = 600.0f;
+
+Shader _globalShader;
+CollisionManager _collisionManager;
 
 void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
@@ -75,14 +82,14 @@ int main()
         return -1;
     }
 
-    globalShader.initialize("shaders/shader_vertex.glsl", "shaders/shader_fragment.glsl");
+    _globalShader.initialize("shaders/shader_vertex.glsl", "shaders/shader_fragment.glsl");
 
     Game game(INITIAL_WIDTH, INITIAL_HEIGHT);
     glfwSetWindowUserPointer(window, &game);
 
     glEnable(GL_DEPTH_TEST);
 
-    globalShader.use();
+    _globalShader.use();
 
     while (!glfwWindowShouldClose(window))
     {
