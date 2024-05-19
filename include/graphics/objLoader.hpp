@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 
-#define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
 class ObjLoader

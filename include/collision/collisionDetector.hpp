@@ -1,13 +1,13 @@
 #pragma once
 
+#include "matrixUtils.hpp"
 #include <glm/glm.hpp>
 #include <iostream>
-#include <matrixUtils.hpp>
 
 class CollisionDetector
 {
   public:
-    static bool pointSphere(const glm::vec3 &point, const glm::vec3 &sphereCenter, float sphereRadius)
+    static bool pointSphere(const glm::vec4 &point, const glm::vec4 &sphereCenter, float sphereRadius)
     {
         float distance = sqrt(pow(point.x - sphereCenter.x, 2) + pow(point.y - sphereCenter.y, 2) +
                               pow(point.z - sphereCenter.z, 2));
@@ -15,7 +15,7 @@ class CollisionDetector
         return distance <= sphereRadius;
     }
 
-    static bool pointCube(const glm::vec3 &point, const glm::vec3 &cubeMinBounds, const glm::vec3 &cubeMaxBounds)
+    static bool pointCube(const glm::vec4 &point, const glm::vec4 &cubeMinBounds, const glm::vec4 &cubeMaxBounds)
     {
         bool withinX = point.x >= cubeMinBounds.x && point.x <= cubeMaxBounds.x;
         bool withinY = point.y >= cubeMinBounds.y && point.y <= cubeMaxBounds.y;
@@ -24,8 +24,8 @@ class CollisionDetector
         return withinX && withinY && withinZ;
     }
 
-    static bool cubeCube(const glm::vec3 &cube1MinBounds, const glm::vec3 &cube1MaxBounds,
-                         const glm::vec3 &cube2MinBounds, const glm::vec3 &cube2MaxBounds)
+    static bool cubeCube(const glm::vec4 &cube1MinBounds, const glm::vec4 &cube1MaxBounds,
+                         const glm::vec4 &cube2MinBounds, const glm::vec4 &cube2MaxBounds)
     {
         bool overlapX = cube1MinBounds.x <= cube2MaxBounds.x && cube1MaxBounds.x >= cube2MinBounds.x;
         bool overlapY = cube1MinBounds.y <= cube2MaxBounds.y && cube1MaxBounds.y >= cube2MinBounds.y;
