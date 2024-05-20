@@ -32,7 +32,7 @@ class CollisionManager
 
             if (collisionResult.collided)
             {
-                player->handleCollision(*object.get(), collisionResult.normal);
+                player->handleCollision(*object.get(), collisionResult.normal, collisionResult.penetrationDepth);
             }
         }
     }

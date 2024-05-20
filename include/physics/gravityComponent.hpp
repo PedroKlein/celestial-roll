@@ -23,7 +23,7 @@ class GravityComponent : public Component
 
     void update(float deltaTime) override
     {
-        if (rigidBody)
+        if (rigidBody && !rigidBody->isGrounded)
         {
             rigidBody->applyForce(gravity * rigidBody->getMass());
         }

@@ -3,6 +3,7 @@
 #include "collider.hpp"
 #include "collisionDetector.hpp"
 
+// currently its only using AABB collision detection, so rotated objects won't have a rotated collider
 class BoxCollider : public Collider
 {
   public:
@@ -17,10 +18,8 @@ class BoxCollider : public Collider
         if (otherBox && transform)
         {
 
-            auto result =
-                CollisionDetector::cubeCube(transform->getPosition() + minBounds, transform->getPosition() + maxBounds,
-                                            otherBox->transform->getPosition() + otherBox->minBounds,
-                                            otherBox->transform->getPosition() + otherBox->maxBounds);
+            auto result = CollisionDetector::cubeCube(getMinBounds(), getMaxBounds(), otherBox->getMinBounds(),
+                                                      otherBox->getMaxBounds());
 
             return CollisionResult{result.collided, transformNormal(otherBox->getRotationMatrix(), result.normal)};
         }
@@ -29,11 +28,12 @@ class BoxCollider : public Collider
 
     glm::vec4 getMinBounds() const
     {
-        return transform->getPosition() + minBounds;
+        return minBounds + transform->getPosition();
     }
+
     glm::vec4 getMaxBounds() const
     {
-        return transform->getPosition() + maxBounds;
+        return maxBounds + transform->getPosition();
     }
 
   private:

@@ -4,6 +4,7 @@
 #include "collision/boxCollider.hpp"
 #include "game/gameObject.hpp"
 #include "graphics/mesh.hpp"
+#include "graphics/meshManager.hpp"
 #include "graphics/renderer.hpp"
 #include "input/inputObserver.hpp"
 #include "physics/gravityComponent.hpp"
@@ -13,16 +14,17 @@
 class Player : public GameObject, public InputObserver
 {
   public:
-    Player(const std::shared_ptr<Mesh> &mesh, Camera &camera) : camera(camera)
+    Player(Camera &camera) : camera(camera)
     {
-        transform = std::make_shared<Transform>(glm::vec3(0.0f, 0.0f, 0.0f));
+        transform =
+            std::make_shared<Transform>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec3(0.0f, -90.0f, 0.0f));
         addComponent(transform);
 
         camera.setTarget(*transform, 10.0f);
 
-        addComponent(std::make_shared<Renderer>(mesh));
+        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("models/cow.obj")));
 
-        boxCollider = std::make_shared<BoxCollider>(glm::vec3(-0.5f, 0.0f, -0.5f), glm::vec3(0.5f, 2.0f, 0.5f));
+        boxCollider = std::make_shared<BoxCollider>(glm::vec3(-1.0f, -3.5f, -1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         addComponent(boxCollider);
 
         rigidBody = std::make_shared<RigidBody>(20.0f);
@@ -86,12 +88,10 @@ class Player : public GameObject, public InputObserver
         return boxCollider;
     }
 
-    void handleCollision(GameObject &other, const glm::vec4 collisionNormal)
+    void handleCollision(GameObject &other, const glm::vec4 collisionNormal, float penetrationDepth)
     {
         std::shared_ptr<Transform> otherTransform = other.getComponent<Transform>();
         std::shared_ptr<PhysicsMaterial> physicsMat = other.getComponent<PhysicsMaterial>();
-
-        glm::vec4 projectedVelocity = MatrixUtils::dotProduct(rigidBody->velocity, collisionNormal) * collisionNormal;
 
         glm::vec4 normalComponentOfVelocity =
             MatrixUtils::dotProduct(rigidBody->velocity, collisionNormal) * collisionNormal;
@@ -99,7 +99,7 @@ class Player : public GameObject, public InputObserver
         glm::vec4 tangentialComponent = rigidBody->velocity - normalComponentOfVelocity;
 
         float bounciness = (physicsMat) ? physicsMat->getBounciness() : 0.0f;
-        glm::vec4 bounceVelocity = -normalComponentOfVelocity * (1.0f + bounciness);
+        glm::vec4 bounceVelocity = -normalComponentOfVelocity * bounciness;
 
         float friction = (physicsMat) ? physicsMat->getFriction() : 0.0f;
         glm::vec4 frictionVelocity = tangentialComponent * (1.0f - friction);
@@ -110,16 +110,23 @@ class Player : public GameObject, public InputObserver
             if (physicsMat)
             {
                 rigidBody->velocity = bounceVelocity + frictionVelocity;
+                if (collisionNormal.y > 0)
+                {
+                    rigidBody->isGrounded = true;
+                }
             }
             else
             {
-                rigidBody->velocity -= 2.0f * projectedVelocity;
+                rigidBody->velocity -= 2.0f * normalComponentOfVelocity;
             }
             break;
         default:
-            rigidBody->velocity -= 2.0f * projectedVelocity;
+            rigidBody->velocity -= 2.0f * normalComponentOfVelocity;
             break;
         }
+
+        // Move the player out of the platform
+        transform->position += collisionNormal * penetrationDepth;
     }
 
     ObjectType getObjectType() const override

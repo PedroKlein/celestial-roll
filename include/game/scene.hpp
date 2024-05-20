@@ -16,18 +16,14 @@ class Scene
 
     void init()
     {
-        std::shared_ptr<Mesh> cowMesh = std::make_shared<Mesh>("models/cow.obj");
-
         this->freeCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, -3.0f));
-        this->playerCam = std::make_unique<Camera>();
+        this->playerCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, -30.0f);
 
-        this->player = std::make_unique<Player>(cowMesh, *playerCam.get());
-
-        std::shared_ptr<Mesh> cubeMesh = std::make_shared<Mesh>("models/cube.obj");
+        this->player = std::make_unique<Player>(*playerCam.get());
 
         this->gameState = std::make_unique<GameState>(*freeCam.get(), *playerCam.get(), *player.get());
 
-        addObject(std::make_shared<Platform>(cubeMesh, glm::vec3(0.0f, -10.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f)));
+        addObject(std::make_shared<Platform>(glm::vec3(0.0f, -10.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f)));
 
         _collisionManager.setPlayer(player.get());
     }

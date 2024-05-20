@@ -9,6 +9,7 @@ struct CollisionResult
 {
     bool collided;
     glm::vec4 normal;
+    float penetrationDepth;
 };
 
 class CollisionDetector
@@ -16,7 +17,7 @@ class CollisionDetector
   public:
     static CollisionResult pointSphere(const glm::vec4 &point, const glm::vec4 &sphereCenter, float sphereRadius)
     {
-        CollisionResult result{false, glm::vec4(0.0f)};
+        CollisionResult result{false, glm::vec4(0.0f), 0};
 
         float distance = sqrt(pow(point.x - sphereCenter.x, 2) + pow(point.y - sphereCenter.y, 2) +
                               pow(point.z - sphereCenter.z, 2));
@@ -25,6 +26,7 @@ class CollisionDetector
         {
             result.collided = true;
             result.normal = MatrixUtils::normalize(point - sphereCenter);
+            result.penetrationDepth = sphereRadius - distance;
         }
 
         return result;
@@ -42,7 +44,7 @@ class CollisionDetector
     static CollisionResult cubeCube(const glm::vec4 &cube1MinBounds, const glm::vec4 &cube1MaxBounds,
                                     const glm::vec4 &cube2MinBounds, const glm::vec4 &cube2MaxBounds)
     {
-        CollisionResult result{false, glm::vec4(0.0f)};
+        CollisionResult result{false, glm::vec4(0.0f), 0};
 
         float overlapX = std::min(cube1MaxBounds.x, cube2MaxBounds.x) - std::max(cube1MinBounds.x, cube2MinBounds.x);
         float overlapY = std::min(cube1MaxBounds.y, cube2MaxBounds.y) - std::max(cube1MinBounds.y, cube2MinBounds.y);
@@ -56,6 +58,7 @@ class CollisionDetector
         result.collided = true;
 
         float minOverlap = std::min({overlapX, overlapY, overlapZ});
+        result.penetrationDepth = minOverlap;
 
         if (minOverlap == overlapX)
         {

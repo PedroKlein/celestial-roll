@@ -11,9 +11,11 @@
 class Camera : public GameObject, public InputObserver
 {
   public:
-    Camera(const glm::vec3 &position = glm::vec3(0.0f, 0.0f, 0.0f))
+    Camera(const glm::vec3 &position = glm::vec3(0.0f, 0.0f, 0.0f), float yaw = 0.0f, float pitch = 0.0f)
         : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), isFreeCam(true), worldUp(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f))
     {
+        this->yaw = glm::radians(yaw);
+        this->pitch = glm::radians(pitch);
         transform = std::make_shared<Transform>(position);
         addComponent(transform);
 

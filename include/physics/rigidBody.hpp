@@ -11,6 +11,7 @@ class RigidBody : public Component
   public:
     glm::vec4 velocity;
     glm::vec4 acceleration;
+    bool isGrounded = false;
 
     RigidBody(float mass) : mass(mass), velocity(0), acceleration(0), forceAccumulator(0)
     {
@@ -43,6 +44,7 @@ class RigidBody : public Component
         updatePhysics(deltaTime);
 
         transform->position += velocity * deltaTime;
+        isGrounded = false;
     }
 
     void applyForce(const glm::vec4 &force)
