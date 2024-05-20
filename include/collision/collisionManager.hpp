@@ -27,9 +27,12 @@ class CollisionManager
         for (auto &object : objectsWithColliders)
         {
             std::shared_ptr<Collider> collider = object->getComponent<Collider>();
-            if (player->getCollider()->checkCollision(*collider))
+
+            auto collisionResult = player->getCollider()->checkCollision(*collider);
+
+            if (collisionResult.collided)
             {
-                player->handleCollision(*object.get());
+                player->handleCollision(*object.get(), collisionResult.normal);
             }
         }
     }

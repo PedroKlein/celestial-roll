@@ -64,9 +64,11 @@ class RigidBody : public Component
 
         velocity += acceleration * deltaTime;
 
-        velocity *= pow(0.99f, deltaTime); // example of damping
-
         clearAccumulator();
+
+        velocity *= pow(0.99f, deltaTime);
+
+        transform->position += velocity * deltaTime;
     }
 
     float getMass() const

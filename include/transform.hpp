@@ -25,9 +25,10 @@ class Transform : public Component
     {
     }
 
-    Transform(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale)
+    Transform(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &rotation)
         : position(position, 1.0f), rotation(rotation), scale(scale)
     {
+        updateRotationMatrix();
     }
 
     glm::vec4 getPosition() const
@@ -70,11 +71,17 @@ class Transform : public Component
         return model;
     }
 
-    glm::vec3 getNormal() const
+    glm::vec3 getUp() const
     {
         updateRotationMatrix();
-        glm::vec3 normal = glm::vec3(rotationMatrix[0][2], rotationMatrix[1][2], rotationMatrix[2][2]);
-        return glm::normalize(normal);
+        glm::vec3 up = glm::vec3(rotationMatrix[0][1], rotationMatrix[1][1], rotationMatrix[2][1]);
+        return glm::normalize(up);
+    }
+
+    glm::mat4 getRotationMatrix() const
+    {
+        updateRotationMatrix();
+        return rotationMatrix;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const Transform &transform)

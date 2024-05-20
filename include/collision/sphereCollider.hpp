@@ -10,16 +10,18 @@ class SphereCollider : public Collider
     {
     }
 
-    bool checkCollision(const Collider &other) const override
+    CollisionResult checkCollision(const Collider &other) const override
     {
         auto otherSphere =
             std::dynamic_pointer_cast<SphereCollider>(std::shared_ptr<Collider>(const_cast<Collider *>(&other)));
         if (otherSphere && transform)
         {
-            return CollisionDetector::pointSphere(transform->getPosition(), otherSphere->transform->getPosition(),
-                                                  radius + otherSphere->radius);
+            auto result = CollisionDetector::pointSphere(
+                transform->getPosition(), otherSphere->transform->getPosition(), radius + otherSphere->radius);
+
+            return CollisionResult{result.collided, transformNormal(otherSphere->getRotationMatrix(), result.normal)};
         }
-        return false;
+        return CollisionResult{false, glm::vec4(0.0f)};
     }
 
   private:

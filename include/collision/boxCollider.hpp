@@ -11,18 +11,20 @@ class BoxCollider : public Collider
     {
     }
 
-    bool checkCollision(const Collider &other) const override
+    CollisionResult checkCollision(const Collider &other) const override
     {
         const BoxCollider *otherBox = dynamic_cast<const BoxCollider *>(&other);
         if (otherBox && transform)
         {
 
-            return CollisionDetector::cubeCube(transform->getPosition() + minBounds,
-                                               transform->getPosition() + maxBounds,
-                                               otherBox->transform->getPosition() + otherBox->minBounds,
-                                               otherBox->transform->getPosition() + otherBox->maxBounds);
+            auto result =
+                CollisionDetector::cubeCube(transform->getPosition() + minBounds, transform->getPosition() + maxBounds,
+                                            otherBox->transform->getPosition() + otherBox->minBounds,
+                                            otherBox->transform->getPosition() + otherBox->maxBounds);
+
+            return CollisionResult{result.collided, transformNormal(otherBox->getRotationMatrix(), result.normal)};
         }
-        return false;
+        return CollisionResult{false, glm::vec4(0.0f)};
     }
 
     glm::vec4 getMinBounds() const

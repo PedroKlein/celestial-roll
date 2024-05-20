@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>

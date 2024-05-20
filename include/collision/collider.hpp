@@ -1,5 +1,6 @@
 #pragma once
 
+#include "collisionDetector.hpp"
 #include "game/component.hpp"
 #include "game/gameObject.hpp"
 #include "transform.hpp"
@@ -38,7 +39,18 @@ class Collider : public Component
         return type;
     }
 
-    virtual bool checkCollision(const Collider &other) const = 0;
+    glm::mat4 getRotationMatrix() const
+    {
+        return transform->getRotationMatrix();
+    }
+
+    glm::vec4 transformNormal(const glm::mat4 &otherRotationMatrix, const glm::vec4 &collisionNormal) const
+    {
+
+        return MatrixUtils::normalize(otherRotationMatrix * collisionNormal);
+    }
+
+    virtual CollisionResult checkCollision(const Collider &other) const = 0;
 
   protected:
     ColliderType type;

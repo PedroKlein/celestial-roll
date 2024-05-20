@@ -7,6 +7,7 @@
 #include "graphics/renderer.hpp"
 #include "input/inputObserver.hpp"
 #include "physics/gravityComponent.hpp"
+#include "physics/physicsMaterial.hpp"
 #include "physics/rigidBody.hpp"
 
 class Player : public GameObject, public InputObserver
@@ -17,7 +18,7 @@ class Player : public GameObject, public InputObserver
         transform = std::make_shared<Transform>(glm::vec3(0.0f, 0.0f, 0.0f));
         addComponent(transform);
 
-        camera.setTarget(*transform, 5.0f);
+        camera.setTarget(*transform, 10.0f);
 
         addComponent(std::make_shared<Renderer>(mesh));
 
@@ -85,20 +86,38 @@ class Player : public GameObject, public InputObserver
         return boxCollider;
     }
 
-    void handleCollision(GameObject &other)
+    void handleCollision(GameObject &other, const glm::vec4 collisionNormal)
     {
         std::shared_ptr<Transform> otherTransform = other.getComponent<Transform>();
+        std::shared_ptr<PhysicsMaterial> physicsMat = other.getComponent<PhysicsMaterial>();
 
-        glm::vec4 normal = glm::vec4(otherTransform->getNormal(), 0.0f);
-        glm::vec4 projectedVelocity = MatrixUtils::dotProduct(rigidBody->velocity, normal) * normal;
+        glm::vec4 projectedVelocity = MatrixUtils::dotProduct(rigidBody->velocity, collisionNormal) * collisionNormal;
+
+        glm::vec4 normalComponentOfVelocity =
+            MatrixUtils::dotProduct(rigidBody->velocity, collisionNormal) * collisionNormal;
+
+        glm::vec4 tangentialComponent = rigidBody->velocity - normalComponentOfVelocity;
+
+        float bounciness = (physicsMat) ? physicsMat->getBounciness() : 0.0f;
+        glm::vec4 bounceVelocity = -normalComponentOfVelocity * (1.0f + bounciness);
+
+        float friction = (physicsMat) ? physicsMat->getFriction() : 0.0f;
+        glm::vec4 frictionVelocity = tangentialComponent * (1.0f - friction);
 
         switch (other.getObjectType())
         {
         case ObjectType::Platform:
-            rigidBody->velocity -= 2.0f * projectedVelocity;
+            if (physicsMat)
+            {
+                rigidBody->velocity = bounceVelocity + frictionVelocity;
+            }
+            else
+            {
+                rigidBody->velocity -= 2.0f * projectedVelocity;
+            }
             break;
         default:
-            // Handle collision with generic GameObject
+            rigidBody->velocity -= 2.0f * projectedVelocity;
             break;
         }
     }
