@@ -2,6 +2,7 @@
 
 #include "objLoader.hpp"
 #include "shader.hpp"
+#include <cstddef>
 #include <glad/glad.h>
 #include <vector>
 
@@ -24,23 +25,23 @@ class Mesh
         glBindVertexArray(VAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, loader.getVertexAttributes().size() * sizeof(float),
+        glBufferData(GL_ARRAY_BUFFER, loader.getVertexAttributes().size() * sizeof(VertexAttribute),
                      &loader.getVertexAttributes()[0], GL_STATIC_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, loader.getIndices().size() * sizeof(unsigned int),
                      &loader.getIndices()[0], GL_STATIC_DRAW);
 
-        // Position attribute
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void *)0);
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(VertexAttribute),
+                              (void *)offsetof(VertexAttribute, position));
         glEnableVertexAttribArray(0);
 
-        // Normal attribute
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void *)(4 * sizeof(float)));
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(VertexAttribute),
+                              (void *)offsetof(VertexAttribute, normal));
         glEnableVertexAttribArray(1);
 
-        // Texture Coord attribute
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(float), (void *)(8 * sizeof(float)));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexAttribute),
+                              (void *)offsetof(VertexAttribute, texcoord));
         glEnableVertexAttribArray(2);
 
         glBindVertexArray(0);

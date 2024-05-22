@@ -22,7 +22,7 @@ class Player : public GameObject, public InputObserver
 
         camera.setTarget(*transform, 10.0f);
 
-        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("models/cow.obj")));
+        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/cow.obj")));
 
         boxCollider = std::make_shared<BoxCollider>(glm::vec3(-1.0f, -3.5f, -1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         addComponent(boxCollider);

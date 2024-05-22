@@ -15,7 +15,7 @@ class Platform : public GameObject
         transform = std::make_shared<Transform>(position, scale, glm::vec3(0.0f, 0.0f, 0.0f));
         addComponent(transform);
 
-        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("models/cube.obj")));
+        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/cube.obj")));
 
         boxCollider = std::make_shared<BoxCollider>(-scale, scale);
         addComponent(boxCollider);

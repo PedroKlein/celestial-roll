@@ -9,6 +9,13 @@
 
 #include <tiny_obj_loader.h>
 
+struct VertexAttribute
+{
+    glm::vec4 position;
+    glm::vec4 normal;
+    glm::vec2 texcoord;
+};
+
 class ObjLoader
 {
   public:
@@ -51,7 +58,7 @@ class ObjLoader
         return loadAttributes(attrib, shapes);
     }
 
-    const std::vector<float> &getVertexAttributes() const
+    const std::vector<VertexAttribute> &getVertexAttributes() const
     {
         return vertexAttributes;
     }
@@ -68,7 +75,7 @@ class ObjLoader
   private:
     std::string filename;
     Material material;
-    std::vector<float> vertexAttributes;
+    std::vector<VertexAttribute> vertexAttributes;
     std::vector<unsigned int> indices;
 
     bool loadAttributes(const tinyobj::attrib_t &attrib, const std::vector<tinyobj::shape_t> &shapes)
@@ -82,42 +89,23 @@ class ObjLoader
                 for (int v = 0; v < fv; v++)
                 {
                     tinyobj::index_t idx = shape.mesh.indices[f * fv + v];
+                    VertexAttribute va;
 
-                    // Position
-                    vertexAttributes.push_back(attrib.vertices[3 * idx.vertex_index + 0]);
-                    vertexAttributes.push_back(attrib.vertices[3 * idx.vertex_index + 1]);
-                    vertexAttributes.push_back(attrib.vertices[3 * idx.vertex_index + 2]);
-                    vertexAttributes.push_back(1.0f); // Homogeneous coordinate for position
+                    va.position =
+                        glm::vec4(attrib.vertices[3 * idx.vertex_index + 0], attrib.vertices[3 * idx.vertex_index + 1],
+                                  attrib.vertices[3 * idx.vertex_index + 2], 1.0f);
 
-                    // Normal
-                    if (idx.normal_index >= 0)
-                    {
-                        vertexAttributes.push_back(attrib.normals[3 * idx.normal_index + 0]);
-                        vertexAttributes.push_back(attrib.normals[3 * idx.normal_index + 1]);
-                        vertexAttributes.push_back(attrib.normals[3 * idx.normal_index + 2]);
-                        vertexAttributes.push_back(0.0f); // Homogeneous coordinate for normal
-                    }
-                    else
-                    {
-                        vertexAttributes.push_back(0.0f);
-                        vertexAttributes.push_back(0.0f);
-                        vertexAttributes.push_back(0.0f);
-                        vertexAttributes.push_back(0.0f);
-                    }
+                    va.normal = idx.normal_index >= 0 ? glm::vec4(attrib.normals[3 * idx.normal_index + 0],
+                                                                  attrib.normals[3 * idx.normal_index + 1],
+                                                                  attrib.normals[3 * idx.normal_index + 2], 0.0f)
+                                                      : glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
-                    // Texture coordinates
-                    if (idx.texcoord_index >= 0)
-                    {
-                        vertexAttributes.push_back(attrib.texcoords[2 * idx.texcoord_index + 0]);
-                        vertexAttributes.push_back(attrib.texcoords[2 * idx.texcoord_index + 1]);
-                    }
-                    else
-                    {
-                        vertexAttributes.push_back(0.0f);
-                        vertexAttributes.push_back(0.0f);
-                    }
+                    va.texcoord = idx.texcoord_index >= 0 ? glm::vec2(attrib.texcoords[2 * idx.texcoord_index + 0],
+                                                                      attrib.texcoords[2 * idx.texcoord_index + 1])
+                                                          : glm::vec2(0.0f, 0.0f);
 
-                    indices.push_back(vertexAttributes.size() / 10 - 1);
+                    vertexAttributes.push_back(va);
+                    indices.push_back(vertexAttributes.size() - 1);
                 }
             }
         }
