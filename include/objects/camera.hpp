@@ -157,7 +157,7 @@ class Camera : public GameObject, public InputObserver
     float yaw = 0.0f;
     float pitch = 0.0f;
     float distance = 0.0f;
-    float movementSpeed = 2.5f;
+    float movementSpeed = 4.5f;
     float mouseSensitivity = 0.5f;
 
     bool isFreeCam;

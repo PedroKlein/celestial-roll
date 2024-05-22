@@ -1,5 +1,6 @@
 #pragma once
 
+#include "material.hpp"
 #include <cassert>
 #include <glm/glm.hpp>
 #include <iostream>
@@ -33,32 +34,42 @@ class ObjLoader
             std::cerr << "TinyObjLoader Warning: " << err << std::endl;
         }
 
+        if (!materials.empty())
+        {
+            const auto &material = materials[0];
+            this->material.ambient = glm::vec3(material.ambient[0], material.ambient[1], material.ambient[2]);
+            this->material.diffuse = glm::vec3(material.diffuse[0], material.diffuse[1], material.diffuse[2]);
+            this->material.specular = glm::vec3(material.specular[0], material.specular[1], material.specular[2]);
+            this->material.shininess = material.shininess;
+
+            if (!material.diffuse_texname.empty())
+            {
+                this->material.setDiffuseTexture(material.diffuse_texname);
+            }
+        }
+
         return loadAttributes(attrib, shapes);
     }
 
-    const std::vector<float> &getVertices() const
+    const std::vector<float> &getVertexAttributes() const
     {
-        return vertices;
+        return vertexAttributes;
     }
     const std::vector<unsigned int> &getIndices() const
     {
         return indices;
     }
-    const std::vector<float> &getNormals() const
+
+    const Material &getMaterial() const
     {
-        return normals;
-    }
-    const std::vector<float> &getTexCoords() const
-    {
-        return texcoords;
+        return material;
     }
 
   private:
     std::string filename;
-    std::vector<float> vertices;
+    Material material;
+    std::vector<float> vertexAttributes;
     std::vector<unsigned int> indices;
-    std::vector<float> normals;
-    std::vector<float> texcoords;
 
     bool loadAttributes(const tinyobj::attrib_t &attrib, const std::vector<tinyobj::shape_t> &shapes)
     {
@@ -72,28 +83,44 @@ class ObjLoader
                 {
                     tinyobj::index_t idx = shape.mesh.indices[f * fv + v];
 
-                    vertices.push_back(attrib.vertices[3 * idx.vertex_index + 0]);
-                    vertices.push_back(attrib.vertices[3 * idx.vertex_index + 1]);
-                    vertices.push_back(attrib.vertices[3 * idx.vertex_index + 2]);
-                    vertices.push_back(1.0f); // Homogeneous coordinate for vertex
+                    // Position
+                    vertexAttributes.push_back(attrib.vertices[3 * idx.vertex_index + 0]);
+                    vertexAttributes.push_back(attrib.vertices[3 * idx.vertex_index + 1]);
+                    vertexAttributes.push_back(attrib.vertices[3 * idx.vertex_index + 2]);
+                    vertexAttributes.push_back(1.0f); // Homogeneous coordinate for position
 
-                    indices.push_back(vertices.size() / 4 - 1);
+                    // Normal
                     if (idx.normal_index >= 0)
                     {
-                        normals.push_back(attrib.normals[3 * idx.normal_index + 0]);
-                        normals.push_back(attrib.normals[3 * idx.normal_index + 1]);
-                        normals.push_back(attrib.normals[3 * idx.normal_index + 2]);
+                        vertexAttributes.push_back(attrib.normals[3 * idx.normal_index + 0]);
+                        vertexAttributes.push_back(attrib.normals[3 * idx.normal_index + 1]);
+                        vertexAttributes.push_back(attrib.normals[3 * idx.normal_index + 2]);
+                        vertexAttributes.push_back(0.0f); // Homogeneous coordinate for normal
+                    }
+                    else
+                    {
+                        vertexAttributes.push_back(0.0f);
+                        vertexAttributes.push_back(0.0f);
+                        vertexAttributes.push_back(0.0f);
+                        vertexAttributes.push_back(0.0f);
                     }
 
+                    // Texture coordinates
                     if (idx.texcoord_index >= 0)
                     {
-                        texcoords.push_back(attrib.texcoords[2 * idx.texcoord_index + 0]);
-                        texcoords.push_back(attrib.texcoords[2 * idx.texcoord_index + 1]);
+                        vertexAttributes.push_back(attrib.texcoords[2 * idx.texcoord_index + 0]);
+                        vertexAttributes.push_back(attrib.texcoords[2 * idx.texcoord_index + 1]);
                     }
+                    else
+                    {
+                        vertexAttributes.push_back(0.0f);
+                        vertexAttributes.push_back(0.0f);
+                    }
+
+                    indices.push_back(vertexAttributes.size() / 10 - 1);
                 }
             }
         }
-
         return true;
     }
 };

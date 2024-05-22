@@ -9,19 +9,20 @@
 class Texture
 {
   public:
-    unsigned int ID;
-    std::string type;
-    std::string path;
-
-    Texture(const char *texturePath, const std::string &typeName) : type(typeName), path(texturePath)
+    Texture(const char *texturePath, const std::string &typeName, GLint wrapMode = GL_REPEAT,
+            GLint minFilter = GL_LINEAR_MIPMAP_LINEAR, GLint magFilter = GL_LINEAR)
+        : type(typeName), path(texturePath)
     {
         glGenTextures(1, &ID);
+        if (ID == 0)
+            throw std::runtime_error("Failed to generate texture");
+
         glBindTexture(GL_TEXTURE_2D, ID);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 
         int width, height, nrChannels;
         unsigned char *data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
@@ -40,13 +41,35 @@ class Texture
         }
         else
         {
-            std::cerr << "Failed to load texture: " << texturePath << std::endl;
+            throw std::runtime_error("Failed to load texture at path: " + std::string(texturePath));
         }
+
         stbi_image_free(data);
     }
 
-    void bind() const
+    unsigned int getID() const
     {
-        glBindTexture(GL_TEXTURE_2D, ID);
+        return ID;
     }
+
+    std::string getType() const
+    {
+        return type;
+    }
+
+    std::string getPath() const
+    {
+        return path;
+    }
+
+    ~Texture()
+    {
+        if (ID != 0)
+            glDeleteTextures(1, &ID);
+    }
+
+  private:
+    unsigned int ID;
+    std::string type;
+    std::string path;
 };

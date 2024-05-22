@@ -69,11 +69,11 @@ set_target_properties(${EXECUTABLE_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 file(GLOB SHADER_FILES ${CMAKE_SOURCE_DIR}/src/shaders/*)
 file(GLOB MODEL_FILES ${CMAKE_SOURCE_DIR}/models/*)
 
-add_custom_target(CopyModels ALL
+add_custom_target(CopyResources ALL
                   COMMAND ${CMAKE_COMMAND} -E remove_directory
-                  ${CMAKE_CURRENT_BINARY_DIR}/models
+                  ${CMAKE_CURRENT_BINARY_DIR}/resources
                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                  ${CMAKE_SOURCE_DIR}/models ${CMAKE_CURRENT_BINARY_DIR}/models
+                  ${CMAKE_SOURCE_DIR}/resources ${CMAKE_CURRENT_BINARY_DIR}/resources
                   DEPENDS ${MODEL_FILES})
 add_custom_target(CopyShaders ALL
                   COMMAND ${CMAKE_COMMAND} -E remove_directory
@@ -82,5 +82,5 @@ add_custom_target(CopyShaders ALL
                   ${CMAKE_SOURCE_DIR}/src/shaders ${CMAKE_CURRENT_BINARY_DIR}/shaders
                   DEPENDS ${SHADER_FILES})
 
+add_dependencies(${EXECUTABLE_NAME} CopyResources)
 add_dependencies(${EXECUTABLE_NAME} CopyShaders)
-add_dependencies(${EXECUTABLE_NAME} CopyModels)
