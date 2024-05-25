@@ -41,6 +41,8 @@ class RigidBody : public Component
             return;
         }
 
+        transform->saveState();
+
         updatePhysics(deltaTime);
 
         transform->position += velocity * deltaTime;

@@ -46,7 +46,7 @@ class Scene
         }
     }
 
-    void render(float deltaTime, float viewRatio)
+    void render(float alpha, float viewRatio)
     {
         viewMatrix = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
         projectionMatrix = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -100.0f);
@@ -56,11 +56,11 @@ class Scene
 
         clear();
 
-        player->render(deltaTime);
+        player->render(alpha);
 
         for (auto &obj : objects)
         {
-            obj->render(deltaTime);
+            obj->render(alpha);
         }
     }
 

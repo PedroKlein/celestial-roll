@@ -8,27 +8,38 @@
 class Transform : public Component
 {
   public:
-    glm::vec4 position;
-    glm::vec3 scale;
-    glm::vec3 rotation;
+    glm::vec4 position, previousPosition;
+    glm::vec3 scale, previousScale;
+    glm::vec3 rotation, previousRotation;
 
     Transform() : position(0.0f, 0.0f, 0.0f, 1.0f), rotation(0.0f), scale(1.0f)
     {
+        saveState();
     }
 
     Transform(const glm::vec3 &position) : position(position, 1.0f), rotation(0.0f), scale(1.0f)
     {
+        saveState();
     }
 
     Transform(const glm::vec3 &position, const glm::vec3 &scale)
         : position(position, 1.0f), scale(scale), rotation(0.0f)
     {
+        saveState();
     }
 
     Transform(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &rotation)
         : position(position, 1.0f), rotation(rotation), scale(scale)
     {
+        saveState();
         updateRotationMatrix();
+    }
+
+    void saveState()
+    {
+        previousPosition = position;
+        previousScale = scale;
+        previousRotation = rotation;
     }
 
     glm::vec4 getPosition() const
@@ -94,6 +105,17 @@ class Transform : public Component
         return os;
     }
 
+    static glm::mat4 getRotationMatrix(const glm::vec3 &rotation)
+    {
+        glm::mat4 rotationMatrix = glm::mat4(1.0f);
+
+        rotationMatrix = MatrixUtils::rotateXMatrix(glm::radians(rotation.x));
+        rotationMatrix *= MatrixUtils::rotateYMatrix(glm::radians(rotation.y));
+        rotationMatrix *= MatrixUtils::rotateZMatrix(glm::radians(rotation.z));
+
+        return rotationMatrix;
+    }
+
   private:
     mutable glm::mat4 rotationMatrix;
     mutable bool rotationMatrixDirty = true;
@@ -102,9 +124,7 @@ class Transform : public Component
     {
         if (rotationMatrixDirty)
         {
-            rotationMatrix = MatrixUtils::rotateXMatrix(glm::radians(rotation.x));
-            rotationMatrix *= MatrixUtils::rotateYMatrix(glm::radians(rotation.y));
-            rotationMatrix *= MatrixUtils::rotateZMatrix(glm::radians(rotation.z));
+            rotationMatrix = getRotationMatrix(rotation);
             rotationMatrixDirty = false;
         }
     }

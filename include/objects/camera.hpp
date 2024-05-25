@@ -139,6 +139,27 @@ class Camera : public GameObject, public InputObserver
         }
     }
 
+    void updateCameraVectors(const glm::vec4 &targetPos)
+    {
+        glm::vec4 direction;
+        direction.x = cos(pitch) * sin(yaw);
+        direction.y = sin(pitch);
+        direction.z = cos(pitch) * cos(yaw);
+        direction.w = 0.0f;
+
+        if (isFreeCam)
+        {
+            front = direction;
+            right = MatrixUtils::crossProduct(front, worldUp);
+        }
+        else
+        {
+            transform->position = targetPos - distance * direction;
+            front = MatrixUtils::normalize(targetPos - transform->getPosition());
+            right = MatrixUtils::crossProduct(front, worldUp);
+        }
+    }
+
     ObjectType getObjectType() const override
     {
         return ObjectType::Camera;

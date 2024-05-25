@@ -2,6 +2,8 @@
 
 #include "component.hpp"
 #include "componentType.hpp"
+#include "graphics/renderer.hpp"
+#include "transform.hpp"
 #include <map>
 #include <memory>
 #include <vector>
@@ -20,7 +22,6 @@ class GameObject
     {
         components.clear();
         physicsComponents.clear();
-        renderComponents.clear();
     }
 
     template <typename T> void addComponent(std::shared_ptr<T> component)
@@ -33,10 +34,6 @@ class GameObject
         if (isPhysicsComponent(type))
         {
             physicsComponents.push_back(component);
-        }
-        if (isRenderComponent(type))
-        {
-            renderComponents.push_back(component);
         }
     }
 
@@ -62,11 +59,13 @@ class GameObject
         }
     }
 
-    void render(float deltaTime)
+    void render(float alpha)
     {
-        for (auto &comp : renderComponents)
+        auto renderer = getComponent<Renderer>();
+
+        if (renderer)
         {
-            comp->update(deltaTime);
+            renderer->update(alpha);
         }
     }
 
@@ -75,15 +74,9 @@ class GameObject
   private:
     std::map<ComponentType, std::shared_ptr<Component>> components;
     std::vector<std::shared_ptr<Component>> physicsComponents;
-    std::vector<std::shared_ptr<Component>> renderComponents;
 
     bool isPhysicsComponent(ComponentType type)
     {
         return type == ComponentType::Gravity || type == ComponentType::RigidBody;
-    }
-
-    bool isRenderComponent(ComponentType type)
-    {
-        return type == ComponentType::Renderer;
     }
 };
