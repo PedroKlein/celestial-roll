@@ -15,6 +15,11 @@ class InterpolatedTransform
     {
     }
 
+    glm::vec4 getPosition() const
+    {
+        return glm::vec4(interpolatedPosition, 1.0f);
+    }
+
     void calculateInterpolation(float alpha)
     {
         interpolatedPosition =

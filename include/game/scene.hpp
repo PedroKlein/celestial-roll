@@ -24,7 +24,8 @@ class Scene
 
         this->gameState = std::make_unique<GameState>(*freeCam.get(), *playerCam.get(), *player.get());
 
-        addObject(std::make_shared<Platform>(glm::vec3(0.0f, -40.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f)));
+        addObject(std::make_shared<Platform>(glm::vec3(0.0f, -40.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f),
+                                             glm::vec3(0.0f, 0.0f, 0.0f)));
 
         _collisionManager.setPlayer(player.get());
     }

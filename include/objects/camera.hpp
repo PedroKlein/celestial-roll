@@ -3,8 +3,8 @@
 #include "game/gameObject.hpp"
 #include "glm/trigonometric.hpp"
 #include "input/inputObserver.hpp"
+#include "interpolatedTransform.hpp"
 #include "matrixUtils.hpp"
-#include "transform.hpp"
 #include <cmath>
 #include <glm/vec4.hpp>
 
@@ -22,7 +22,7 @@ class Camera : public GameObject, public InputObserver
         updateCameraVectors();
     }
 
-    void setTarget(const Transform &transform, float distance)
+    void setTarget(const InterpolatedTransform &transform, float distance)
     {
         this->target = &transform;
         this->transform->position = target->getPosition() - glm::normalize(front) * distance;
@@ -139,34 +139,13 @@ class Camera : public GameObject, public InputObserver
         }
     }
 
-    void updateCameraVectors(const glm::vec4 &targetPos)
-    {
-        glm::vec4 direction;
-        direction.x = cos(pitch) * sin(yaw);
-        direction.y = sin(pitch);
-        direction.z = cos(pitch) * cos(yaw);
-        direction.w = 0.0f;
-
-        if (isFreeCam)
-        {
-            front = direction;
-            right = MatrixUtils::crossProduct(front, worldUp);
-        }
-        else
-        {
-            transform->position = targetPos - distance * direction;
-            front = MatrixUtils::normalize(targetPos - transform->getPosition());
-            right = MatrixUtils::crossProduct(front, worldUp);
-        }
-    }
-
     ObjectType getObjectType() const override
     {
         return ObjectType::Camera;
     }
 
   private:
-    const Transform *target;
+    const InterpolatedTransform *target;
 
     std::shared_ptr<Transform> transform;
 

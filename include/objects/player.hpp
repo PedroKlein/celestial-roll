@@ -20,10 +20,10 @@ class Player : public GameObject, public InputObserver
             std::make_shared<Transform>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec3(0.0f, -90.0f, 0.0f));
         addComponent(transform);
 
-        camera.setTarget(*transform, 10.0f);
-
         renderer = std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/sphere.obj"));
         addComponent(renderer);
+
+        camera.setTarget(*renderer->interpolatedTransform, 10.0f);
 
         sphereCollider = std::make_shared<SphereCollider>(1.0f);
         addComponent(sphereCollider);
@@ -76,7 +76,7 @@ class Player : public GameObject, public InputObserver
 
         auto interpolatedPosition = getInterpolatedPosition();
 
-        camera.updateCameraVectors(interpolatedPosition);
+        camera.updateCameraVectors();
     }
 
     glm::vec4 getPosition() const
@@ -154,6 +154,6 @@ class Player : public GameObject, public InputObserver
 
     glm::vec4 getInterpolatedPosition() const
     {
-        return glm::vec4(renderer->interpolatedTransform->interpolatedPosition, 1.0f);
+        return renderer->interpolatedTransform->getPosition();
     }
 };

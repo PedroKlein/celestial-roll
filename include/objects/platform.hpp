@@ -10,9 +10,10 @@
 class Platform : public GameObject
 {
   public:
-    Platform(const glm::vec3 &position, const glm::vec3 &scale = glm::vec3(1.0f))
+    Platform(const glm::vec3 &position, const glm::vec3 &scale = glm::vec3(1.0f),
+             const glm::vec3 &rotation = glm::vec3(0.0f))
     {
-        transform = std::make_shared<Transform>(position, scale, glm::vec3(0.0f, 0.0f, 0.0f));
+        transform = std::make_shared<Transform>(position, scale, rotation);
         addComponent(transform);
 
         addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/cube.obj")));
@@ -20,7 +21,7 @@ class Platform : public GameObject
         boxCollider = std::make_shared<BoxCollider>(-scale, scale);
         addComponent(boxCollider);
 
-        addComponent(std::make_shared<PhysicsMaterial>(1.0f, 0.8f));
+        addComponent(std::make_shared<PhysicsMaterial>(1.0f, 1.0f));
     }
 
     ObjectType getObjectType() const override

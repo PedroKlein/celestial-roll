@@ -8,8 +8,8 @@
 #include <memory>
 #include <thread>
 
-const float targetFrameTime = 1000.0f / 240.0f;
-const float physicsTimeStep = 1000.0f / 60.0f;
+const float targetFrameTime = 1.0f / 240.0f;
+const float physicsTimeStep = 1.0f / 60.0f;
 
 class Game
 {
@@ -28,38 +28,13 @@ class Game
 
     void tick()
     {
-        static auto lastFrameTime = std::chrono::high_resolution_clock::now();
-        static float accumulatedTime = 0.0f;
+        float frameTime = updateDeltaTime();
+        inputHandler.processInput(frameTime);
 
-        auto currentFrameTime = std::chrono::high_resolution_clock::now();
-        float frameTime =
-            std::chrono::duration_cast<std::chrono::milliseconds>(currentFrameTime - lastFrameTime).count();
+        float accumulatedTime = processPhysics(frameTime);
+        renderScene(accumulatedTime);
 
-        accumulatedTime += frameTime;
-
-        inputHandler.processInput(frameTime / 1000.0f);
-
-        // Update physics in fixed timesteps
-        while (accumulatedTime >= physicsTimeStep)
-        {
-            scene.updatePhysics(physicsTimeStep / 1000.0f);
-            accumulatedTime -= physicsTimeStep;
-        }
-
-        float alpha = accumulatedTime / physicsTimeStep;
-        scene.render(alpha, viewRatio);
-
-        // Sleep to cap the frame rate
-        auto postUpdateTime = std::chrono::high_resolution_clock::now();
-        auto sleepTime =
-            targetFrameTime -
-            std::chrono::duration_cast<std::chrono::milliseconds>(postUpdateTime - currentFrameTime).count();
-        if (sleepTime > 0)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds((int)sleepTime));
-        }
-
-        lastFrameTime = currentFrameTime;
+        // sleepToCapFrameRate(frameTime);
     }
 
     InputHandler *getInputHandler()
@@ -77,4 +52,48 @@ class Game
     InputHandler inputHandler;
 
     float viewRatio;
+
+    float updateDeltaTime()
+    {
+        static auto lastFrameTime = std::chrono::high_resolution_clock::now();
+        auto currentFrameTime = std::chrono::high_resolution_clock::now();
+        float frameTime = std::chrono::duration<float>(currentFrameTime - lastFrameTime).count();
+        lastFrameTime = currentFrameTime;
+        return frameTime;
+    }
+
+    float processPhysics(float frameTime)
+    {
+        static float accumulatedTime = 0.0f;
+        accumulatedTime += frameTime;
+        while (accumulatedTime >= physicsTimeStep)
+        {
+            scene.updatePhysics(physicsTimeStep);
+            accumulatedTime -= physicsTimeStep;
+        }
+
+        return accumulatedTime;
+    }
+
+    void renderScene(float accumulatedTime)
+    {
+        float alpha = accumulatedTime / physicsTimeStep;
+        scene.render(alpha, viewRatio);
+    }
+
+    void sleepToCapFrameRate(float frameTime)
+    {
+
+        // Busy-wait loop to cap the frame rate
+        // while (glfwGetTime() - frameTime < targetFrameTime)
+        // {
+        // }
+
+        // Or sleeping thread (this is less precise but uses less CPU)
+        float sleepTime = targetFrameTime - frameTime;
+        if (sleepTime > 0)
+        {
+            std::this_thread::sleep_for(std::chrono::duration<float>(sleepTime));
+        }
+    }
 };
