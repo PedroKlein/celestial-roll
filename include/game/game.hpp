@@ -26,7 +26,9 @@ class Game
         updateDeltaTime();
         inputHandler.processInput(deltaTime);
 
-        scene.update(deltaTime, viewRatio);
+        scene.updatePhysics(deltaTime);
+
+        scene.render(deltaTime, viewRatio);
     }
 
     InputHandler *getInputHandler()

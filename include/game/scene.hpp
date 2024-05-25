@@ -29,15 +29,26 @@ class Scene
         _collisionManager.setPlayer(player.get());
     }
 
-    void update(float deltaTime, float viewRatio)
+    void updatePhysics(float deltaTime)
     {
         if (gameState->getIsPaused())
         {
             return;
         }
 
-        viewMatrix = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
+        _collisionManager.checkCollisions();
 
+        player->updatePhysics(deltaTime);
+
+        for (auto &obj : objects)
+        {
+            obj->updatePhysics(deltaTime);
+        }
+    }
+
+    void render(float deltaTime, float viewRatio)
+    {
+        viewMatrix = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
         projectionMatrix = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -100.0f);
 
         _globalShader.setMat4("view", viewMatrix);
@@ -45,13 +56,11 @@ class Scene
 
         clear();
 
-        _collisionManager.checkCollisions();
-
-        player->update(deltaTime);
+        player->render(deltaTime);
 
         for (auto &obj : objects)
         {
-            obj->update(deltaTime);
+            obj->render(deltaTime);
         }
     }
 

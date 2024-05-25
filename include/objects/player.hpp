@@ -69,9 +69,9 @@ class Player : public GameObject, public InputObserver
         }
     }
 
-    void update(float deltaTime)
+    void render(float deltaTime)
     {
-        GameObject::update(deltaTime);
+        GameObject::render(deltaTime);
 
         camera.updateCameraVectors();
     }

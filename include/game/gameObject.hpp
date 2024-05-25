@@ -4,6 +4,7 @@
 #include "componentType.hpp"
 #include <map>
 #include <memory>
+#include <vector>
 
 enum class ObjectType
 {
@@ -18,6 +19,8 @@ class GameObject
     ~GameObject()
     {
         components.clear();
+        physicsComponents.clear();
+        renderComponents.clear();
     }
 
     template <typename T> void addComponent(std::shared_ptr<T> component)
@@ -26,6 +29,15 @@ class GameObject
         components[type] = std::static_pointer_cast<Component>(component);
         component->setGameObject(this);
         component->initialize();
+
+        if (isPhysicsComponent(type))
+        {
+            physicsComponents.push_back(component);
+        }
+        if (isRenderComponent(type))
+        {
+            renderComponents.push_back(component);
+        }
     }
 
     template <typename T> std::shared_ptr<T> getComponent() const
@@ -39,12 +51,22 @@ class GameObject
         return nullptr;
     }
 
-    void update(float deltaTime)
+    void updatePhysics(float deltaTime)
     {
-        for (auto &pair : components)
+        for (auto &comp : physicsComponents)
         {
-            if (pair.second->isEnabled())
-                pair.second->update(deltaTime);
+            if (comp->isEnabled())
+            {
+                comp->update(deltaTime);
+            }
+        }
+    }
+
+    void render(float deltaTime)
+    {
+        for (auto &comp : renderComponents)
+        {
+            comp->update(deltaTime);
         }
     }
 
@@ -52,4 +74,16 @@ class GameObject
 
   private:
     std::map<ComponentType, std::shared_ptr<Component>> components;
+    std::vector<std::shared_ptr<Component>> physicsComponents;
+    std::vector<std::shared_ptr<Component>> renderComponents;
+
+    bool isPhysicsComponent(ComponentType type)
+    {
+        return type == ComponentType::Gravity || type == ComponentType::RigidBody;
+    }
+
+    bool isRenderComponent(ComponentType type)
+    {
+        return type == ComponentType::Renderer;
+    }
 };
