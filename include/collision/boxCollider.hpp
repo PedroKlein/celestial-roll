@@ -2,6 +2,9 @@
 
 #include "collider.hpp"
 #include "collisionDetector.hpp"
+// #include "sphereCollider.hpp"
+
+// TODO: refactor this to exclude circular dependency with sphereCollider
 
 // currently its only using AABB collision detection, so rotated objects won't have a rotated collider
 class BoxCollider : public Collider
@@ -23,6 +26,16 @@ class BoxCollider : public Collider
 
             return CollisionResult{result.collided, transformNormal(otherBox->getRotationMatrix(), result.normal)};
         }
+
+        // const SphereCollider *otherSphere = dynamic_cast<const SphereCollider *>(&other);
+        // if (otherSphere && transform)
+        // {
+        //     auto result = CollisionDetector::sphereCube(otherSphere->getPosition(), otherSphere->getRadius(),
+        //                                                 getMinBounds(), getMaxBounds());
+
+        //     return CollisionResult{result.collided, transformNormal(otherBox->getRotationMatrix(), result.normal)};
+        // }
+
         return CollisionResult{false, glm::vec4(0.0f)};
     }
 

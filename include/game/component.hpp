@@ -11,6 +11,10 @@ class Component
 
     void setGameObject(GameObject *obj);
 
+    void enable();
+    void disable();
+    bool isEnabled() const;
+
     virtual void initialize()
     {
     }
@@ -19,4 +23,5 @@ class Component
 
   protected:
     GameObject *gameObject;
+    bool enabled = true;
 };

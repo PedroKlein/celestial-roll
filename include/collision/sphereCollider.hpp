@@ -3,6 +3,8 @@
 #include "collider.hpp"
 #include "collisionDetector.hpp"
 
+#include "boxCollider.hpp"
+
 class SphereCollider : public Collider
 {
   public:
@@ -12,16 +14,24 @@ class SphereCollider : public Collider
 
     CollisionResult checkCollision(const Collider &other) const override
     {
-        auto otherSphere =
-            std::dynamic_pointer_cast<SphereCollider>(std::shared_ptr<Collider>(const_cast<Collider *>(&other)));
-        if (otherSphere && transform)
-        {
-            auto result = CollisionDetector::pointSphere(
-                transform->getPosition(), otherSphere->transform->getPosition(), radius + otherSphere->radius);
+        CollisionResult result{false, glm::vec4(0.0f)};
 
-            return CollisionResult{result.collided, transformNormal(otherSphere->getRotationMatrix(), result.normal)};
+        const BoxCollider *otherBox = dynamic_cast<const BoxCollider *>(&other);
+        if (otherBox && transform)
+        {
+
+            result = CollisionDetector::sphereCube(getPosition(), getRadius(), otherBox->getMinBounds(),
+                                                   otherBox->getMaxBounds());
+
+            result.normal = transformNormal(otherBox->getRotationMatrix(), result.normal);
         }
-        return CollisionResult{false, glm::vec4(0.0f)};
+
+        return result;
+    }
+
+    float getRadius() const
+    {
+        return radius;
     }
 
   private:

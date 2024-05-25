@@ -89,6 +89,9 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
+    // enable vsync
+    // glfwSwapInterval(1);
+
     _globalShader.use();
 
     while (!glfwWindowShouldClose(window))

@@ -32,14 +32,31 @@ class CollisionDetector
         return result;
     }
 
-    // static bool pointCube(const glm::vec4 &point, const glm::vec4 &cubeMinBounds, const glm::vec4 &cubeMaxBounds)
-    // {
-    //     bool withinX = point.x >= cubeMinBounds.x && point.x <= cubeMaxBounds.x;
-    //     bool withinY = point.y >= cubeMinBounds.y && point.y <= cubeMaxBounds.y;
-    //     bool withinZ = point.z >= cubeMinBounds.z && point.z <= cubeMaxBounds.z;
+    static CollisionResult sphereCube(const glm::vec4 &sphereCenter, float sphereRadius, const glm::vec4 &boxMinBounds,
+                                      const glm::vec4 &boxMaxBounds)
+    {
+        CollisionResult result;
+        result.collided = false;
+        result.normal = glm::vec4(0.0f);
+        result.penetrationDepth = 0.0f;
 
-    //     return withinX && withinY && withinZ;
-    // }
+        glm::vec3 closestPoint = glm::clamp(glm::vec3(sphereCenter), glm::vec3(boxMinBounds), glm::vec3(boxMaxBounds));
+
+        glm::vec3 distance = glm::vec3(sphereCenter) - closestPoint;
+
+        float distSquared = glm::dot(distance, distance);
+
+        if (distSquared < sphereRadius * sphereRadius)
+        {
+            result.collided = true;
+            float dist = sqrt(distSquared);
+
+            result.penetrationDepth = sphereRadius - dist;
+            result.normal = glm::vec4(glm::normalize(distance), 0.0f);
+        }
+
+        return result;
+    }
 
     static CollisionResult cubeCube(const glm::vec4 &cube1MinBounds, const glm::vec4 &cube1MaxBounds,
                                     const glm::vec4 &cube2MinBounds, const glm::vec4 &cube2MaxBounds)

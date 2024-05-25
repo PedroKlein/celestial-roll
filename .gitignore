@@ -5,7 +5,7 @@
 *.o
 *.obj
 
-!models/*.obj
+!resources/models/*.obj
 
 # Precompiled Headers
 *.gch

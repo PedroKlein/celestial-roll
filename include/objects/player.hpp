@@ -1,7 +1,7 @@
 #pragma once
 
 #include "camera.hpp"
-#include "collision/boxCollider.hpp"
+#include "collision/sphereCollider.hpp"
 #include "game/gameObject.hpp"
 #include "graphics/mesh.hpp"
 #include "graphics/meshManager.hpp"
@@ -22,15 +22,16 @@ class Player : public GameObject, public InputObserver
 
         camera.setTarget(*transform, 10.0f);
 
-        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/cow.obj")));
+        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/sphere.obj")));
 
-        boxCollider = std::make_shared<BoxCollider>(glm::vec3(-1.0f, -3.5f, -1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-        addComponent(boxCollider);
+        sphereCollider = std::make_shared<SphereCollider>(1.0f);
+        addComponent(sphereCollider);
 
         rigidBody = std::make_shared<RigidBody>(20.0f);
         addComponent(rigidBody);
 
         gravity = std::make_shared<GravityComponent>();
+        gravity->disable();
         addComponent(gravity);
     }
 
@@ -40,6 +41,8 @@ class Player : public GameObject, public InputObserver
         {
             return;
         }
+
+        gravity->enable();
 
         // moves the player only in the xz plane
         glm::vec4 cameraFrontInXZ = glm::vec4(camera.getFront().x, 0.0f, camera.getFront().z, 0.0f);
@@ -83,13 +86,14 @@ class Player : public GameObject, public InputObserver
         transform->position = glm::vec4(position, 1.0f);
     }
 
-    std::shared_ptr<BoxCollider> getCollider() const
+    std::shared_ptr<SphereCollider> getCollider() const
     {
-        return boxCollider;
+        return sphereCollider;
     }
 
     void handleCollision(GameObject &other, const glm::vec4 collisionNormal, float penetrationDepth)
     {
+        const static float epsilon = 0.01f;
         std::shared_ptr<Transform> otherTransform = other.getComponent<Transform>();
         std::shared_ptr<PhysicsMaterial> physicsMat = other.getComponent<PhysicsMaterial>();
 
@@ -110,7 +114,8 @@ class Player : public GameObject, public InputObserver
             if (physicsMat)
             {
                 rigidBody->velocity = bounceVelocity + frictionVelocity;
-                if (collisionNormal.y > 0)
+
+                if (collisionNormal.y > epsilon)
                 {
                     rigidBody->isGrounded = true;
                 }
@@ -138,7 +143,7 @@ class Player : public GameObject, public InputObserver
     Camera &camera;
     std::shared_ptr<Transform> transform;
     std::shared_ptr<RigidBody> rigidBody;
-    std::shared_ptr<BoxCollider> boxCollider;
+    std::shared_ptr<SphereCollider> sphereCollider;
     std::shared_ptr<GravityComponent> gravity;
 
     float movementSpeed = 5.0f;

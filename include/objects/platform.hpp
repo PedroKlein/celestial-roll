@@ -20,7 +20,7 @@ class Platform : public GameObject
         boxCollider = std::make_shared<BoxCollider>(-scale, scale);
         addComponent(boxCollider);
 
-        addComponent(std::make_shared<PhysicsMaterial>(1.0f, 0.9f));
+        addComponent(std::make_shared<PhysicsMaterial>(1.0f, 0.8f));
     }
 
     ObjectType getObjectType() const override

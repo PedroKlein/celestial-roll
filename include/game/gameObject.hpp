@@ -43,7 +43,8 @@ class GameObject
     {
         for (auto &pair : components)
         {
-            pair.second->update(deltaTime);
+            if (pair.second->isEnabled())
+                pair.second->update(deltaTime);
         }
     }
 

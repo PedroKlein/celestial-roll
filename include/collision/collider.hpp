@@ -49,6 +49,11 @@ class Collider : public Component
         return MatrixUtils::normalize(otherRotationMatrix * collisionNormal);
     }
 
+    glm::vec4 getPosition() const
+    {
+        return transform->getPosition();
+    }
+
     virtual CollisionResult checkCollision(const Collider &other) const = 0;
 
   protected:

@@ -15,6 +15,7 @@ class Scene
     Scene() = default;
 
     void init()
+
     {
         this->freeCam = std::make_unique<Camera>(glm::vec3(0.0f, -10.0f, -20.0f), 0.0f, -30.0f);
         this->playerCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, -30.0f);
@@ -30,6 +31,11 @@ class Scene
 
     void update(float deltaTime, float viewRatio)
     {
+        if (gameState->getIsPaused())
+        {
+            return;
+        }
+
         viewMatrix = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
 
         projectionMatrix = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -100.0f);
@@ -41,12 +47,12 @@ class Scene
 
         _collisionManager.checkCollisions();
 
+        player->update(deltaTime);
+
         for (auto &obj : objects)
         {
             obj->update(deltaTime);
         }
-
-        player->update(deltaTime);
     }
 
     void addObject(std::shared_ptr<GameObject> object)

@@ -3,7 +3,9 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <execinfo.h>
 #include <iostream>
+#include <unistd.h>
 
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
@@ -125,6 +127,15 @@ class MatrixUtils
         if (u4 != 0.0f || v4 != 0.0f)
         {
             fprintf(stderr, "ERROR: Scalar product is not defined for points.\n");
+
+            void *array[10];
+            size_t size;
+
+            size = backtrace(array, 10);
+
+            fprintf(stderr, "Error occurred, printing stack:\n");
+            backtrace_symbols_fd(array, size, STDERR_FILENO);
+
             std::exit(EXIT_FAILURE);
         }
 
