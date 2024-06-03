@@ -21,8 +21,12 @@ class CollisionManager
 
     void checkCollisions()
     {
+        const static float epsilon = 0.01f;
+
         if (!player || objectsWithColliders.empty())
             return;
+
+        bool isGrounded = false;
 
         for (auto &object : objectsWithColliders)
         {
@@ -33,8 +37,11 @@ class CollisionManager
             if (collisionResult.collided)
             {
                 player->handleCollision(*object.get(), collisionResult.normal, collisionResult.penetrationDepth);
+                isGrounded = collisionResult.normal.y > epsilon;
             }
         }
+
+        player->setIsGrounded(isGrounded);
     }
 
   private:

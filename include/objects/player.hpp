@@ -52,22 +52,33 @@ class Player : public GameObject, public InputObserver
         cameraFrontInXZ = glm::normalize(cameraFrontInXZ);
         cameraRightInXZ = glm::normalize(cameraRightInXZ);
 
+        glm::vec4 force(0.0f);
+        float inputForce = movementSpeed * 10.0f;
+
         if (action == FORWARD)
         {
-            transform->position += cameraFrontInXZ * deltaTime * movementSpeed;
+            force += cameraFrontInXZ * inputForce;
         }
         if (action == BACKWARD)
         {
-            transform->position -= cameraFrontInXZ * deltaTime * movementSpeed;
+            force -= cameraFrontInXZ * inputForce;
         }
         if (action == LEFT)
         {
-            transform->position -= cameraRightInXZ * deltaTime * movementSpeed;
+            force -= cameraRightInXZ * inputForce;
         }
         if (action == RIGHT)
         {
-            transform->position += cameraRightInXZ * deltaTime * movementSpeed;
+            force += cameraRightInXZ * inputForce;
         }
+
+        if (action == JUMP && rigidBody->isGrounded)
+        {
+            transform->position.y += 0.1f;
+            rigidBody->velocity.y = 10.0f;
+        }
+
+        rigidBody->addInputForce(force, deltaTime);
     }
 
     void render(float alpha)
@@ -96,7 +107,6 @@ class Player : public GameObject, public InputObserver
 
     void handleCollision(GameObject &other, const glm::vec4 collisionNormal, float penetrationDepth)
     {
-        const static float epsilon = 0.01f;
         std::shared_ptr<Transform> otherTransform = other.getComponent<Transform>();
         std::shared_ptr<PhysicsMaterial> physicsMat = other.getComponent<PhysicsMaterial>();
 
@@ -117,11 +127,6 @@ class Player : public GameObject, public InputObserver
             if (physicsMat)
             {
                 rigidBody->velocity = bounceVelocity + frictionVelocity;
-
-                if (collisionNormal.y > epsilon)
-                {
-                    rigidBody->isGrounded = true;
-                }
             }
             else
             {
@@ -134,7 +139,12 @@ class Player : public GameObject, public InputObserver
         }
 
         // Move the player out of the platform
-        transform->position += collisionNormal * penetrationDepth;
+        transform->position += collisionNormal * (penetrationDepth / 2);
+    }
+
+    void setIsGrounded(bool isGrounded)
+    {
+        rigidBody->isGrounded = isGrounded;
     }
 
     ObjectType getObjectType() const override
@@ -150,7 +160,7 @@ class Player : public GameObject, public InputObserver
     std::shared_ptr<SphereCollider> sphereCollider;
     std::shared_ptr<GravityComponent> gravity;
 
-    float movementSpeed = 5.0f;
+    float movementSpeed = 2.0f;
 
     glm::vec4 getInterpolatedPosition() const
     {

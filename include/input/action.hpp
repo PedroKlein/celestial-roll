@@ -6,6 +6,7 @@ enum Action
     BACKWARD,
     LEFT,
     RIGHT,
+    JUMP,
     PAUSE,
     EAGLE_VIEW,
 };

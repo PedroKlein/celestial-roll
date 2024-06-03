@@ -10,7 +10,10 @@ class RigidBody : public Component
 {
   public:
     glm::vec4 velocity;
+    glm::vec4 inputVelocity;
     glm::vec4 acceleration;
+    float maxInputVelocity = 8.0f;
+    float inputVelocityDecay = 0.95f;
     bool isGrounded = false;
 
     RigidBody(float mass) : mass(mass), velocity(0), acceleration(0), forceAccumulator(0)
@@ -46,7 +49,11 @@ class RigidBody : public Component
         updatePhysics(deltaTime);
 
         transform->position += velocity * deltaTime;
-        isGrounded = false;
+    }
+
+    void addInputForce(const glm::vec4 &force, float deltaTime)
+    {
+        inputVelocity += force * inverseMass * deltaTime;
     }
 
     void applyForce(const glm::vec4 &force)
@@ -68,9 +75,15 @@ class RigidBody : public Component
 
         velocity += acceleration * deltaTime;
 
+        if (glm::length(inputVelocity + velocity) <= maxInputVelocity)
+        {
+            velocity += inputVelocity;
+        }
+
         clearAccumulator();
 
         velocity *= pow(0.99f, deltaTime);
+        inputVelocity *= inputVelocityDecay;
 
         transform->position += velocity * deltaTime;
     }

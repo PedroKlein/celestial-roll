@@ -44,6 +44,9 @@ class InputHandler
         if (key == GLFW_KEY_D)
             dKeyPressed = (action != GLFW_RELEASE);
 
+        if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+            notifyObserversOfKeyboard(JUMP);
+
         if (key == GLFW_KEY_P && action == GLFW_PRESS)
             notifyObserversOfKeyboard(PAUSE);
         if (key == GLFW_KEY_E && action == GLFW_PRESS)

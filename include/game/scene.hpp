@@ -24,7 +24,7 @@ class Scene
 
         this->gameState = std::make_unique<GameState>(*freeCam.get(), *playerCam.get(), *player.get());
 
-        addObject(std::make_shared<Platform>(glm::vec3(0.0f, -40.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f),
+        addObject(std::make_shared<Platform>(glm::vec3(0.0f, -40.0f, 0.0f), glm::vec3(100.0f, 1.0f, 100.0f),
                                              glm::vec3(0.0f, 0.0f, 0.0f)));
 
         _collisionManager.setPlayer(player.get());
@@ -50,7 +50,7 @@ class Scene
     void render(float alpha, float viewRatio)
     {
         viewMatrix = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
-        projectionMatrix = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -100.0f);
+        projectionMatrix = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -1000.0f);
 
         _globalShader.setMat4("view", viewMatrix);
         _globalShader.setMat4("projection", projectionMatrix);
