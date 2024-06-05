@@ -34,7 +34,7 @@ class Game
         float accumulatedTime = processPhysics(frameTime);
         renderScene(accumulatedTime);
 
-        // sleepToCapFrameRate(frameTime);
+        sleepToCapFrameRate(frameTime);
     }
 
     InputHandler *getInputHandler()

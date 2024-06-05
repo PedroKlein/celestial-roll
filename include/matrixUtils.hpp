@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include <execinfo.h>
+// #include <execinfo.h>
 #include <iostream>
 #include <unistd.h>
 
@@ -128,13 +128,15 @@ class MatrixUtils
         {
             fprintf(stderr, "ERROR: Scalar product is not defined for points.\n");
 
-            void *array[10];
-            size_t size;
+            // TODO: create a multi platform stack trace function
 
-            size = backtrace(array, 10);
+            // void *array[10];
+            // size_t size;
 
-            fprintf(stderr, "Error occurred, printing stack:\n");
-            backtrace_symbols_fd(array, size, STDERR_FILENO);
+            // size = backtrace(array, 10);
+
+            // fprintf(stderr, "Error occurred, printing stack:\n");
+            // backtrace_symbols_fd(array, size, STDERR_FILENO);
 
             std::exit(EXIT_FAILURE);
         }
@@ -142,29 +144,29 @@ class MatrixUtils
         return u1 * v1 + u2 * v2 + u3 * v3;
     }
 
-    static glm::mat4 orthographicMatrix(float left, float right, float bottom, float top, float near, float far)
+    static glm::mat4 orthographicMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
     {
         return Matrix(2 / (right - left), 0.0f, 0.0f, -(right + left) / (right - left), // Line 1
                       0.0f, 2 / (top - bottom), 0.0f, -(top + bottom) / (top - bottom), // Line 2
-                      0.0f, 0.0f, 2 / (far - near), -(far + near) / (far - near),       // Line 3
+                      0.0f, 0.0f, 2 / (zFar - zNear), -(zFar + zNear) / (zFar - zNear), // Line 3
                       0.0f, 0.0f, 0.0f, 1.0f                                            // Line 4
         );
     }
 
-    static glm::mat4 perspectiveMatrix(float fieldOfView, float aspect, float near, float far)
+    static glm::mat4 perspectiveMatrix(float fieldOfView, float aspect, float zNear, float zFar)
     {
-        float t = fabs(near) * tanf(fieldOfView / 2.0f);
+        float t = fabs(zNear) * tanf(fieldOfView / 2.0f);
         float b = -t;
         float r = t * aspect;
         float l = -r;
 
-        glm::mat4 P = Matrix(near, 0.0f, 0.0f, 0.0f,              // Line 1
-                             0.0f, near, 0.0f, 0.0f,              // Line 2
-                             0.0f, 0.0f, near + far, -far * near, // Line 3
-                             0.0f, 0.0f, 1, 0.0f                  // Line 4
+        glm::mat4 P = Matrix(zNear, 0.0f, 0.0f, 0.0f,                 // Line 1
+                             0.0f, zNear, 0.0f, 0.0f,                 // Line 2
+                             0.0f, 0.0f, zNear + zFar, -zFar * zNear, // Line 3
+                             0.0f, 0.0f, 1, 0.0f                      // Line 4
         );
 
-        glm::mat4 M = orthographicMatrix(l, r, b, t, near, far);
+        glm::mat4 M = orthographicMatrix(l, r, b, t, zNear, zFar);
 
         return -M * P;
     }
