@@ -33,25 +33,25 @@ class CollisionDetector
     }
 
     static CollisionResult sphereToOBB(const glm::vec4 &sphereCenter, float sphereRadius, const glm::vec4 &obbCenter,
-                                       const glm::vec3 &obbHalfWidths, const glm::mat3 &obbOrientation)
+                                       const glm::vec3 &obbHalfWidths, const glm::mat4 &obbOrientation)
     {
         // Transform sphere center to OBB's local coordinate system
-        glm::vec3 relCenter = glm::vec3(sphereCenter) - glm::vec3(obbCenter);
-        glm::vec3 localSphereCenter = obbOrientation * relCenter;
+        glm::vec4 relCenter = sphereCenter - obbCenter;
+        glm::vec4 localSphereCenter = obbOrientation * relCenter;
 
         // Create local AABB bounds for OBB
         glm::vec4 localAABBMin = glm::vec4(-obbHalfWidths, 0.0f);
         glm::vec4 localAABBMax = glm::vec4(obbHalfWidths, 0.0f);
 
         // Use sphereToAABB method to test collision in local space
-        CollisionResult localResult =
-            sphereToAABB(glm::vec4(localSphereCenter, 1.0f), sphereRadius, localAABBMin, localAABBMax);
+        CollisionResult localResult = sphereToAABB(localSphereCenter, sphereRadius, localAABBMin, localAABBMax);
 
         if (localResult.collided)
         {
             // Transform the collision normal back to world space
-            glm::vec3 worldNormal = glm::transpose(obbOrientation) * glm::vec3(localResult.normal);
-            localResult.normal = glm::vec4(worldNormal, 0.0f);
+            localResult.normal = glm::transpose(obbOrientation) * localResult.normal;
+            std::cout << "Local normal: " << localResult.normal.x << ", " << localResult.normal.y << ", "
+                      << localResult.normal.z << std::endl;
         }
 
         return localResult;

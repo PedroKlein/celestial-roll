@@ -6,6 +6,7 @@
 #include "graphics/meshManager.hpp"
 #include "graphics/renderer.hpp"
 #include "physics/physicsMaterial.hpp"
+#include <glm/ext/matrix_transform.hpp>
 
 class Platform : public GameObject
 {
@@ -18,8 +19,16 @@ class Platform : public GameObject
 
         addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/cube.obj")));
 
-        aabbCollider = std::make_shared<AABBCollider>(-scale, scale);
-        addComponent(aabbCollider);
+        if (rotation == glm::vec3(0.0f))
+        {
+            collider = std::make_shared<AABBCollider>(-scale, scale);
+            addComponent(collider);
+        }
+        else
+        {
+            collider = std::make_shared<OBBCollider>(scale);
+            addComponent(collider);
+        }
 
         addComponent(std::make_shared<PhysicsMaterial>(0.1f, 0.0f));
     }
@@ -31,5 +40,5 @@ class Platform : public GameObject
 
   private:
     std::shared_ptr<Transform> transform;
-    std::shared_ptr<AABBCollider> aabbCollider;
+    std::shared_ptr<Collider> collider;
 };
