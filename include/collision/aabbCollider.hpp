@@ -5,24 +5,24 @@
 // #include "sphereCollider.hpp"
 
 // TODO: refactor this to exclude circular dependency with sphereCollider
-
-// currently its only using AABB collision detection, so rotated objects won't have a rotated collider
-class BoxCollider : public Collider
+class AABBCollider : public Collider
 {
   public:
-    BoxCollider(const glm::vec3 &min, const glm::vec3 &max)
-        : minBounds(min, 0.0f), maxBounds(max, 0.0f), Collider(ColliderType::Box)
+    AABBCollider(const glm::vec3 &min, const glm::vec3 &max)
+        : minBounds(min, 0.0f), maxBounds(max, 0.0f), Collider(ColliderType::AABB)
     {
     }
 
     CollisionResult checkCollision(const Collider &other) const override
     {
-        const BoxCollider *otherBox = dynamic_cast<const BoxCollider *>(&other);
+        // not implement properly yet since we only handle collision from the player perspective, which is a sphere
+
+        const AABBCollider *otherBox = dynamic_cast<const AABBCollider *>(&other);
         if (otherBox && transform)
         {
 
-            auto result = CollisionDetector::cubeCube(getMinBounds(), getMaxBounds(), otherBox->getMinBounds(),
-                                                      otherBox->getMaxBounds());
+            auto result = CollisionDetector::aabbToAABB(getMinBounds(), getMaxBounds(), otherBox->getMinBounds(),
+                                                        otherBox->getMaxBounds());
 
             return CollisionResult{result.collided, transformNormal(otherBox->getRotationMatrix(), result.normal)};
         }

@@ -15,7 +15,7 @@ struct CollisionResult
 class CollisionDetector
 {
   public:
-    static CollisionResult pointSphere(const glm::vec4 &point, const glm::vec4 &sphereCenter, float sphereRadius)
+    static CollisionResult pointToSphere(const glm::vec4 &point, const glm::vec4 &sphereCenter, float sphereRadius)
     {
         CollisionResult result{false, glm::vec4(0.0f), 0};
 
@@ -32,15 +32,41 @@ class CollisionDetector
         return result;
     }
 
-    static CollisionResult sphereCube(const glm::vec4 &sphereCenter, float sphereRadius, const glm::vec4 &boxMinBounds,
-                                      const glm::vec4 &boxMaxBounds)
+    static CollisionResult sphereToOBB(const glm::vec4 &sphereCenter, float sphereRadius, const glm::vec4 &obbCenter,
+                                       const glm::vec3 &obbHalfWidths, const glm::mat3 &obbOrientation)
+    {
+        // Transform sphere center to OBB's local coordinate system
+        glm::vec3 relCenter = glm::vec3(sphereCenter) - glm::vec3(obbCenter);
+        glm::vec3 localSphereCenter = obbOrientation * relCenter;
+
+        // Create local AABB bounds for OBB
+        glm::vec4 localAABBMin = glm::vec4(-obbHalfWidths, 0.0f);
+        glm::vec4 localAABBMax = glm::vec4(obbHalfWidths, 0.0f);
+
+        // Use sphereToAABB method to test collision in local space
+        CollisionResult localResult =
+            sphereToAABB(glm::vec4(localSphereCenter, 1.0f), sphereRadius, localAABBMin, localAABBMax);
+
+        if (localResult.collided)
+        {
+            // Transform the collision normal back to world space
+            glm::vec3 worldNormal = glm::transpose(obbOrientation) * glm::vec3(localResult.normal);
+            localResult.normal = glm::vec4(worldNormal, 0.0f);
+        }
+
+        return localResult;
+    }
+
+    static CollisionResult sphereToAABB(const glm::vec4 &sphereCenter, float sphereRadius,
+                                        const glm::vec4 &aabbMinBounds, const glm::vec4 &aabbMaxBounds)
     {
         CollisionResult result;
         result.collided = false;
         result.normal = glm::vec4(0.0f);
         result.penetrationDepth = 0.0f;
 
-        glm::vec3 closestPoint = glm::clamp(glm::vec3(sphereCenter), glm::vec3(boxMinBounds), glm::vec3(boxMaxBounds));
+        glm::vec3 closestPoint =
+            glm::clamp(glm::vec3(sphereCenter), glm::vec3(aabbMinBounds), glm::vec3(aabbMaxBounds));
 
         glm::vec3 distance = glm::vec3(sphereCenter) - closestPoint;
 
@@ -58,14 +84,14 @@ class CollisionDetector
         return result;
     }
 
-    static CollisionResult cubeCube(const glm::vec4 &cube1MinBounds, const glm::vec4 &cube1MaxBounds,
-                                    const glm::vec4 &cube2MinBounds, const glm::vec4 &cube2MaxBounds)
+    static CollisionResult aabbToAABB(const glm::vec4 &aabb1MinBounds, const glm::vec4 &aabb1MaxBounds,
+                                      const glm::vec4 &aabb2MinBounds, const glm::vec4 &aabb2MaxBounds)
     {
         CollisionResult result{false, glm::vec4(0.0f), 0};
 
-        float overlapX = std::min(cube1MaxBounds.x, cube2MaxBounds.x) - std::max(cube1MinBounds.x, cube2MinBounds.x);
-        float overlapY = std::min(cube1MaxBounds.y, cube2MaxBounds.y) - std::max(cube1MinBounds.y, cube2MinBounds.y);
-        float overlapZ = std::min(cube1MaxBounds.z, cube2MaxBounds.z) - std::max(cube1MinBounds.z, cube2MinBounds.z);
+        float overlapX = std::min(aabb1MaxBounds.x, aabb2MaxBounds.x) - std::max(aabb1MinBounds.x, aabb2MinBounds.x);
+        float overlapY = std::min(aabb1MaxBounds.y, aabb2MaxBounds.y) - std::max(aabb1MinBounds.y, aabb2MinBounds.y);
+        float overlapZ = std::min(aabb1MaxBounds.z, aabb2MaxBounds.z) - std::max(aabb1MinBounds.z, aabb2MinBounds.z);
 
         if (overlapX <= 0 || overlapY < 0 || overlapZ < 0)
         {
@@ -79,15 +105,15 @@ class CollisionDetector
 
         if (minOverlap == overlapX)
         {
-            result.normal = (cube1MinBounds.x < cube2MinBounds.x) ? glm::vec4(-1, 0, 0, 0) : glm::vec4(1, 0, 0, 0);
+            result.normal = (aabb1MinBounds.x < aabb2MinBounds.x) ? glm::vec4(-1, 0, 0, 0) : glm::vec4(1, 0, 0, 0);
         }
         else if (minOverlap == overlapY)
         {
-            result.normal = (cube1MinBounds.y < cube2MinBounds.y) ? glm::vec4(0, -1, 0, 0) : glm::vec4(0, 1, 0, 0);
+            result.normal = (aabb1MinBounds.y < aabb2MinBounds.y) ? glm::vec4(0, -1, 0, 0) : glm::vec4(0, 1, 0, 0);
         }
         else if (minOverlap == overlapZ)
         {
-            result.normal = (cube1MinBounds.z < cube2MinBounds.z) ? glm::vec4(0, 0, -1, 0) : glm::vec4(0, 0, 1, 0);
+            result.normal = (aabb1MinBounds.z < aabb2MinBounds.z) ? glm::vec4(0, 0, -1, 0) : glm::vec4(0, 0, 1, 0);
         }
 
         return result;

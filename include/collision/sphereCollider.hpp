@@ -3,7 +3,8 @@
 #include "collider.hpp"
 #include "collisionDetector.hpp"
 
-#include "boxCollider.hpp"
+#include "aabbCollider.hpp"
+#include "obbCollider.hpp"
 
 class SphereCollider : public Collider
 {
@@ -16,14 +17,25 @@ class SphereCollider : public Collider
     {
         CollisionResult result{false, glm::vec4(0.0f)};
 
-        const BoxCollider *otherBox = dynamic_cast<const BoxCollider *>(&other);
-        if (otherBox && transform)
+        const AABBCollider *otherAABB = dynamic_cast<const AABBCollider *>(&other);
+
+        if (otherAABB && transform)
         {
 
-            result = CollisionDetector::sphereCube(getPosition(), getRadius(), otherBox->getMinBounds(),
-                                                   otherBox->getMaxBounds());
+            result = CollisionDetector::sphereToAABB(getPosition(), getRadius(), otherAABB->getMinBounds(),
+                                                     otherAABB->getMaxBounds());
 
-            result.normal = transformNormal(otherBox->getRotationMatrix(), result.normal);
+            result.normal = transformNormal(otherAABB->getRotationMatrix(), result.normal);
+        }
+
+        const OBBCollider *otherOBB = dynamic_cast<const OBBCollider *>(&other);
+
+        if (otherOBB && transform)
+        {
+            result = CollisionDetector::sphereToOBB(getPosition(), getRadius(), otherOBB->getPosition(),
+                                                    otherOBB->getHalfWidths(), otherOBB->getRotationMatrix());
+
+            result.normal = transformNormal(otherOBB->getRotationMatrix(), result.normal);
         }
 
         return result;

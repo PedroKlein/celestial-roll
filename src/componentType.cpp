@@ -1,10 +1,11 @@
 #include "game/componentType.hpp"
-#include "collision/boxCollider.hpp"
+#include "collision/aabbCollider.hpp"
 #include "collision/collider.hpp"
+#include "collision/obbCollider.hpp"
 #include "collision/sphereCollider.hpp"
 #include "graphics/renderer.hpp"
-#include "physics/PhysicsMaterial.hpp"
 #include "physics/gravityComponent.hpp"
+#include "physics/physicsMaterial.hpp"
 #include "physics/rigidBody.hpp"
 #include "transform.hpp"
 
@@ -18,7 +19,12 @@ template <> ComponentType getComponentType<Collider>()
     return ComponentType::Collider;
 }
 
-template <> ComponentType getComponentType<BoxCollider>()
+template <> ComponentType getComponentType<AABBCollider>()
+{
+    return ComponentType::Collider;
+}
+
+template <> ComponentType getComponentType<OBBCollider>()
 {
     return ComponentType::Collider;
 }

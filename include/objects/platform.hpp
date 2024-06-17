@@ -1,6 +1,6 @@
 #pragma once
 
-#include "collision/boxCollider.hpp"
+#include "collision/aabbCollider.hpp"
 #include "game/gameObject.hpp"
 #include "graphics/mesh.hpp"
 #include "graphics/meshManager.hpp"
@@ -18,8 +18,8 @@ class Platform : public GameObject
 
         addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/cube.obj")));
 
-        boxCollider = std::make_shared<BoxCollider>(-scale, scale);
-        addComponent(boxCollider);
+        aabbCollider = std::make_shared<AABBCollider>(-scale, scale);
+        addComponent(aabbCollider);
 
         addComponent(std::make_shared<PhysicsMaterial>(0.1f, 0.0f));
     }
@@ -31,5 +31,5 @@ class Platform : public GameObject
 
   private:
     std::shared_ptr<Transform> transform;
-    std::shared_ptr<BoxCollider> boxCollider;
+    std::shared_ptr<AABBCollider> aabbCollider;
 };

@@ -9,7 +9,8 @@
 
 enum class ColliderType
 {
-    Box,
+    OBB,
+    AABB,
     Sphere,
 };
 
