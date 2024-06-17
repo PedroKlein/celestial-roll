@@ -113,7 +113,7 @@ class Camera : public GameObject, public InputObserver
             pitch = pitchMax;
 
         if (pitch < pitchMin)
-            pitch = pitch;
+            pitch = pitchMin;
 
         updateCameraVectors();
     }

@@ -30,13 +30,10 @@ class InterpolatedTransform
 
     glm::mat4 getInterpolatedModelMatrix() const
     {
-        glm::mat4 interpolatedRotationMatrix = Transform::getRotationMatrix(interpolatedRotation);
-
         glm::mat4 model =
             MatrixUtils::translateMatrix(interpolatedPosition.x, interpolatedPosition.y, interpolatedPosition.z);
-        model *= interpolatedRotationMatrix;
+        model *= Transform::getRotationMatrix(interpolatedRotation);
         model *= MatrixUtils::scaleMatrix(interpolatedScale.x, interpolatedScale.y, interpolatedScale.z);
-
         return model;
     }
 };

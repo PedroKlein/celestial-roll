@@ -37,14 +37,14 @@ class Scene
             return;
         }
 
-        _collisionManager.checkCollisions();
-
         player->updatePhysics(deltaTime);
 
         for (auto &obj : objects)
         {
             obj->updatePhysics(deltaTime);
         }
+
+        _collisionManager.checkCollisions();
     }
 
     void render(float alpha, float viewRatio)

@@ -107,38 +107,29 @@ class Player : public GameObject, public InputObserver
 
     void handleCollision(GameObject &other, const glm::vec4 collisionNormal, float penetrationDepth)
     {
-        std::shared_ptr<Transform> otherTransform = other.getComponent<Transform>();
-        std::shared_ptr<PhysicsMaterial> physicsMat = other.getComponent<PhysicsMaterial>();
+        auto otherTransform = other.getComponent<Transform>();
+        auto physicsMat = other.getComponent<PhysicsMaterial>();
 
-        glm::vec4 normalComponentOfVelocity =
-            MatrixUtils::dotProduct(rigidBody->velocity, collisionNormal) * collisionNormal;
-
-        glm::vec4 tangentialComponent = rigidBody->velocity - normalComponentOfVelocity;
-
-        float bounciness = (physicsMat) ? physicsMat->getBounciness() : 0.0f;
-        glm::vec4 bounceVelocity = -normalComponentOfVelocity * bounciness;
-
-        float friction = (physicsMat) ? physicsMat->getFriction() : 0.0f;
-        glm::vec4 frictionVelocity = tangentialComponent * (1.0f - friction);
-
-        switch (other.getObjectType())
+        if (!otherTransform || !physicsMat)
         {
-        case ObjectType::Platform:
-            if (physicsMat)
-            {
-                rigidBody->velocity = bounceVelocity + frictionVelocity;
-            }
-            else
-            {
-                rigidBody->velocity -= 2.0f * normalComponentOfVelocity;
-            }
-            break;
-        default:
-            rigidBody->velocity -= 2.0f * normalComponentOfVelocity;
-            break;
+            return;
         }
 
-        // Move the player out of the platform
+        glm::vec4 normalComponent = MatrixUtils::dotProduct(rigidBody->velocity, collisionNormal) * collisionNormal;
+        glm::vec4 tangentialComponent = rigidBody->velocity - normalComponent;
+
+        glm::vec4 bounceVelocity = -normalComponent * physicsMat->getBounciness();
+        glm::vec4 frictionVelocity = tangentialComponent * (1.0f - physicsMat->getFriction());
+
+        if (other.getObjectType() == ObjectType::Platform)
+        {
+            rigidBody->velocity = bounceVelocity + frictionVelocity;
+        }
+        else
+        {
+            rigidBody->velocity -= 2.0f * normalComponent;
+        }
+
         transform->position += collisionNormal * (penetrationDepth / 2);
     }
 
