@@ -1,5 +1,6 @@
 #pragma once
 
+#include "debug.hpp"
 #include "game/component.hpp"
 #include "matrixUtils.hpp"
 #include <glm/glm.hpp>
@@ -31,6 +32,7 @@ class Transform : public Component
     Transform(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &rotation)
         : position(position, 1.0f), rotation(rotation), scale(scale)
     {
+        this->rotation = glm::radians(rotation);
         saveState();
         updateRotationMatrix();
     }
@@ -75,9 +77,8 @@ class Transform : public Component
 
     glm::mat4 getModelMatrix() const
     {
-        updateRotationMatrix();
         glm::mat4 model = MatrixUtils::translateMatrix(position.x, position.y, position.z);
-        model *= rotationMatrix;
+        model *= getRotationMatrix();
         model *= MatrixUtils::scaleMatrix(scale.x, scale.y, scale.z);
         return model;
     }
@@ -109,9 +110,9 @@ class Transform : public Component
     {
         glm::mat4 rotationMatrix = glm::mat4(1.0f);
 
-        rotationMatrix = MatrixUtils::rotateXMatrix(glm::radians(rotation.x));
-        rotationMatrix *= MatrixUtils::rotateYMatrix(glm::radians(rotation.y));
-        rotationMatrix *= MatrixUtils::rotateZMatrix(glm::radians(rotation.z));
+        rotationMatrix = MatrixUtils::rotateXMatrix(rotation.x);
+        rotationMatrix *= MatrixUtils::rotateYMatrix(rotation.y);
+        rotationMatrix *= MatrixUtils::rotateZMatrix(rotation.z);
 
         return rotationMatrix;
     }

@@ -24,15 +24,17 @@ class InterpolatedTransform
     {
         interpolatedPosition =
             glm::mix(glm::vec3(baseTransform->previousPosition), glm::vec3(baseTransform->position), alpha);
-        interpolatedScale = glm::mix(baseTransform->previousScale, baseTransform->scale, alpha);
-        interpolatedRotation = glm::mix(baseTransform->previousRotation, baseTransform->rotation, alpha);
+        // not doing interpolation for scale and rotation for now
+        interpolatedScale = baseTransform->previousScale;
+        interpolatedRotation = baseTransform->previousRotation;
     }
 
     glm::mat4 getInterpolatedModelMatrix() const
     {
         glm::mat4 model =
             MatrixUtils::translateMatrix(interpolatedPosition.x, interpolatedPosition.y, interpolatedPosition.z);
-        model *= Transform::getRotationMatrix(interpolatedRotation);
+        // TODO: investigate why for collisions the rotation on xz is mirrored from the render, the minus sign is a hack
+        model *= Transform::getRotationMatrix(-interpolatedRotation);
         model *= MatrixUtils::scaleMatrix(interpolatedScale.x, interpolatedScale.y, interpolatedScale.z);
         return model;
     }

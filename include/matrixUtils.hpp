@@ -86,6 +86,20 @@ class MatrixUtils
         );
     }
 
+    static glm::mat4 transposeHomogeneous(glm::mat4 m)
+    {
+        glm::mat4 result = m;
+        // transpose only the top-left 3x3 part of the matrix
+        result[0][1] = m[1][0];
+        result[0][2] = m[2][0];
+        result[1][0] = m[0][1];
+        result[1][2] = m[2][1];
+        result[2][0] = m[0][2];
+        result[2][1] = m[1][2];
+
+        return result;
+    }
+
     static float norm(glm::vec4 v)
     {
         float vx = v.x;

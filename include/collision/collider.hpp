@@ -45,11 +45,6 @@ class Collider : public Component
         return transform->getRotationMatrix();
     }
 
-    glm::vec4 transformNormal(const glm::mat4 &otherRotationMatrix, const glm::vec4 &collisionNormal) const
-    {
-        return MatrixUtils::normalize(otherRotationMatrix * collisionNormal);
-    }
-
     glm::vec4 getPosition() const
     {
         return transform->getPosition();

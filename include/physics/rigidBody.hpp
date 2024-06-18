@@ -16,7 +16,7 @@ class RigidBody : public Component
     float inputVelocityDecay = 0.95f;
     bool isGrounded = false;
 
-    RigidBody(float mass) : mass(mass), velocity(0), acceleration(0), forceAccumulator(0)
+    RigidBody(float mass) : mass(mass), velocity(0), inputVelocity(0), acceleration(0), forceAccumulator(0)
     {
         if (mass != 0)
         {

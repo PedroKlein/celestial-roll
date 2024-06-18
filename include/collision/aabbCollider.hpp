@@ -21,10 +21,8 @@ class AABBCollider : public Collider
         if (otherBox && transform)
         {
 
-            auto result = CollisionDetector::aabbToAABB(getMinBounds(), getMaxBounds(), otherBox->getMinBounds(),
-                                                        otherBox->getMaxBounds());
-
-            return CollisionResult{result.collided, transformNormal(otherBox->getRotationMatrix(), result.normal)};
+            return CollisionDetector::aabbToAABB(getMinBounds(), getMaxBounds(), otherBox->getMinBounds(),
+                                                 otherBox->getMaxBounds());
         }
 
         // const SphereCollider *otherSphere = dynamic_cast<const SphereCollider *>(&other);

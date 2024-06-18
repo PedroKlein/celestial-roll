@@ -24,8 +24,6 @@ class SphereCollider : public Collider
 
             result = CollisionDetector::sphereToAABB(getPosition(), getRadius(), otherAABB->getMinBounds(),
                                                      otherAABB->getMaxBounds());
-
-            result.normal = transformNormal(otherAABB->getRotationMatrix(), result.normal);
         }
 
         const OBBCollider *otherOBB = dynamic_cast<const OBBCollider *>(&other);
@@ -34,8 +32,6 @@ class SphereCollider : public Collider
         {
             result = CollisionDetector::sphereToOBB(getPosition(), getRadius(), otherOBB->getPosition(),
                                                     otherOBB->getHalfWidths(), otherOBB->getRotationMatrix());
-
-            result.normal = transformNormal(otherOBB->getRotationMatrix(), result.normal);
         }
 
         return result;

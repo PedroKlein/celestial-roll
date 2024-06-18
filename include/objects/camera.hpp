@@ -137,6 +137,8 @@ class Camera : public GameObject, public InputObserver
             front = MatrixUtils::normalize(target->getPosition() - transform->getPosition());
             right = MatrixUtils::crossProduct(front, worldUp);
         }
+
+        right = MatrixUtils::normalize(right);
     }
 
     ObjectType getObjectType() const override

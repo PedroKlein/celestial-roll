@@ -1,5 +1,6 @@
 #pragma once
 
+#include "debug.hpp"
 #include "matrixUtils.hpp"
 #include <algorithm>
 #include <glm/glm.hpp>
@@ -49,9 +50,7 @@ class CollisionDetector
         if (localResult.collided)
         {
             // Transform the collision normal back to world space
-            localResult.normal = glm::transpose(obbOrientation) * localResult.normal;
-            std::cout << "Local normal: " << localResult.normal.x << ", " << localResult.normal.y << ", "
-                      << localResult.normal.z << std::endl;
+            localResult.normal = MatrixUtils::transposeHomogeneous(obbOrientation) * localResult.normal;
         }
 
         return localResult;
@@ -65,12 +64,11 @@ class CollisionDetector
         result.normal = glm::vec4(0.0f);
         result.penetrationDepth = 0.0f;
 
-        glm::vec3 closestPoint =
-            glm::clamp(glm::vec3(sphereCenter), glm::vec3(aabbMinBounds), glm::vec3(aabbMaxBounds));
+        glm::vec4 closestPoint = glm::clamp(sphereCenter, aabbMinBounds, aabbMaxBounds);
 
-        glm::vec3 distance = glm::vec3(sphereCenter) - closestPoint;
+        glm::vec4 distance = sphereCenter - closestPoint;
 
-        float distSquared = glm::dot(distance, distance);
+        float distSquared = MatrixUtils::dotProduct(distance, distance);
 
         if (distSquared < sphereRadius * sphereRadius)
         {
@@ -78,7 +76,7 @@ class CollisionDetector
             float dist = sqrt(distSquared);
 
             result.penetrationDepth = sphereRadius - dist;
-            result.normal = glm::vec4(glm::normalize(distance), 0.0f);
+            result.normal = MatrixUtils::normalize(distance);
         }
 
         return result;

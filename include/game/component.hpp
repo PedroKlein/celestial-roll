@@ -15,6 +15,8 @@ class Component
     void disable();
     bool isEnabled() const;
 
+    const GameObject *getGameObject() const;
+
     virtual void initialize()
     {
     }

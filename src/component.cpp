@@ -19,3 +19,8 @@ bool Component::isEnabled() const
 {
     return enabled;
 }
+
+const GameObject *Component::getGameObject() const
+{
+    return gameObject;
+}
