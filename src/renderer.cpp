@@ -1,7 +1,8 @@
 #include "graphics/renderer.hpp"
 #include "game/gameObject.hpp"
 
-Renderer::Renderer(const std::shared_ptr<Mesh> &mesh) : mesh(mesh)
+Renderer::Renderer(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Material> &material)
+    : mesh(mesh), material(material)
 {
 }
 
@@ -27,5 +28,5 @@ void Renderer::update(float alpha)
     interpolatedTransform->calculateInterpolation(alpha);
 
     _globalShader.setMat4("model", interpolatedTransform->getInterpolatedModelMatrix());
-    mesh->draw(_globalShader);
+    mesh->draw(_globalShader, *material.get());
 }

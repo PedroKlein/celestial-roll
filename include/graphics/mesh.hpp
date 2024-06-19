@@ -47,10 +47,8 @@ class Mesh
         glBindVertexArray(0);
     }
 
-    void draw(const Shader &shader) const
+    void draw(const Shader &shader, const Material &material) const
     {
-        const Material &material = getMaterial();
-
         shader.setVec3("material.ambient", material.ambient);
         shader.setVec3("material.diffuse", material.diffuse);
         shader.setVec3("material.specular", material.specular);
@@ -75,11 +73,6 @@ class Mesh
         glBindVertexArray(0);
 
         glActiveTexture(GL_TEXTURE0);
-    }
-
-    const Material &getMaterial() const
-    {
-        return loader.getMaterial();
     }
 
     ~Mesh()

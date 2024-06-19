@@ -1,6 +1,5 @@
 #pragma once
 
-#include "material.hpp"
 #include <cassert>
 #include <glm/glm.hpp>
 #include <iostream>
@@ -41,20 +40,6 @@ class ObjLoader
             std::cerr << "TinyObjLoader Warning: " << err << std::endl;
         }
 
-        if (!materials.empty())
-        {
-            const auto &material = materials[0];
-            this->material.ambient = glm::vec3(material.ambient[0], material.ambient[1], material.ambient[2]);
-            this->material.diffuse = glm::vec3(material.diffuse[0], material.diffuse[1], material.diffuse[2]);
-            this->material.specular = glm::vec3(material.specular[0], material.specular[1], material.specular[2]);
-            this->material.shininess = material.shininess;
-
-            if (!material.diffuse_texname.empty())
-            {
-                this->material.setDiffuseTexture(material.diffuse_texname);
-            }
-        }
-
         return loadAttributes(attrib, shapes);
     }
 
@@ -67,14 +52,8 @@ class ObjLoader
         return indices;
     }
 
-    const Material &getMaterial() const
-    {
-        return material;
-    }
-
   private:
     std::string filename;
-    Material material;
     std::vector<VertexAttribute> vertexAttributes;
     std::vector<unsigned int> indices;
 

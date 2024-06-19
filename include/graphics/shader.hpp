@@ -6,56 +6,18 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 
 class Shader
 {
   public:
     unsigned int ID;
+    static std::unordered_map<std::string, unsigned int> shaderCache;
 
     void initialize(const char *vertexPath, const char *fragmentPath)
     {
-        std::string vertexCode;
-        std::string fragmentCode;
-        std::ifstream vShaderFile;
-        std::ifstream fShaderFile;
-
-        vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-        fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-        try
-        {
-            vShaderFile.open(vertexPath);
-            fShaderFile.open(fragmentPath);
-            std::stringstream vShaderStream, fShaderStream;
-
-            vShaderStream << vShaderFile.rdbuf();
-            fShaderStream << fShaderFile.rdbuf();
-
-            vShaderFile.close();
-            fShaderFile.close();
-
-            vertexCode = vShaderStream.str();
-            fragmentCode = fShaderStream.str();
-        }
-        catch (std::ifstream::failure &e)
-        {
-            std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << e.what() << std::endl;
-            std::exit(EXIT_FAILURE);
-        }
-
-        const char *vShaderCode = vertexCode.c_str();
-        const char *fShaderCode = fragmentCode.c_str();
-
-        unsigned int vertex, fragment;
-
-        vertex = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertex, 1, &vShaderCode, NULL);
-        glCompileShader(vertex);
-        checkCompileErrors(vertex, "VERTEX");
-
-        fragment = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragment, 1, &fShaderCode, NULL);
-        glCompileShader(fragment);
-        checkCompileErrors(fragment, "FRAGMENT");
+        unsigned int vertex = loadShader(vertexPath, GL_VERTEX_SHADER);
+        unsigned int fragment = loadShader(fragmentPath, GL_FRAGMENT_SHADER);
 
         ID = glCreateProgram();
         glAttachShader(ID, vertex);
@@ -63,8 +25,43 @@ class Shader
         glLinkProgram(ID);
         checkCompileErrors(ID, "PROGRAM");
 
-        glDeleteShader(vertex);
-        glDeleteShader(fragment);
+        glDetachShader(ID, vertex);
+        glDetachShader(ID, fragment);
+    }
+
+    unsigned int loadShader(const std::string &shaderPath, GLenum shaderType)
+    {
+        if (shaderCache.find(shaderPath) != shaderCache.end())
+        {
+            return shaderCache[shaderPath];
+        }
+
+        std::string shaderCode;
+        std::ifstream shaderFile;
+
+        shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        try
+        {
+            shaderFile.open(shaderPath);
+            std::stringstream shaderStream;
+            shaderStream << shaderFile.rdbuf();
+            shaderFile.close();
+            shaderCode = shaderStream.str();
+        }
+        catch (std::ifstream::failure &e)
+        {
+            std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << e.what() << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+
+        const char *code = shaderCode.c_str();
+        unsigned int shader = glCreateShader(shaderType);
+        glShaderSource(shader, 1, &code, NULL);
+        glCompileShader(shader);
+        checkCompileErrors(shader, shaderType == GL_VERTEX_SHADER ? "VERTEX" : "FRAGMENT");
+
+        shaderCache[shaderPath] = shader;
+        return shader;
     }
 
     void use()
@@ -107,6 +104,15 @@ class Shader
     void setMat4(const std::string &name, const glm::mat4 &mat) const
     {
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
+
+    static void clearShaderCache()
+    {
+        for (auto &shader : shaderCache)
+        {
+            glDeleteShader(shader.second);
+        }
+        shaderCache.clear();
     }
 
   private:

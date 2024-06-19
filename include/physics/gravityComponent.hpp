@@ -23,10 +23,11 @@ class GravityComponent : public Component
 
     void update(float deltaTime) override
     {
-        if (rigidBody && !rigidBody->isGrounded)
-        {
-            rigidBody->applyForce(gravity * rigidBody->getMass());
-        }
+        // testing wihtout grounded check
+        // if (rigidBody && !rigidBody->isGrounded)
+        // {
+        rigidBody->applyForce(gravity * rigidBody->getMass());
+        // }
     }
 
     void setGravity(const glm::vec4 &newGravity)

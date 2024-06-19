@@ -2,6 +2,7 @@
 
 #include "collision/aabbCollider.hpp"
 #include "game/gameObject.hpp"
+#include "graphics/materialManager.hpp"
 #include "graphics/mesh.hpp"
 #include "graphics/meshManager.hpp"
 #include "graphics/renderer.hpp"
@@ -11,26 +12,28 @@
 class Platform : public GameObject
 {
   public:
-    Platform(const glm::vec3 &position, const glm::vec3 &scale = glm::vec3(1.0f),
-             const glm::vec3 &rotation = glm::vec3(0.0f))
+    Platform(const Transform &transform, const std::string &materialFilePath = "resources/materials/default.mtl",
+             float boucinness = 0.0f, float friction = 0.1f)
+        : boucinness(boucinness), friction(friction)
     {
-        transform = std::make_shared<Transform>(position, scale, rotation);
-        addComponent(transform);
+        this->transform = std::make_shared<Transform>(transform);
+        addComponent(this->transform);
 
-        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/cube.obj")));
+        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/cube.obj"),
+                                                MaterialManager::getInstance().getMaterial(materialFilePath)));
 
-        if (rotation == glm::vec3(0.0f))
+        if (this->transform->rotation == glm::vec3(0.0f))
         {
-            collider = std::make_shared<AABBCollider>(-scale, scale);
+            collider = std::make_shared<AABBCollider>(-this->transform->scale, this->transform->scale);
             addComponent(collider);
         }
         else
         {
-            collider = std::make_shared<OBBCollider>(scale);
+            collider = std::make_shared<OBBCollider>(this->transform->scale);
             addComponent(collider);
         }
 
-        addComponent(std::make_shared<PhysicsMaterial>(0.1f, 0.0f));
+        addComponent(std::make_shared<PhysicsMaterial>(friction, boucinness));
     }
 
     ObjectType getObjectType() const override
@@ -41,4 +44,16 @@ class Platform : public GameObject
   private:
     std::shared_ptr<Transform> transform;
     std::shared_ptr<Collider> collider;
+
+  protected:
+    float boucinness;
+    float friction;
+};
+
+class IcePlatform : public Platform
+{
+  public:
+    IcePlatform(const Transform &transform) : Platform(transform, "resources/materials/ice.mtl", 0.0f, 0.0f)
+    {
+    }
 };

@@ -16,6 +16,7 @@ constexpr float INITIAL_HEIGHT = 600.0f;
 
 Shader _globalShader;
 CollisionManager _collisionManager;
+std::unordered_map<std::string, unsigned int> Shader::shaderCache;
 
 void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {

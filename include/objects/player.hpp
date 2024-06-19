@@ -3,6 +3,7 @@
 #include "camera.hpp"
 #include "collision/sphereCollider.hpp"
 #include "game/gameObject.hpp"
+#include "graphics/materialManager.hpp"
 #include "graphics/mesh.hpp"
 #include "graphics/meshManager.hpp"
 #include "graphics/renderer.hpp"
@@ -20,7 +21,9 @@ class Player : public GameObject, public InputObserver
             std::make_shared<Transform>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec3(0.0f, -90.0f, 0.0f));
         addComponent(transform);
 
-        renderer = std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/sphere.obj"));
+        renderer =
+            std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/sphere.obj"),
+                                       MaterialManager::getInstance().getMaterial("resources/materials/sphere.mtl"));
         addComponent(renderer);
 
         camera.setTarget(*renderer->interpolatedTransform, 10.0f);
