@@ -1,5 +1,4 @@
 #pragma once
-#include "globals.hpp"
 
 #include "game/component.hpp"
 #include "graphics/material.hpp"

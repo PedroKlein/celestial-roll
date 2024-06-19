@@ -1,7 +1,6 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 
-#include "globals.hpp"
 #include <glad/glad.h>
 
 #include "game/game.hpp"

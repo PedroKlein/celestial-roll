@@ -14,7 +14,9 @@
 class Scene
 {
   public:
-    Scene() = default;
+    Scene() : collisionManager()
+    {
+    }
 
     void init()
     {
@@ -37,7 +39,7 @@ class Scene
         addObject(std::make_shared<IcePlatform>(
             Transform{glm::vec3(10.0f, -60.0f, -12.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(-20.0f, 0.0f, 0.0f)}));
 
-        _collisionManager.setPlayer(player.get());
+        collisionManager.setPlayer(player.get());
     }
 
     void updatePhysics(float deltaTime)
@@ -54,9 +56,10 @@ class Scene
             obj->updatePhysics(deltaTime);
         }
 
-        _collisionManager.checkCollisions();
+        collisionManager.checkCollisions();
     }
 
+    // TODO: create a render manager
     void render(float alpha, float viewRatio)
     {
         viewMatrix = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
@@ -78,7 +81,7 @@ class Scene
         std::shared_ptr<Collider> collider = object->getComponent<Collider>();
         if (collider)
         {
-            _collisionManager.registerObject(object);
+            collisionManager.registerObject(object);
         }
 
         objects.push_back(object);
@@ -152,6 +155,8 @@ class Scene
     std::unique_ptr<Camera> freeCam;
     std::unique_ptr<Camera> playerCam;
     std::unique_ptr<GameState> gameState;
+
+    CollisionManager collisionManager;
 
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
