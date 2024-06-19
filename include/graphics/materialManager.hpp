@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 
+// TODO: refacor the usage of shader name
 class MaterialManager
 {
   public:
@@ -14,17 +15,19 @@ class MaterialManager
         return instance;
     }
 
-    std::shared_ptr<Material> getMaterial(const std::string &filename)
+    std::shared_ptr<Material> getMaterial(const std::string &filename, const std::string &shaderName = "default")
     {
-        auto it = materials.find(filename);
+        auto key = filename + shaderName;
+        auto it = materials.find(key);
         if (it != materials.end())
         {
             return it->second;
         }
         else
         {
-            std::shared_ptr<Material> material = std::make_shared<Material>(filename);
-            materials[filename] = material;
+            std::cout << "Loading material: " << key << std::endl;
+            std::shared_ptr<Material> material = std::make_shared<Material>(filename, shaderName);
+            materials[key] = material;
             return material;
         }
     }

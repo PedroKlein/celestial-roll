@@ -14,7 +14,6 @@
 constexpr float INITIAL_WIDTH = 800.0f;
 constexpr float INITIAL_HEIGHT = 600.0f;
 
-Shader _globalShader;
 CollisionManager _collisionManager;
 std::unordered_map<std::string, unsigned int> Shader::shaderCache;
 
@@ -83,17 +82,15 @@ int main()
         return -1;
     }
 
-    _globalShader.initialize("shaders/shader_vertex.glsl", "shaders/shader_fragment.glsl");
-
     Game game(INITIAL_WIDTH, INITIAL_HEIGHT);
     glfwSetWindowUserPointer(window, &game);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
 
     // enable vsync
     // glfwSwapInterval(1);
-
-    _globalShader.use();
 
     while (!glfwWindowShouldClose(window))
     {

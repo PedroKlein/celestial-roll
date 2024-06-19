@@ -3,9 +3,11 @@
 #include "collision/collisionManager.hpp"
 #include "game/gameObject.hpp"
 #include "game/gameState.hpp"
+#include "graphics/shaderManager.hpp"
 #include "objects/camera.hpp"
 #include "objects/platform.hpp"
 #include "objects/player.hpp"
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -15,8 +17,11 @@ class Scene
     Scene() = default;
 
     void init()
-
     {
+        // ensures that at least the default shader is loaded, refactor this
+        ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, DEFAULT_FRAGMENT_SHADER_PATH, "default");
+        Platform::initializeShaders();
+
         this->freeCam = std::make_unique<Camera>(glm::vec3(0.0f, -10.0f, -20.0f), 0.0f, -30.0f);
         this->playerCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, -30.0f);
 
@@ -57,19 +62,17 @@ class Scene
         viewMatrix = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
         projectionMatrix = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -1000.0f);
 
-        _globalShader.setMat4("view", viewMatrix);
-        _globalShader.setMat4("projection", projectionMatrix);
-
         clear();
 
-        player->render(alpha);
+        player->render(alpha, viewMatrix, projectionMatrix);
 
         for (auto &obj : objects)
         {
-            obj->render(alpha);
+            obj->render(alpha, viewMatrix, projectionMatrix);
         }
     }
 
+    // this is dumb, could be a different list for rendering with ID sorted
     void addObject(std::shared_ptr<GameObject> object)
     {
         std::shared_ptr<Collider> collider = object->getComponent<Collider>();
@@ -77,7 +80,35 @@ class Scene
         {
             _collisionManager.registerObject(object);
         }
+
         objects.push_back(object);
+
+        std::shared_ptr<Renderer> renderer = object->getComponent<Renderer>();
+        if (renderer)
+        {
+            // sort the objects vector based on the shader ID
+            std::sort(objects.begin(), objects.end(),
+                      [](const std::shared_ptr<GameObject> &a, const std::shared_ptr<GameObject> &b) {
+                          auto rendererA = a->getComponent<Renderer>();
+                          auto rendererB = b->getComponent<Renderer>();
+
+                          if (rendererA && rendererB)
+                          {
+                              return rendererA->material->shader->ID < rendererB->material->shader->ID;
+                          }
+
+                          else if (rendererA)
+                          {
+                              return true;
+                          }
+                          else if (rendererB)
+                          {
+                              return false;
+                          }
+
+                          return false;
+                      });
+        }
     }
 
     glm::mat4 getViewMatrix() const

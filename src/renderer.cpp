@@ -27,6 +27,8 @@ void Renderer::update(float alpha)
 
     interpolatedTransform->calculateInterpolation(alpha);
 
-    _globalShader.setMat4("model", interpolatedTransform->getInterpolatedModelMatrix());
-    mesh->draw(_globalShader, *material.get());
+    material->shader->use();
+
+    material->shader->setMat4("model", interpolatedTransform->getInterpolatedModelMatrix());
+    mesh->draw(*material.get());
 }

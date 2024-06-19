@@ -76,12 +76,5 @@ add_custom_target(CopyResources ALL
                   COMMAND ${CMAKE_COMMAND} -E copy_directory
                   ${CMAKE_SOURCE_DIR}/resources ${CMAKE_CURRENT_BINARY_DIR}/resources
                   DEPENDS ${MODEL_FILES})
-add_custom_target(CopyShaders ALL
-                  COMMAND ${CMAKE_COMMAND} -E remove_directory
-                  ${CMAKE_CURRENT_BINARY_DIR}/shaders
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory
-                  ${CMAKE_SOURCE_DIR}/src/shaders ${CMAKE_CURRENT_BINARY_DIR}/shaders
-                  DEPENDS ${SHADER_FILES})
 
 add_dependencies(${EXECUTABLE_NAME} CopyResources)
-add_dependencies(${EXECUTABLE_NAME} CopyShaders)

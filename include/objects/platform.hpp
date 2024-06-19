@@ -13,14 +13,15 @@ class Platform : public GameObject
 {
   public:
     Platform(const Transform &transform, const std::string &materialFilePath = "resources/materials/default.mtl",
-             float boucinness = 0.0f, float friction = 0.1f)
+             const std::string &shaderName = "default", float boucinness = 0.0f, float friction = 0.1f)
         : boucinness(boucinness), friction(friction)
     {
         this->transform = std::make_shared<Transform>(transform);
         addComponent(this->transform);
 
-        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/cube.obj"),
-                                                MaterialManager::getInstance().getMaterial(materialFilePath)));
+        addComponent(
+            std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/cube.obj"),
+                                       MaterialManager::getInstance().getMaterial(materialFilePath, shaderName)));
 
         if (this->transform->rotation == glm::vec3(0.0f))
         {
@@ -41,6 +42,12 @@ class Platform : public GameObject
         return ObjectType::Platform;
     }
 
+    // TODO: this is dumb, refactor
+    static void initializeShaders()
+    {
+        ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, "resources/shaders/ice.frag", "ice");
+    }
+
   private:
     std::shared_ptr<Transform> transform;
     std::shared_ptr<Collider> collider;
@@ -53,7 +60,7 @@ class Platform : public GameObject
 class IcePlatform : public Platform
 {
   public:
-    IcePlatform(const Transform &transform) : Platform(transform, "resources/materials/ice.mtl", 0.0f, 0.0f)
+    IcePlatform(const Transform &transform) : Platform(transform, "resources/materials/ice.mtl", "ice", 0.0f, 0.0f)
     {
     }
 };

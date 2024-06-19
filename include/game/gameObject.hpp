@@ -59,12 +59,18 @@ class GameObject
         }
     }
 
-    void render(float alpha)
+    // TODO: use UBOs to avoid setting the view and projection matrices for each object
+    void render(float alpha, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix)
     {
         auto renderer = getComponent<Renderer>();
 
         if (renderer)
         {
+            auto shader = renderer->material->shader;
+
+            shader->setMat4("view", viewMatrix);
+            shader->setMat4("projection", projectionMatrix);
+
             renderer->update(alpha);
         }
     }

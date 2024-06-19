@@ -47,32 +47,13 @@ class Mesh
         glBindVertexArray(0);
     }
 
-    void draw(const Shader &shader, const Material &material) const
+    void draw(const Material &material) const
     {
-        shader.setVec3("material.ambient", material.ambient);
-        shader.setVec3("material.diffuse", material.diffuse);
-        shader.setVec3("material.specular", material.specular);
-        shader.setFloat("material.shininess", material.shininess);
-
-        glActiveTexture(GL_TEXTURE0);
-
-        if (material.diffuseTexture)
-        {
-            glBindTexture(GL_TEXTURE_2D, material.diffuseTexture->getID());
-            shader.setInt("material.diffuseTexture", 0);
-        }
-        else
-        {
-            glBindTexture(GL_TEXTURE_2D, 0);
-            shader.setInt("material.diffuseTexture", 0);
-        }
-
+        material.applyShaderProperties();
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
-
-        glActiveTexture(GL_TEXTURE0);
     }
 
     ~Mesh()
