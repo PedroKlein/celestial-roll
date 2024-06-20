@@ -27,6 +27,7 @@ void Renderer::update(float alpha)
 
     interpolatedTransform->calculateInterpolation(alpha);
 
+    // TODO: delete this after rendering in batch
     material->shader->use();
 
     material->shader->setMat4("model", interpolatedTransform->getInterpolatedModelMatrix());

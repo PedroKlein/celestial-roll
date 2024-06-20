@@ -93,9 +93,9 @@ class Player : public GameObject, public InputObserver
         rigidBody->addInputForce(force, deltaTime);
     }
 
-    void render(float alpha, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix)
+    void render(float alpha)
     {
-        GameObject::render(alpha, viewMatrix, projectionMatrix);
+        GameObject::render(alpha);
 
         auto interpolatedPosition = getInterpolatedPosition();
 

@@ -3,6 +3,7 @@
 #include "collision/collider.hpp"
 #include "collision/obbCollider.hpp"
 #include "collision/sphereCollider.hpp"
+#include "graphics/lightEmitter.hpp"
 #include "graphics/renderer.hpp"
 #include "physics/gravityComponent.hpp"
 #include "physics/physicsMaterial.hpp"
@@ -52,4 +53,9 @@ template <> ComponentType getComponentType<RigidBody>()
 template <> ComponentType getComponentType<Renderer>()
 {
     return ComponentType::Renderer;
+}
+
+template <> ComponentType getComponentType<LightEmitter>()
+{
+    return ComponentType::LightEmitter;
 }

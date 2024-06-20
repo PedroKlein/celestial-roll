@@ -9,9 +9,8 @@
 class CollisionManager
 {
   public:
-    void setPlayer(Player *player)
+    CollisionManager(Player &player) : player(player)
     {
-        this->player = player;
     }
 
     void registerObject(std::shared_ptr<GameObject> object)
@@ -23,7 +22,7 @@ class CollisionManager
     {
         const static float epsilon = 0.01f;
 
-        if (!player || objectsWithColliders.empty())
+        if (objectsWithColliders.empty())
             return;
 
         bool isGrounded = false;
@@ -32,19 +31,19 @@ class CollisionManager
         {
             std::shared_ptr<Collider> collider = object->getComponent<Collider>();
 
-            auto collisionResult = player->getCollider()->checkCollision(*collider);
+            auto collisionResult = player.getCollider()->checkCollision(*collider);
 
             if (collisionResult.collided)
             {
-                player->handleCollision(*object.get(), collisionResult.normal, collisionResult.penetrationDepth);
+                player.handleCollision(*object.get(), collisionResult.normal, collisionResult.penetrationDepth);
                 isGrounded = collisionResult.normal.y > epsilon;
             }
         }
 
-        player->setIsGrounded(isGrounded);
+        player.setIsGrounded(isGrounded);
     }
 
   private:
-    Player *player;
+    Player &player;
     std::vector<std::shared_ptr<GameObject>> objectsWithColliders;
 };

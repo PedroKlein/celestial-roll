@@ -25,6 +25,8 @@ class Shader
         glLinkProgram(ID);
         checkCompileErrors(ID, "PROGRAM");
 
+        bindUniformBlock("Matrices", 0);
+
         glDetachShader(ID, vertex);
         glDetachShader(ID, fragment);
     }
@@ -140,5 +142,16 @@ class Shader
                           << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
             }
         }
+    }
+
+    void bindUniformBlock(const std::string &blockName, GLuint bindingPoint)
+    {
+        GLuint blockIndex = glGetUniformBlockIndex(ID, blockName.c_str());
+        if (blockIndex == GL_INVALID_INDEX)
+        {
+            std::cerr << "ERROR::SHADER::Could not find uniform block '" << blockName << "'" << std::endl;
+            return;
+        }
+        glUniformBlockBinding(ID, blockIndex, bindingPoint);
     }
 };

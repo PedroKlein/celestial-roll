@@ -14,6 +14,7 @@ enum class ComponentType
     Transform,       // dont have update
     Collider,        // dont have update
     PhysicsMaterial, // dont have update
+    LightEmitter,    // dont have update
     Gravity,         // have update
     RigidBody,       // have update
     Renderer,        // have update
