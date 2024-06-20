@@ -46,6 +46,20 @@ class ShaderManager
         throw std::runtime_error("Shader not found: " + name);
     }
 
+    // get shader by id
+    std::shared_ptr<Shader> getShader(int id)
+    {
+        for (auto &entry : shaders)
+        {
+            if (entry.second->ID == id)
+            {
+                return entry.second;
+            }
+        }
+
+        throw std::runtime_error("Shader not found with ID: " + std::to_string(id));
+    }
+
   private:
     ShaderManager()
     {

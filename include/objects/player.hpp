@@ -160,6 +160,11 @@ class Player : public GameObject, public InputObserver
         return ObjectType::Player;
     }
 
+    int getShaderId() const
+    {
+        return renderer->material->shader->ID;
+    }
+
   private:
     Camera &camera;
     glm::vec4 currentSurfaceNormal;

@@ -7,11 +7,16 @@
 #include <iostream>
 #include <memory>
 
+struct LightInfo
+{
+    glm::vec4 position;
+    glm::vec4 color;
+};
+
 class LightEmitter : public Component
 {
   public:
-    LightEmitter(const glm::vec3 &color = glm::vec3(1.0f, 1.0f, 1.0f), float intensity = 1.0f)
-        : color(color), intensity(intensity)
+    LightEmitter(const glm::vec4 &color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)) : color(color)
     {
     }
 
@@ -24,33 +29,27 @@ class LightEmitter : public Component
         }
     }
 
-    glm::vec3 getPosition() const
+    glm::vec4 getPosition() const
     {
-        return transform ? transform->getPosition() : glm::vec3(0.0f);
+        return transform->getPosition();
     }
 
-    glm::vec3 getColor() const
+    glm::vec4 getColor() const
     {
         return color;
     }
 
-    void setColor(const glm::vec3 &newColor)
+    void setColor(const glm::vec4 &newColor)
     {
         color = newColor;
     }
 
-    float getIntensity() const
+    LightInfo getLight() const
     {
-        return intensity;
-    }
-
-    void setIntensity(float newIntensity)
-    {
-        intensity = newIntensity;
+        return LightInfo{transform->getPosition(), color};
     }
 
   private:
     std::shared_ptr<Transform> transform;
-    glm::vec3 color;
-    float intensity;
+    glm::vec4 color;
 };

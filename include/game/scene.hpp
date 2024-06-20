@@ -4,8 +4,8 @@
 #include "game/gameObject.hpp"
 #include "game/gameState.hpp"
 #include "graphics/renderManager.hpp"
-#include "graphics/shaderManager.hpp"
 #include "objects/camera.hpp"
+#include "objects/light.hpp"
 #include "objects/platform.hpp"
 #include "objects/player.hpp"
 #include <algorithm>
@@ -32,6 +32,8 @@ class Scene
 
         collisionManager = std::make_unique<CollisionManager>(*player.get());
         renderManager = std::make_unique<RenderManager>(*player.get());
+
+        addObject(std::make_shared<Light>(Transform{glm::vec3(0.0f, 10.0f, 10.0f)}, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 
         addObject(std::make_shared<Platform>(Transform{glm::vec3(0.0f, -40.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f)}));
 
@@ -62,9 +64,10 @@ class Scene
     void render(float alpha, float viewRatio)
     {
         glm::mat4 viewMatrix = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
+        glm::vec3 viewPos = gameState->getIsEagleView() ? freeCam->getPosition() : playerCam->getPosition();
         glm::mat4 projectionMatrix = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -1000.0f);
 
-        renderManager->render(alpha, viewMatrix, projectionMatrix);
+        renderManager->render(alpha, viewMatrix, projectionMatrix, viewPos);
     }
 
     void addObject(std::shared_ptr<GameObject> object)

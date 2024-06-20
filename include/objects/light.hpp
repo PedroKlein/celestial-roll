@@ -8,13 +8,13 @@
 class Light : public GameObject
 {
   public:
-    Light(const Transform &transform, const glm::vec3 &color = glm::vec3(1.0f, 1.0f, 1.0f), float intensity = 1.0f)
+    Light(const Transform &transform, const glm::vec4 &color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
     {
 
         this->transform = std::make_shared<Transform>(transform);
         addComponent(this->transform);
 
-        this->lightEmitter = std::make_shared<LightEmitter>(color, intensity);
+        this->lightEmitter = std::make_shared<LightEmitter>(color);
         addComponent(this->lightEmitter);
     }
 

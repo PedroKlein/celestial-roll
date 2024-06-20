@@ -25,7 +25,10 @@ class Shader
         glLinkProgram(ID);
         checkCompileErrors(ID, "PROGRAM");
 
+        glUseProgram(ID);
         bindUniformBlock("Matrices", 0);
+        bindUniformBlock("Lights", 1);
+        bindUniformBlock("ViewPos", 2);
 
         glDetachShader(ID, vertex);
         glDetachShader(ID, fragment);
