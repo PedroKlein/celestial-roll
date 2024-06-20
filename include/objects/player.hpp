@@ -75,10 +75,19 @@ class Player : public GameObject, public InputObserver
             force += cameraRightInXZ * inputForce;
         }
 
-        if (action == JUMP && rigidBody->isGrounded)
+        if (rigidBody->isGrounded)
         {
-            transform->position.y += 0.1f;
-            rigidBody->velocity.y = 10.0f;
+            if (action == JUMP)
+            {
+
+                transform->position += currentSurfaceNormal * 0.1f;
+                rigidBody->velocity = currentSurfaceNormal * 10.0f;
+            }
+
+            glm::vec4 adjustedForce = force - currentSurfaceNormal * glm::dot(force, currentSurfaceNormal);
+            force.x = adjustedForce.x;
+            force.y = 0.0f;
+            force.z = adjustedForce.z;
         }
 
         rigidBody->addInputForce(force, deltaTime);
@@ -127,6 +136,11 @@ class Player : public GameObject, public InputObserver
         if (other.getObjectType() == ObjectType::Platform)
         {
             rigidBody->velocity = bounceVelocity + frictionVelocity;
+
+            if (rigidBody->isGrounded && collisionNormal.y > 0.7)
+            {
+                currentSurfaceNormal = collisionNormal;
+            }
         }
         else
         {
@@ -148,6 +162,7 @@ class Player : public GameObject, public InputObserver
 
   private:
     Camera &camera;
+    glm::vec4 currentSurfaceNormal;
     std::shared_ptr<Transform> transform;
     std::shared_ptr<Renderer> renderer;
     std::shared_ptr<RigidBody> rigidBody;
