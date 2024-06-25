@@ -1,7 +1,8 @@
 #pragma once
 
 #include "debug.hpp"
-#include "matrixUtils.hpp"
+#include "math/matrix.hpp"
+#include "math/vector.hpp"
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <iostream>
@@ -26,7 +27,7 @@ class CollisionDetector
         if (distance <= sphereRadius)
         {
             result.collided = true;
-            result.normal = MatrixUtils::normalize(point - sphereCenter);
+            result.normal = math::normalize(point - sphereCenter);
             result.penetrationDepth = sphereRadius - distance;
         }
 
@@ -50,7 +51,7 @@ class CollisionDetector
         if (localResult.collided)
         {
             // Transform the collision normal back to world space
-            localResult.normal = MatrixUtils::transposeHomogeneous(obbOrientation) * localResult.normal;
+            localResult.normal = math::transposeHomogeneous(obbOrientation) * localResult.normal;
         }
 
         return localResult;
@@ -68,7 +69,7 @@ class CollisionDetector
 
         glm::vec4 distance = sphereCenter - closestPoint;
 
-        float distSquared = MatrixUtils::dotProduct(distance, distance);
+        float distSquared = math::dotProduct(distance, distance);
 
         if (distSquared < sphereRadius * sphereRadius)
         {
@@ -76,7 +77,7 @@ class CollisionDetector
             float dist = sqrt(distSquared);
 
             result.penetrationDepth = sphereRadius - dist;
-            result.normal = MatrixUtils::normalize(distance);
+            result.normal = math::normalize(distance);
         }
 
         return result;

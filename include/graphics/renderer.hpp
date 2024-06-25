@@ -4,7 +4,6 @@
 #include "graphics/material.hpp"
 #include "graphics/mesh.hpp"
 #include "interpolatedTransform.hpp"
-#include "matrixUtils.hpp"
 #include <glm/glm.hpp>
 #include <iostream>
 #include <memory>

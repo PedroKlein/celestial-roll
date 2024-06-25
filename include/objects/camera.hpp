@@ -4,7 +4,8 @@
 #include "glm/trigonometric.hpp"
 #include "input/inputObserver.hpp"
 #include "interpolatedTransform.hpp"
-#include "matrixUtils.hpp"
+#include "math/matrix.hpp"
+#include "math/vector.hpp"
 #include <cmath>
 #include <glm/vec4.hpp>
 
@@ -50,12 +51,12 @@ class Camera : public GameObject, public InputObserver
     {
 
         glm::vec4 w = -front;
-        glm::vec4 u = MatrixUtils::crossProduct(worldUp, w);
+        glm::vec4 u = math::crossProduct(worldUp, w);
 
-        w = MatrixUtils::normalize(w);
-        u = MatrixUtils::normalize(u);
+        w = math::normalize(w);
+        u = math::normalize(u);
 
-        glm::vec4 v = MatrixUtils::crossProduct(w, u);
+        glm::vec4 v = math::crossProduct(w, u);
 
         glm::vec4 origin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -71,10 +72,10 @@ class Camera : public GameObject, public InputObserver
         float wy = w.y;
         float wz = w.z;
 
-        return MatrixUtils::Matrix(ux, uy, uz, MatrixUtils::dotProduct(-u, vector), // Line 1
-                                   vx, vy, vz, MatrixUtils::dotProduct(-v, vector), // Line 2
-                                   wx, wy, wz, MatrixUtils::dotProduct(-w, vector), // Line 3
-                                   0.0f, 0.0f, 0.0f, 1.0f                           // Line 4
+        return math::Matrix(ux, uy, uz, math::dotProduct(-u, vector), // Line 1
+                            vx, vy, vz, math::dotProduct(-v, vector), // Line 2
+                            wx, wy, wz, math::dotProduct(-w, vector), // Line 3
+                            0.0f, 0.0f, 0.0f, 1.0f                    // Line 4
         );
     }
 
@@ -129,16 +130,16 @@ class Camera : public GameObject, public InputObserver
         if (isFreeCam)
         {
             front = direction;
-            right = MatrixUtils::crossProduct(front, worldUp);
+            right = math::crossProduct(front, worldUp);
         }
         else
         {
             transform->position = target->getPosition() - distance * direction;
-            front = MatrixUtils::normalize(target->getPosition() - transform->getPosition());
-            right = MatrixUtils::crossProduct(front, worldUp);
+            front = math::normalize(target->getPosition() - transform->getPosition());
+            right = math::crossProduct(front, worldUp);
         }
 
-        right = MatrixUtils::normalize(right);
+        right = math::normalize(right);
     }
 
     ObjectType getObjectType() const override

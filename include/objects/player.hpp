@@ -127,7 +127,7 @@ class Player : public GameObject, public InputObserver
             return;
         }
 
-        glm::vec4 normalComponent = MatrixUtils::dotProduct(rigidBody->velocity, collisionNormal) * collisionNormal;
+        glm::vec4 normalComponent = math::dotProduct(rigidBody->velocity, collisionNormal) * collisionNormal;
         glm::vec4 tangentialComponent = rigidBody->velocity - normalComponent;
 
         glm::vec4 bounceVelocity = -normalComponent * physicsMat->getBounciness();

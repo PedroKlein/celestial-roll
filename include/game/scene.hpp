@@ -4,6 +4,7 @@
 #include "game/gameObject.hpp"
 #include "game/gameState.hpp"
 #include "graphics/renderManager.hpp"
+#include "math/matrix.hpp"
 #include "objects/camera.hpp"
 #include "objects/light.hpp"
 #include "objects/platform.hpp"
@@ -65,7 +66,7 @@ class Scene
     {
         glm::mat4 viewMatrix = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
         glm::vec3 viewPos = gameState->getIsEagleView() ? freeCam->getPosition() : playerCam->getPosition();
-        glm::mat4 projectionMatrix = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -1000.0f);
+        glm::mat4 projectionMatrix = math::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -1000.0f);
 
         renderManager->render(alpha, viewMatrix, projectionMatrix, viewPos);
     }

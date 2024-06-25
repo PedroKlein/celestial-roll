@@ -31,11 +31,10 @@ class InterpolatedTransform
 
     glm::mat4 getInterpolatedModelMatrix() const
     {
-        glm::mat4 model =
-            MatrixUtils::translateMatrix(interpolatedPosition.x, interpolatedPosition.y, interpolatedPosition.z);
+        glm::mat4 model = math::translateMatrix(interpolatedPosition.x, interpolatedPosition.y, interpolatedPosition.z);
         // TODO: investigate why for collisions the rotation on xz is mirrored from the render, the minus sign is a hack
         model *= Transform::getRotationMatrix(-interpolatedRotation);
-        model *= MatrixUtils::scaleMatrix(interpolatedScale.x, interpolatedScale.y, interpolatedScale.z);
+        model *= math::scaleMatrix(interpolatedScale.x, interpolatedScale.y, interpolatedScale.z);
         return model;
     }
 };
