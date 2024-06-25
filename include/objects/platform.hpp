@@ -23,7 +23,7 @@ class Platform : public GameObject
             std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/cube.obj"),
                                        MaterialManager::getInstance().getMaterial(materialFilePath, shaderName)));
 
-        if (this->transform->rotation == glm::vec3(0.0f))
+        if (this->transform->rotation == glm::quat())
         {
             collider = std::make_shared<AABBCollider>(-this->transform->scale, this->transform->scale);
             addComponent(collider);

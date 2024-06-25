@@ -59,7 +59,7 @@ class Scene
             obj->updatePhysics(deltaTime);
         }
 
-        collisionManager->checkCollisions();
+        collisionManager->checkCollisions(deltaTime);
     }
 
     void render(float alpha, float viewRatio)

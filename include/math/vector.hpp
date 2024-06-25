@@ -16,7 +16,6 @@ inline float norm(glm::vec4 v)
 
 inline glm::vec4 normalize(glm::vec4 v)
 {
-
     return v / norm(v);
 }
 

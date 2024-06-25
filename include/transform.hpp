@@ -3,8 +3,9 @@
 #include "debug.hpp"
 #include "game/component.hpp"
 #include "math/matrix.hpp"
-#include "math/vector.hpp"
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <iostream>
 
 class Transform : public Component
@@ -12,30 +13,29 @@ class Transform : public Component
   public:
     glm::vec4 position, previousPosition;
     glm::vec3 scale, previousScale;
-    glm::vec3 rotation, previousRotation;
+    glm::quat rotation, previousRotation;
 
-    Transform() : position(0.0f, 0.0f, 0.0f, 1.0f), rotation(0.0f), scale(1.0f)
+    Transform() : position(0.0f, 0.0f, 0.0f, 1.0f), rotation(glm::quat()), scale(1.0f)
     {
         saveState();
     }
 
-    Transform(const glm::vec3 &position) : position(position, 1.0f), rotation(0.0f), scale(1.0f)
+    Transform(const glm::vec3 &position) : position(position, 1.0f), rotation(glm::quat()), scale(1.0f)
     {
         saveState();
     }
 
     Transform(const glm::vec3 &position, const glm::vec3 &scale)
-        : position(position, 1.0f), scale(scale), rotation(0.0f)
+        : position(position, 1.0f), scale(scale), rotation(glm::quat())
     {
         saveState();
     }
 
-    Transform(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &rotation)
-        : position(position, 1.0f), rotation(rotation), scale(scale)
+    Transform(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &eulerRotation)
+        : position(position, 1.0f), scale(scale)
     {
-        this->rotation = glm::radians(rotation);
+        setRotation(glm::radians(eulerRotation));
         saveState();
-        updateRotationMatrix();
     }
 
     void saveState()
@@ -65,70 +65,41 @@ class Transform : public Component
         this->scale = scale;
     }
 
-    glm::vec3 getRotation() const
+    glm::quat getRotation() const
     {
         return rotation;
     }
 
-    void setRotation(const glm::vec3 &rotation)
+    void setRotation(const glm::vec3 &eulerRotation)
     {
-        this->rotation = rotation;
-        rotationMatrixDirty = true;
+        rotation = glm::quat(eulerRotation);
     }
 
     glm::mat4 getModelMatrix() const
     {
         glm::mat4 model = math::translateMatrix(position.x, position.y, position.z);
-        model *= getRotationMatrix();
+        model *= glm::toMat4(rotation);
         model *= math::scaleMatrix(scale.x, scale.y, scale.z);
         return model;
     }
 
-    glm::vec3 getUp() const
-    {
-        updateRotationMatrix();
-        glm::vec3 up = glm::vec3(rotationMatrix[0][1], rotationMatrix[1][1], rotationMatrix[2][1]);
-        return glm::normalize(up);
-    }
-
     glm::mat4 getRotationMatrix() const
     {
-        updateRotationMatrix();
-        return rotationMatrix;
+        return glm::toMat4(rotation);
+    }
+
+    glm::vec3 getUp() const
+    {
+        return glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f) * rotation);
     }
 
     friend std::ostream &operator<<(std::ostream &os, const Transform &transform)
     {
         os << "Position: " << transform.position.x << ", " << transform.position.y << ", " << transform.position.z
            << std::endl;
-        os << "Rotation: " << transform.rotation.x << ", " << transform.rotation.y << ", " << transform.rotation.z
-           << std::endl;
+        os << "Rotation: " << glm::eulerAngles(transform.rotation).x << ", " << glm::eulerAngles(transform.rotation).y
+           << ", " << glm::eulerAngles(transform.rotation).z << std::endl;
         os << "Scale: " << transform.scale.x << ", " << transform.scale.y << ", " << transform.scale.z << std::endl;
         return os;
     }
-
-    static glm::mat4 getRotationMatrix(const glm::vec3 &rotation)
-    {
-        glm::mat4 rotationMatrix = glm::mat4(1.0f);
-
-        rotationMatrix = math::rotateXMatrix(rotation.x);
-        rotationMatrix *= math::rotateYMatrix(rotation.y);
-        rotationMatrix *= math::rotateZMatrix(rotation.z);
-
-        return rotationMatrix;
-    }
-
-  private:
-    mutable glm::mat4 rotationMatrix;
-    mutable bool rotationMatrixDirty = true;
-
-    void updateRotationMatrix() const
-    {
-        if (rotationMatrixDirty)
-        {
-            rotationMatrix = getRotationMatrix(rotation);
-            rotationMatrixDirty = false;
-        }
-    }
 };
-;

@@ -18,7 +18,7 @@ class CollisionManager
         objectsWithColliders.push_back(object);
     }
 
-    void checkCollisions()
+    void checkCollisions(float deltaTime)
     {
         const static float epsilon = 0.01f;
 
@@ -35,7 +35,8 @@ class CollisionManager
 
             if (collisionResult.collided)
             {
-                player.handleCollision(*object.get(), collisionResult.normal, collisionResult.penetrationDepth);
+                player.handleCollision(*object.get(), collisionResult.normal, collisionResult.penetrationDepth,
+                                       deltaTime);
                 isGrounded = collisionResult.normal.y > epsilon;
             }
         }

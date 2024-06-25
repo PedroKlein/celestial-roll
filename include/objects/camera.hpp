@@ -12,8 +12,13 @@
 class Camera : public GameObject, public InputObserver
 {
   public:
+    static glm::vec4 getWorldUp()
+    {
+        return glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+    }
+
     Camera(const glm::vec3 &position = glm::vec3(0.0f, 0.0f, 0.0f), float yaw = 0.0f, float pitch = 0.0f)
-        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), isFreeCam(true), worldUp(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f))
+        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), isFreeCam(true)
     {
         this->yaw = glm::radians(yaw);
         this->pitch = glm::radians(pitch);
@@ -51,7 +56,7 @@ class Camera : public GameObject, public InputObserver
     {
 
         glm::vec4 w = -front;
-        glm::vec4 u = math::crossProduct(worldUp, w);
+        glm::vec4 u = math::crossProduct(getWorldUp(), w);
 
         w = math::normalize(w);
         u = math::normalize(u);
@@ -130,13 +135,13 @@ class Camera : public GameObject, public InputObserver
         if (isFreeCam)
         {
             front = direction;
-            right = math::crossProduct(front, worldUp);
+            right = math::crossProduct(front, getWorldUp());
         }
         else
         {
             transform->position = target->getPosition() - distance * direction;
             front = math::normalize(target->getPosition() - transform->getPosition());
-            right = math::crossProduct(front, worldUp);
+            right = math::crossProduct(front, getWorldUp());
         }
 
         right = math::normalize(right);
@@ -153,9 +158,7 @@ class Camera : public GameObject, public InputObserver
     std::shared_ptr<Transform> transform;
 
     glm::vec4 front;
-    glm::vec4 up;
     glm::vec4 right;
-    glm::vec4 worldUp;
 
     float yaw = 0.0f;
     float pitch = 0.0f;

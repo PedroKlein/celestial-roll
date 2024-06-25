@@ -46,7 +46,6 @@ class Material
         diffuseTexture = std::make_shared<Texture>(texturePath.c_str(), "diffuse");
     }
 
-    // TODO: improve shader usage with batch call to avoid multiple shader switches
     void applyShaderProperties() const
     {
         shader->setVec3("material.ambient", ambient);

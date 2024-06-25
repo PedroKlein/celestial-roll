@@ -34,6 +34,7 @@ class CollisionDetector
         return result;
     }
 
+    // TODO: investigate why for collisions the rotation on xz is mirrored from the render
     static CollisionResult sphereToOBB(const glm::vec4 &sphereCenter, float sphereRadius, const glm::vec4 &obbCenter,
                                        const glm::vec3 &obbHalfWidths, const glm::mat4 &obbOrientation)
     {
