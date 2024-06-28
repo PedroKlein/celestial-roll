@@ -17,8 +17,7 @@ class Player : public GameObject, public InputObserver
   public:
     Player(Camera &camera) : camera(camera)
     {
-        transform =
-            std::make_shared<Transform>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec3(0.0f, -90.0f, 0.0f));
+        transform = std::make_shared<Transform>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f));
         addComponent(transform);
 
         renderer =
@@ -139,6 +138,8 @@ class Player : public GameObject, public InputObserver
         if (other.getObjectType() == ObjectType::Platform)
         {
             rigidBody->velocity = bounceVelocity + frictionVelocity;
+
+            Debug::printVec(collisionNormal);
 
             if (rigidBody->isGrounded && collisionNormal.y > 0.7)
             {

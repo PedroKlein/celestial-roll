@@ -126,25 +126,25 @@ class Camera : public GameObject, public InputObserver
 
     void updateCameraVectors()
     {
-        glm::vec4 direction;
-        direction.x = cos(pitch) * sin(yaw);
-        direction.y = sin(pitch);
-        direction.z = cos(pitch) * cos(yaw);
-        direction.w = 0.0f;
+        glm::quat pitchQuat = glm::angleAxis(pitch, glm::vec3(1, 0, 0));
+        glm::quat yawQuat = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
+
+        glm::quat orientation = yawQuat * pitchQuat;
+
+        glm::vec4 defaultFront(0.0f, 0.0f, -1.0f, 0.0f);
+        glm::vec4 front = orientation * defaultFront;
 
         if (isFreeCam)
         {
-            front = direction;
-            right = math::crossProduct(front, getWorldUp());
+            this->front = front;
+            this->right = math::normalize(math::crossProduct(this->front, getWorldUp()));
         }
         else
         {
-            transform->position = target->getPosition() - distance * direction;
-            front = math::normalize(target->getPosition() - transform->getPosition());
-            right = math::crossProduct(front, getWorldUp());
+            transform->position = target->getPosition() - distance * front;
+            this->front = math::normalize(target->getPosition() - transform->getPosition());
+            this->right = math::normalize(math::crossProduct(this->front, getWorldUp()));
         }
-
-        right = math::normalize(right);
     }
 
     ObjectType getObjectType() const override

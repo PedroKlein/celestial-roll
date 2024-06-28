@@ -3,6 +3,7 @@
 #include "graphics/lightEmitter.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/shaderManager.hpp"
+#include "objects/debugAxis.hpp"
 #include "objects/platform.hpp"
 #include "objects/player.hpp"
 #include <array>
@@ -18,7 +19,7 @@ class RenderManager
         Platform::initializeShaders();
     }
 
-    RenderManager(Player &player) : player(player)
+    RenderManager(Player &player) : player(player), debugAxis()
     {
         setupMatricesUBO();
         setupLightsUBO();
@@ -52,6 +53,8 @@ class RenderManager
                 renderer->update(alpha);
             }
         }
+
+        debugAxis.render(player.getPosition());
     }
 
     void addRenderer(const std::shared_ptr<Renderer> &renderer)
@@ -93,6 +96,7 @@ class RenderManager
     std::vector<LightInfo> activeLights;
 
     Player &player;
+    DebugAxis debugAxis;
 
     void setupMatricesUBO()
     {

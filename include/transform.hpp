@@ -34,7 +34,7 @@ class Transform : public Component
     Transform(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &eulerRotation)
         : position(position, 1.0f), scale(scale)
     {
-        setRotation(glm::radians(eulerRotation));
+        setRotation(eulerRotation);
         saveState();
     }
 
@@ -72,7 +72,7 @@ class Transform : public Component
 
     void setRotation(const glm::vec3 &eulerRotation)
     {
-        rotation = glm::quat(eulerRotation);
+        rotation = glm::quat(glm::radians(eulerRotation));
     }
 
     glm::mat4 getModelMatrix() const

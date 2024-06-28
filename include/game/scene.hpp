@@ -24,7 +24,7 @@ class Scene
     {
         RenderManager::initializeShaders();
 
-        this->freeCam = std::make_unique<Camera>(glm::vec3(0.0f, -10.0f, -20.0f), 0.0f, -30.0f);
+        this->freeCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f);
         this->playerCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, -30.0f);
 
         this->player = std::make_unique<Player>(*playerCam.get());
@@ -39,10 +39,13 @@ class Scene
         addObject(std::make_shared<Platform>(Transform{glm::vec3(0.0f, -40.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f)}));
 
         addObject(std::make_shared<IcePlatform>(
-            Transform{glm::vec3(10.0f, -60.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(30.0f, 0.0f, 0.0f)}));
+            Transform{glm::vec3(10.0f, -60.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(-30.0f, 0.0f, 0.0f)}));
 
         addObject(std::make_shared<IcePlatform>(
-            Transform{glm::vec3(10.0f, -60.0f, -12.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(-20.0f, 0.0f, 0.0f)}));
+            Transform{glm::vec3(10.0f, -60.0f, -12.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(20.0f, 0.0f, 0.0f)}));
+
+        addObject(std::make_shared<Platform>(
+            Transform{glm::vec3(0.0f, -10.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(45.0f, 0.0f, 0.0f)}));
     }
 
     void updatePhysics(float deltaTime)
