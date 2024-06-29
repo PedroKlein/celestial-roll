@@ -14,11 +14,10 @@
 
 class Player : public GameObject, public InputObserver
 {
-  public:
+public:
     Player(Camera &camera) : camera(camera)
     {
-        transform =
-            std::make_shared<Transform>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec3(0.0f, -90.0f, 0.0f));
+        transform = std::make_shared<Transform>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f));
         addComponent(transform);
 
         renderer =
@@ -77,11 +76,14 @@ class Player : public GameObject, public InputObserver
 
         if (rigidBody->isGrounded)
         {
+            // TODO: make jump also in the direction of player input
             if (action == JUMP)
             {
+                glm::vec4 jumpDirection = currentSurfaceNormal;
+                const float jumpStrength = 10.0f;
 
                 transform->position += currentSurfaceNormal * 0.1f;
-                rigidBody->velocity = currentSurfaceNormal * 10.0f;
+                rigidBody->velocity = jumpDirection * jumpStrength;
             }
 
             glm::vec4 adjustedForce = force - currentSurfaceNormal * glm::dot(force, currentSurfaceNormal);
@@ -117,7 +119,7 @@ class Player : public GameObject, public InputObserver
         return sphereCollider;
     }
 
-    void handleCollision(GameObject &other, const glm::vec4 collisionNormal, float penetrationDepth)
+    void handleCollision(GameObject &other, const glm::vec4 collisionNormal, float penetrationDepth, float deltaTime)
     {
         auto otherTransform = other.getComponent<Transform>();
         auto physicsMat = other.getComponent<PhysicsMaterial>();
@@ -127,7 +129,7 @@ class Player : public GameObject, public InputObserver
             return;
         }
 
-        glm::vec4 normalComponent = MatrixUtils::dotProduct(rigidBody->velocity, collisionNormal) * collisionNormal;
+        glm::vec4 normalComponent = math::dotProduct(rigidBody->velocity, collisionNormal) * collisionNormal;
         glm::vec4 tangentialComponent = rigidBody->velocity - normalComponent;
 
         glm::vec4 bounceVelocity = -normalComponent * physicsMat->getBounciness();
@@ -140,6 +142,7 @@ class Player : public GameObject, public InputObserver
             if (rigidBody->isGrounded && collisionNormal.y > 0.7)
             {
                 currentSurfaceNormal = collisionNormal;
+                updateRotation(deltaTime);
             }
         }
         else
@@ -165,7 +168,22 @@ class Player : public GameObject, public InputObserver
         return renderer->material->shader->ID;
     }
 
-  private:
+    void updateRotation(float deltaTime)
+    {
+        glm::vec4 movementDirection = glm::normalize(rigidBody->velocity);
+        glm::vec4 rotationAxis = math::crossProduct(movementDirection, Camera::getWorldUp());
+        if (glm::length(rotationAxis) > 0)
+        {
+            float movementDistance = glm::length(glm::vec3(rigidBody->velocity)) * deltaTime;
+            const float rotationSpeedFactor = 10.0f;
+            float rotationAngle =
+                -movementDistance / (2.0f * glm::pi<float>() * transform->scale.x) * rotationSpeedFactor;
+            glm::quat rotationDelta = glm::angleAxis(rotationAngle, glm::vec3(rotationAxis));
+            transform->rotation = glm::normalize(rotationDelta * transform->rotation);
+        }
+    }
+
+private:
     Camera &camera;
     glm::vec4 currentSurfaceNormal;
     std::shared_ptr<Transform> transform;

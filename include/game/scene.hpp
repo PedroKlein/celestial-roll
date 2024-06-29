@@ -4,6 +4,7 @@
 #include "game/gameObject.hpp"
 #include "game/gameState.hpp"
 #include "graphics/renderManager.hpp"
+#include "math/matrix.hpp"
 #include "objects/camera.hpp"
 #include "objects/light.hpp"
 #include "objects/platform.hpp"
@@ -23,7 +24,7 @@ class Scene
     {
         RenderManager::initializeShaders();
 
-        this->freeCam = std::make_unique<Camera>(glm::vec3(0.0f, -10.0f, -20.0f), 0.0f, -30.0f);
+        this->freeCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f);
         this->playerCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, -30.0f);
 
         this->player = std::make_unique<Player>(*playerCam.get());
@@ -38,10 +39,13 @@ class Scene
         addObject(std::make_shared<Platform>(Transform{glm::vec3(0.0f, -40.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f)}));
 
         addObject(std::make_shared<IcePlatform>(
-            Transform{glm::vec3(10.0f, -60.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(30.0f, 0.0f, 0.0f)}));
+            Transform{glm::vec3(10.0f, -60.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(-30.0f, 0.0f, 0.0f)}));
 
         addObject(std::make_shared<IcePlatform>(
-            Transform{glm::vec3(10.0f, -60.0f, -12.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(-20.0f, 0.0f, 0.0f)}));
+            Transform{glm::vec3(10.0f, -60.0f, -12.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(20.0f, 0.0f, 0.0f)}));
+
+        addObject(std::make_shared<Platform>(
+            Transform{glm::vec3(0.0f, -10.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(45.0f, 0.0f, 0.0f)}));
     }
 
     void updatePhysics(float deltaTime)
@@ -58,14 +62,14 @@ class Scene
             obj->updatePhysics(deltaTime);
         }
 
-        collisionManager->checkCollisions();
+        collisionManager->checkCollisions(deltaTime);
     }
 
     void render(float alpha, float viewRatio)
     {
         glm::mat4 viewMatrix = gameState->getIsEagleView() ? freeCam->getViewMatrix() : playerCam->getViewMatrix();
         glm::vec3 viewPos = gameState->getIsEagleView() ? freeCam->getPosition() : playerCam->getPosition();
-        glm::mat4 projectionMatrix = MatrixUtils::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -1000.0f);
+        glm::mat4 projectionMatrix = math::perspectiveMatrix(glm::radians(80.0f), viewRatio, -0.1f, -1000.0f);
 
         renderManager->render(alpha, viewMatrix, projectionMatrix, viewPos);
     }

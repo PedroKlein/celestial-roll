@@ -4,15 +4,21 @@
 #include "glm/trigonometric.hpp"
 #include "input/inputObserver.hpp"
 #include "interpolatedTransform.hpp"
-#include "matrixUtils.hpp"
+#include "math/matrix.hpp"
+#include "math/vector.hpp"
 #include <cmath>
 #include <glm/vec4.hpp>
 
 class Camera : public GameObject, public InputObserver
 {
   public:
+    static glm::vec4 getWorldUp()
+    {
+        return glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+    }
+
     Camera(const glm::vec3 &position = glm::vec3(0.0f, 0.0f, 0.0f), float yaw = 0.0f, float pitch = 0.0f)
-        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), isFreeCam(true), worldUp(glm::vec4(0.0f, 1.0f, 0.0f, 0.0f))
+        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), isFreeCam(true)
     {
         this->yaw = glm::radians(yaw);
         this->pitch = glm::radians(pitch);
@@ -50,12 +56,12 @@ class Camera : public GameObject, public InputObserver
     {
 
         glm::vec4 w = -front;
-        glm::vec4 u = MatrixUtils::crossProduct(worldUp, w);
+        glm::vec4 u = math::crossProduct(getWorldUp(), w);
 
-        w = MatrixUtils::normalize(w);
-        u = MatrixUtils::normalize(u);
+        w = math::normalize(w);
+        u = math::normalize(u);
 
-        glm::vec4 v = MatrixUtils::crossProduct(w, u);
+        glm::vec4 v = math::crossProduct(w, u);
 
         glm::vec4 origin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -71,10 +77,10 @@ class Camera : public GameObject, public InputObserver
         float wy = w.y;
         float wz = w.z;
 
-        return MatrixUtils::Matrix(ux, uy, uz, MatrixUtils::dotProduct(-u, vector), // Line 1
-                                   vx, vy, vz, MatrixUtils::dotProduct(-v, vector), // Line 2
-                                   wx, wy, wz, MatrixUtils::dotProduct(-w, vector), // Line 3
-                                   0.0f, 0.0f, 0.0f, 1.0f                           // Line 4
+        return math::Matrix(ux, uy, uz, math::dotProduct(-u, vector), // Line 1
+                            vx, vy, vz, math::dotProduct(-v, vector), // Line 2
+                            wx, wy, wz, math::dotProduct(-w, vector), // Line 3
+                            0.0f, 0.0f, 0.0f, 1.0f                    // Line 4
         );
     }
 
@@ -120,25 +126,25 @@ class Camera : public GameObject, public InputObserver
 
     void updateCameraVectors()
     {
-        glm::vec4 direction;
-        direction.x = cos(pitch) * sin(yaw);
-        direction.y = sin(pitch);
-        direction.z = cos(pitch) * cos(yaw);
-        direction.w = 0.0f;
+        glm::quat pitchQuat = glm::angleAxis(pitch, glm::vec3(1, 0, 0));
+        glm::quat yawQuat = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
+
+        glm::quat orientation = yawQuat * pitchQuat;
+
+        glm::vec4 defaultFront(0.0f, 0.0f, -1.0f, 0.0f);
+        glm::vec4 front = orientation * defaultFront;
 
         if (isFreeCam)
         {
-            front = direction;
-            right = MatrixUtils::crossProduct(front, worldUp);
+            this->front = front;
+            this->right = math::normalize(math::crossProduct(this->front, getWorldUp()));
         }
         else
         {
-            transform->position = target->getPosition() - distance * direction;
-            front = MatrixUtils::normalize(target->getPosition() - transform->getPosition());
-            right = MatrixUtils::crossProduct(front, worldUp);
+            transform->position = target->getPosition() - distance * front;
+            this->front = math::normalize(target->getPosition() - transform->getPosition());
+            this->right = math::normalize(math::crossProduct(this->front, getWorldUp()));
         }
-
-        right = MatrixUtils::normalize(right);
     }
 
     ObjectType getObjectType() const override
@@ -152,9 +158,7 @@ class Camera : public GameObject, public InputObserver
     std::shared_ptr<Transform> transform;
 
     glm::vec4 front;
-    glm::vec4 up;
     glm::vec4 right;
-    glm::vec4 worldUp;
 
     float yaw = 0.0f;
     float pitch = 0.0f;
