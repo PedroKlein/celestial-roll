@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 struct CollisionResult
 {
@@ -16,7 +18,7 @@ struct CollisionResult
 
 class CollisionDetector
 {
-  public:
+public:
     static CollisionResult pointToSphere(const glm::vec4 &point, const glm::vec4 &sphereCenter, float sphereRadius)
     {
         CollisionResult result{false, glm::vec4(0.0f), 0};
@@ -34,13 +36,17 @@ class CollisionDetector
         return result;
     }
 
-    // TODO: investigate why for collisions the rotation on xz is mirrored from the render
     static CollisionResult sphereToOBB(const glm::vec4 &sphereCenter, float sphereRadius, const glm::vec4 &obbCenter,
                                        const glm::vec3 &obbHalfWidths, const glm::mat4 &obbOrientation)
     {
+        // TODO: investigate why for collisions the rotation on xz is mirrored from the render
+        // this is a nasty hack to fix the issue
+        glm::quat quat = glm::quat_cast(obbOrientation);
+        glm::mat4 adjustedRotation = glm::toMat4(glm::quat(quat.w, -quat.x, quat.y, -quat.z));
+
         // Transform sphere center to OBB's local coordinate system
         glm::vec4 relCenter = sphereCenter - obbCenter;
-        glm::vec4 localSphereCenter = obbOrientation * relCenter;
+        glm::vec4 localSphereCenter = adjustedRotation * relCenter;
 
         // Create local AABB bounds for OBB
         glm::vec4 localAABBMin = glm::vec4(-obbHalfWidths, 0.0f);
@@ -52,7 +58,7 @@ class CollisionDetector
         if (localResult.collided)
         {
             // Transform the collision normal back to world space
-            localResult.normal = math::transposeHomogeneous(obbOrientation) * localResult.normal;
+            localResult.normal = math::transposeHomogeneous(adjustedRotation) * localResult.normal;
         }
 
         return localResult;

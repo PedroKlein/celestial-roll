@@ -14,7 +14,7 @@
 
 class Player : public GameObject, public InputObserver
 {
-  public:
+public:
     Player(Camera &camera) : camera(camera)
     {
         transform = std::make_shared<Transform>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f));
@@ -139,8 +139,6 @@ class Player : public GameObject, public InputObserver
         {
             rigidBody->velocity = bounceVelocity + frictionVelocity;
 
-            Debug::printVec(collisionNormal);
-
             if (rigidBody->isGrounded && collisionNormal.y > 0.7)
             {
                 currentSurfaceNormal = collisionNormal;
@@ -185,7 +183,7 @@ class Player : public GameObject, public InputObserver
         }
     }
 
-  private:
+private:
     Camera &camera;
     glm::vec4 currentSurfaceNormal;
     std::shared_ptr<Transform> transform;
