@@ -15,7 +15,7 @@
 
 class Scene
 {
-  public:
+public:
     Scene()
     {
     }
@@ -43,9 +43,6 @@ class Scene
 
         addObject(std::make_shared<IcePlatform>(
             Transform{glm::vec3(10.0f, -60.0f, -12.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(20.0f, 0.0f, 0.0f)}));
-
-        addObject(std::make_shared<Platform>(
-            Transform{glm::vec3(0.0f, -10.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(45.0f, 0.0f, 0.0f)}));
     }
 
     void updatePhysics(float deltaTime)
@@ -122,7 +119,7 @@ class Scene
         return gameState.get();
     }
 
-  private:
+private:
     std::vector<std::shared_ptr<GameObject>> objects;
 
     std::unique_ptr<Player> player;

@@ -39,14 +39,9 @@ public:
     static CollisionResult sphereToOBB(const glm::vec4 &sphereCenter, float sphereRadius, const glm::vec4 &obbCenter,
                                        const glm::vec3 &obbHalfWidths, const glm::mat4 &obbOrientation)
     {
-        // TODO: investigate why for collisions the rotation on xz is mirrored from the render
-        // this is a nasty hack to fix the issue
-        glm::quat quat = glm::quat_cast(obbOrientation);
-        glm::mat4 adjustedRotation = glm::toMat4(glm::quat(quat.w, -quat.x, quat.y, -quat.z));
-
         // Transform sphere center to OBB's local coordinate system
         glm::vec4 relCenter = sphereCenter - obbCenter;
-        glm::vec4 localSphereCenter = adjustedRotation * relCenter;
+        glm::vec4 localSphereCenter = math::transposeHomogeneous(obbOrientation) * relCenter;
 
         // Create local AABB bounds for OBB
         glm::vec4 localAABBMin = glm::vec4(-obbHalfWidths, 0.0f);
@@ -58,7 +53,7 @@ public:
         if (localResult.collided)
         {
             // Transform the collision normal back to world space
-            localResult.normal = math::transposeHomogeneous(adjustedRotation) * localResult.normal;
+            localResult.normal = obbOrientation * localResult.normal;
         }
 
         return localResult;
