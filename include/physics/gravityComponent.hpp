@@ -3,12 +3,11 @@
 #include "game/component.hpp"
 #include "game/gameObject.hpp"
 #include "rigidBody.hpp"
-#include <memory>
 
-class GravityComponent : public Component
+class GravityComponent final : public Component
 {
   public:
-    GravityComponent(const glm::vec4 &gravity = glm::vec4(0.0f, -9.81f, 0.0f, 0.0f)) : gravity(gravity)
+    explicit GravityComponent(const glm::vec4 &gravity = glm::vec4(0.0f, -9.81f, 0.0f, 0.0f)) : gravity(gravity)
     {
     }
 
@@ -35,7 +34,7 @@ class GravityComponent : public Component
         gravity = newGravity;
     }
 
-    glm::vec4 getGravity() const
+    [[nodiscard]] glm::vec4 getGravity() const
     {
         return gravity;
     }

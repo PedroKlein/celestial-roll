@@ -3,12 +3,13 @@
 #include "game/gameObject.hpp"
 #include "graphics/lightEmitter.hpp"
 #include "transform.hpp"
-#include <memory>
 
-class Light : public GameObject
+class Light final : public GameObject
 {
   public:
-    Light(const Transform &transform, const glm::vec4 &color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+    virtual ~Light() = default;
+
+    explicit Light(const Transform &transform, const glm::vec4 &color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
     {
 
         this->transform = std::make_shared<Transform>(transform);
@@ -18,7 +19,7 @@ class Light : public GameObject
         addComponent(this->lightEmitter);
     }
 
-    ObjectType getObjectType() const override
+    [[nodiscard]] ObjectType getObjectType() const override
     {
         return ObjectType::Light;
     }

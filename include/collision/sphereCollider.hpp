@@ -6,30 +6,20 @@
 #include "aabbCollider.hpp"
 #include "obbCollider.hpp"
 
-class SphereCollider : public Collider
-{
-  public:
-    SphereCollider(float radius) : radius(radius), Collider(ColliderType::Sphere)
-    {
-    }
+class SphereCollider : public Collider {
+public:
+    explicit SphereCollider(const float radius) : Collider(ColliderType::Sphere), radius(radius) {}
 
-    CollisionResult checkCollision(const Collider &other) const override
-    {
+    [[nodiscard]] CollisionResult checkCollision(const Collider &other) const override {
         CollisionResult result{false, glm::vec4(0.0f)};
 
-        const AABBCollider *otherAABB = dynamic_cast<const AABBCollider *>(&other);
-
-        if (otherAABB && transform)
-        {
+        if (const auto otherAABB = dynamic_cast<const AABBCollider *>(&other); otherAABB && transform) {
 
             result = CollisionDetector::sphereToAABB(getPosition(), getRadius(), otherAABB->getMinBounds(),
                                                      otherAABB->getMaxBounds());
         }
 
-        const OBBCollider *otherOBB = dynamic_cast<const OBBCollider *>(&other);
-
-        if (otherOBB && transform)
-        {
+        if (const auto otherOBB = dynamic_cast<const OBBCollider *>(&other); otherOBB && transform) {
             result = CollisionDetector::sphereToOBB(getPosition(), getRadius(), otherOBB->getPosition(),
                                                     otherOBB->getHalfWidths(), otherOBB->getRotationMatrix());
         }
@@ -37,11 +27,8 @@ class SphereCollider : public Collider
         return result;
     }
 
-    float getRadius() const
-    {
-        return radius;
-    }
+    [[nodiscard]] float getRadius() const { return radius; }
 
-  private:
+private:
     float radius;
 };

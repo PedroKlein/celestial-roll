@@ -20,12 +20,12 @@ class Debug
         std::cout << std::endl;
     }
 
-    static void printVec(glm::vec3 v)
+    static void printVec(const glm::vec3 v)
     {
         std::cout << "(" << v.x << ", " << v.y << ", " << v.z << ")" << std::endl;
     }
 
-    static void printVec(glm::vec4 v)
+    static void printVec(const glm::vec4 v)
     {
         std::cout << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")" << std::endl;
     }

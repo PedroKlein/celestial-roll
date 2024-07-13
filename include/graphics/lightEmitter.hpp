@@ -5,7 +5,6 @@
 #include "transform.hpp"
 #include <glm/vec3.hpp>
 #include <iostream>
-#include <memory>
 
 struct LightInfo
 {
@@ -13,10 +12,10 @@ struct LightInfo
     glm::vec4 color;
 };
 
-class LightEmitter : public Component
+class LightEmitter final : public Component
 {
   public:
-    LightEmitter(const glm::vec4 &color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)) : color(color)
+    explicit LightEmitter(const glm::vec4 &color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)) : color(color)
     {
     }
 
@@ -29,12 +28,12 @@ class LightEmitter : public Component
         }
     }
 
-    glm::vec4 getPosition() const
+    [[nodiscard]] glm::vec4 getPosition() const
     {
         return transform->getPosition();
     }
 
-    glm::vec4 getColor() const
+    [[nodiscard]] glm::vec4 getColor() const
     {
         return color;
     }
@@ -44,7 +43,7 @@ class LightEmitter : public Component
         color = newColor;
     }
 
-    LightInfo getLight() const
+    [[nodiscard]] LightInfo getLight() const
     {
         return LightInfo{transform->getPosition(), color};
     }

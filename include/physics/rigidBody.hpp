@@ -1,14 +1,12 @@
 #pragma once
 
-#include "game/component.hpp"
-#include "transform.hpp"
 #include <glm/glm.hpp>
 #include <iostream>
-#include <memory>
+#include "game/component.hpp"
+#include "transform.hpp"
 
-class RigidBody : public Component
-{
-  public:
+class RigidBody final : public Component {
+public:
     glm::vec4 velocity;
     glm::vec4 inputVelocity;
     glm::vec4 acceleration;
@@ -16,31 +14,23 @@ class RigidBody : public Component
     float inputVelocityDecay = 0.95f;
     bool isGrounded = false;
 
-    RigidBody(float mass) : mass(mass), velocity(0), inputVelocity(0), acceleration(0), forceAccumulator(0)
-    {
-        if (mass != 0)
-        {
+    explicit RigidBody(float mass) : velocity(0), inputVelocity(0), acceleration(0), forceAccumulator(0), mass(mass) {
+        if (mass != 0) {
             inverseMass = 1.0f / mass;
-        }
-        else
-        {
+        } else {
             inverseMass = 0;
         }
     }
 
-    void initialize() override
-    {
+    void initialize() override {
         transform = gameObject->getComponent<Transform>();
-        if (!transform)
-        {
+        if (!transform) {
             std::cerr << "RigidBody requires a Transform component.\n";
         }
     }
 
-    void update(float deltaTime) override
-    {
-        if (!transform)
-        {
+    void update(float deltaTime) override {
+        if (!transform) {
             return;
         }
 
@@ -51,32 +41,20 @@ class RigidBody : public Component
         transform->position += velocity * deltaTime;
     }
 
-    void addInputForce(const glm::vec4 &force, float deltaTime)
-    {
-        inputVelocity += force * inverseMass * deltaTime;
-    }
+    void addInputForce(const glm::vec4 &force, float deltaTime) { inputVelocity += force * inverseMass * deltaTime; }
 
-    void applyForce(const glm::vec4 &force)
-    {
-        forceAccumulator += force;
-    }
+    void applyForce(const glm::vec4 &force) { forceAccumulator += force; }
 
-    void clearAccumulator()
-    {
-        forceAccumulator = glm::vec4(0, 0, 0, 0);
-    }
+    void clearAccumulator() { forceAccumulator = glm::vec4(0, 0, 0, 0); }
 
-    void updatePhysics(float deltaTime)
-    {
-        if (mass != 0)
-        {
+    void updatePhysics(float deltaTime) {
+        if (mass != 0) {
             acceleration = forceAccumulator * inverseMass;
         }
 
         velocity += acceleration * deltaTime;
 
-        if (glm::length(inputVelocity + velocity) <= maxInputVelocity)
-        {
+        if (glm::length(inputVelocity + velocity) <= maxInputVelocity) {
             velocity += inputVelocity;
         }
 
@@ -88,25 +66,18 @@ class RigidBody : public Component
         transform->position += velocity * deltaTime;
     }
 
-    float getMass() const
-    {
-        return mass;
-    }
+    [[nodiscard]] float getMass() const { return mass; }
 
-    void setMass(float newMass)
-    {
+    void setMass(const float newMass) {
         mass = newMass;
-        if (newMass != 0)
-        {
+        if (newMass != 0) {
             inverseMass = 1.0f / newMass;
-        }
-        else
-        {
+        } else {
             inverseMass = 0;
         }
     }
 
-  private:
+private:
     std::shared_ptr<Transform> transform;
     glm::vec4 forceAccumulator;
     float mass;

@@ -2,28 +2,23 @@
 
 class GameObject; // forward declaration
 
-class Component
-{
-  public:
-    virtual ~Component()
-    {
-    }
+class Component {
+public:
+    virtual ~Component() = default;
 
     void setGameObject(GameObject *obj);
 
     void enable();
     void disable();
-    bool isEnabled() const;
+    [[nodiscard]] bool isEnabled() const;
 
-    const GameObject *getGameObject() const;
+    [[nodiscard]] const GameObject *getGameObject() const;
 
-    virtual void initialize()
-    {
-    }
+    virtual void initialize() {}
 
-    virtual void update(float deltaTime) {};
+    virtual void update(float deltaTime){};
 
-  protected:
-    GameObject *gameObject;
+protected:
+    GameObject *gameObject{};
     bool enabled = true;
 };

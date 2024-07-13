@@ -4,13 +4,9 @@
 #include "graphics/material.hpp"
 #include "graphics/mesh.hpp"
 #include "interpolatedTransform.hpp"
-#include <glm/glm.hpp>
-#include <iostream>
-#include <memory>
 
-class Renderer : public Component
-{
-  public:
+class Renderer final : public Component {
+public:
     std::shared_ptr<Mesh> mesh;
     std::shared_ptr<Material> material;
     std::shared_ptr<InterpolatedTransform> interpolatedTransform;

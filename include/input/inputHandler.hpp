@@ -3,7 +3,6 @@
 #include "inputObserver.hpp"
 #include <GLFW/glfw3.h>
 #include <functional>
-#include <iostream>
 #include <vector>
 
 using GetCursorPosCallback = std::function<void(double *, double *)>;
@@ -12,8 +11,9 @@ class InputHandler
 {
   public:
     InputHandler()
-        : wKeyPressed(false), aKeyPressed(false), sKeyPressed(false), dKeyPressed(false), leftMouseButtonPressed(false)
-    {
+        : wKeyPressed(false), aKeyPressed(false), sKeyPressed(false), dKeyPressed(false), leftMouseButtonPressed(false),
+          lastCursorPosX(0),
+          lastCursorPosY(0) {
     }
 
     void addObserver(InputObserver *observer)
@@ -21,8 +21,7 @@ class InputHandler
         observers.push_back(observer);
     }
 
-    void processInput(float deltaTime)
-    {
+    void processInput(const float deltaTime) const {
         if (wKeyPressed)
             notifyObserversOfKeyboard(FORWARD, deltaTime);
         if (aKeyPressed)
@@ -33,7 +32,7 @@ class InputHandler
             notifyObserversOfKeyboard(RIGHT, deltaTime);
     }
 
-    void keyCallback(int key, int action)
+    void keyCallback(const int key, const int action)
     {
         if (key == GLFW_KEY_W)
             wKeyPressed = (action != GLFW_RELEASE);
@@ -53,13 +52,13 @@ class InputHandler
             notifyObserversOfKeyboard(EAGLE_VIEW);
     }
 
-    void cursorPosCallback(double xpos, double ypos)
+    void cursorPosCallback(const double xpos, const double ypos)
     {
         if (!leftMouseButtonPressed)
             return;
 
-        float dx = xpos - lastCursorPosX;
-        float dy = ypos - lastCursorPosY;
+        const double dx = xpos - lastCursorPosX;
+        const double dy = ypos - lastCursorPosY;
 
         notifyObserversOfMouseMovement(dx, dy);
 
@@ -67,7 +66,7 @@ class InputHandler
         lastCursorPosY = ypos;
     }
 
-    void mouseButtonCallback(int button, int action, GetCursorPosCallback getCursorPosCallback)
+    void mouseButtonCallback(const int button, const int action, const GetCursorPosCallback &getCursorPosCallback)
     {
         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
         {
@@ -92,8 +91,7 @@ class InputHandler
     double lastCursorPosX;
     double lastCursorPosY;
 
-    void notifyObserversOfKeyboard(Action action, float deltaTime = 0.0f)
-    {
+    void notifyObserversOfKeyboard(const Action action, const float deltaTime = 0.0f) const {
         for (InputObserver *observer : observers)
         {
             if (observer->getInputEnabled())
@@ -103,8 +101,7 @@ class InputHandler
         }
     }
 
-    void notifyObserversOfMouseMovement(double dx, double dy)
-    {
+    void notifyObserversOfMouseMovement(const double dx, const double dy) const {
         for (InputObserver *observer : observers)
         {
             if (observer->getInputEnabled())
@@ -112,8 +109,7 @@ class InputHandler
         }
     }
 
-    void notifyObserversOfMouseButton(int button, int action)
-    {
+    void notifyObserversOfMouseButton(const int button, const int action) const {
         for (InputObserver *observer : observers)
         {
             if (observer->getInputEnabled())

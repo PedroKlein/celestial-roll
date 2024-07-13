@@ -15,40 +15,34 @@ constexpr float INITIAL_HEIGHT = 600.0f;
 
 std::unordered_map<std::string, unsigned int> Shader::shaderCache;
 
-void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-    Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
+void keyCallback(GLFWwindow *window, const int key, int scancode, const int action, int mods) {
+    const auto game = static_cast<Game *>(glfwGetWindowUserPointer(window));
     game->getInputHandler()->keyCallback(key, action);
 }
 
-void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
-{
-    Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
+void mouseButtonCallback(GLFWwindow *window, const int button, const int action, int mods) {
+    const auto game = static_cast<Game *>(glfwGetWindowUserPointer(window));
     game->getInputHandler()->mouseButtonCallback(
-        button, action, [&window](double *xpos, double *ypos) { glfwGetCursorPos(window, xpos, ypos); });
+            button, action, [&window](double *xpos, double *ypos) { glfwGetCursorPos(window, xpos, ypos); });
 }
 
-void cursorPosCallback(GLFWwindow *window, double xpos, double ypos)
-{
-    Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
+void cursorPosCallback(GLFWwindow *window, const double xpos, const double ypos) {
+    const auto game = static_cast<Game *>(glfwGetWindowUserPointer(window));
     game->getInputHandler()->cursorPosCallback(xpos, ypos);
 }
 
-void scrollCallback(GLFWwindow *window, double xoffset, double yoffset)
-{
-    Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
+void scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
+    const auto game = static_cast<Game *>(glfwGetWindowUserPointer(window));
 }
 
-void framebufferSizeCallback(GLFWwindow *window, int width, int height)
-{
-    Game *game = static_cast<Game *>(glfwGetWindowUserPointer(window));
+void framebufferSizeCallback(GLFWwindow *window, const int width, const int height) {
+    const auto game = static_cast<Game *>(glfwGetWindowUserPointer(window));
     game->setViewRatio(width, height);
 
     glViewport(0, 0, width, height);
 }
 
-int main()
-{
+int main() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -60,8 +54,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow *window = glfwCreateWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "Celestial Roll", nullptr, nullptr);
-    if (window == nullptr)
-    {
+    if (window == nullptr) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
@@ -74,8 +67,7 @@ int main()
     glfwSetScrollCallback(window, scrollCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
@@ -90,8 +82,7 @@ int main()
     // enable vsync
     // glfwSwapInterval(1);
 
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         game.tick();
 
         glfwSwapBuffers(window);

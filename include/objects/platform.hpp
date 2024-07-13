@@ -3,16 +3,16 @@
 #include "collision/aabbCollider.hpp"
 #include "game/gameObject.hpp"
 #include "graphics/materialManager.hpp"
-#include "graphics/mesh.hpp"
 #include "graphics/meshManager.hpp"
 #include "graphics/renderer.hpp"
 #include "physics/physicsMaterial.hpp"
-#include <glm/ext/matrix_transform.hpp>
 
 class Platform : public GameObject
 {
   public:
-    Platform(const Transform &transform, const std::string &materialFilePath = "resources/materials/default.mtl",
+    virtual ~Platform() = default;
+
+    explicit Platform(const Transform &transform, const std::string &materialFilePath = "resources/materials/default.mtl",
              const std::string &shaderName = "default", float boucinness = 0.0f, float friction = 0.1f)
         : boucinness(boucinness), friction(friction)
     {
@@ -37,7 +37,7 @@ class Platform : public GameObject
         addComponent(std::make_shared<PhysicsMaterial>(friction, boucinness));
     }
 
-    ObjectType getObjectType() const override
+    [[nodiscard]] ObjectType getObjectType() const override
     {
         return ObjectType::Platform;
     }
@@ -57,10 +57,10 @@ class Platform : public GameObject
     float friction;
 };
 
-class IcePlatform : public Platform
+class IcePlatform final : public Platform
 {
   public:
-    IcePlatform(const Transform &transform) : Platform(transform, "resources/materials/ice.mtl", "ice", 0.0f, 0.0f)
+    explicit IcePlatform(const Transform &transform) : Platform(transform, "resources/materials/ice.mtl", "ice", 0.0f, 0.0f)
     {
     }
 };

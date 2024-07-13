@@ -8,7 +8,7 @@ Renderer::Renderer(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Mate
 
 void Renderer::initialize()
 {
-    auto transform = gameObject->getComponent<Transform>();
+    const auto transform = gameObject->getComponent<Transform>();
     if (!transform)
     {
         std::cerr << "Renderer requires a Transform component." << std::endl;
@@ -17,7 +17,7 @@ void Renderer::initialize()
     interpolatedTransform = std::make_shared<InterpolatedTransform>(transform.get());
 }
 
-void Renderer::update(float alpha)
+void Renderer::update(const float alpha)
 {
     if (!mesh || !interpolatedTransform)
     {
@@ -28,5 +28,5 @@ void Renderer::update(float alpha)
     interpolatedTransform->calculateInterpolation(alpha);
 
     material->shader->setMat4("model", interpolatedTransform->getInterpolatedModelMatrix());
-    mesh->draw(*material.get());
+    mesh->draw(*material);
 }

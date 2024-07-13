@@ -3,16 +3,14 @@
 #include <glad/glad.h>
 #include <string>
 
-#include "stb_image.h"
 #include <iostream>
+#include "stb_image.h"
 
-class Texture
-{
-  public:
-    Texture(const char *texturePath, const std::string &typeName, GLint wrapMode = GL_REPEAT,
-            GLint minFilter = GL_LINEAR_MIPMAP_LINEAR, GLint magFilter = GL_LINEAR)
-        : type(typeName), path(texturePath)
-    {
+class Texture {
+public:
+    Texture(const char *texturePath, std::string typeName, const GLint wrapMode = GL_REPEAT,
+            const GLint minFilter = GL_LINEAR_MIPMAP_LINEAR, const GLint magFilter = GL_LINEAR) :
+        type(std::move(typeName)), path(texturePath) {
         glGenTextures(1, &ID);
         if (ID == 0)
             throw std::runtime_error("Failed to generate texture");
@@ -26,9 +24,8 @@ class Texture
 
         int width, height, nrChannels;
         unsigned char *data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
-        if (data)
-        {
-            GLenum format;
+        if (data) {
+            GLenum format = 0;
             if (nrChannels == 1)
                 format = GL_RED;
             else if (nrChannels == 3)
@@ -38,38 +35,26 @@ class Texture
 
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
-        }
-        else
-        {
+        } else {
             throw std::runtime_error("Failed to load texture at path: " + std::string(texturePath));
         }
 
         stbi_image_free(data);
     }
 
-    unsigned int getID() const
-    {
-        return ID;
-    }
+    [[nodiscard]] unsigned int getID() const { return ID; }
 
-    std::string getType() const
-    {
-        return type;
-    }
+    [[nodiscard]] std::string getType() const { return type; }
 
-    std::string getPath() const
-    {
-        return path;
-    }
+    [[nodiscard]] std::string getPath() const { return path; }
 
-    ~Texture()
-    {
+    ~Texture() {
         if (ID != 0)
             glDeleteTextures(1, &ID);
     }
 
-  private:
-    unsigned int ID;
+private:
+    unsigned int ID{};
     std::string type;
     std::string path;
 };

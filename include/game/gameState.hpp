@@ -4,21 +4,15 @@
 #include "objects/camera.hpp"
 #include "objects/player.hpp"
 
-class GameState : public InputObserver
-{
-  public:
-    GameState(Camera &freeCam, Camera &playerCam, Player &player)
-        : isPaused(false), isEagleView(false), freeCam(freeCam), playerCam(playerCam), player(player)
-    {
-    }
+class GameState final : public InputObserver {
+public:
+    GameState(Camera &freeCam, Camera &playerCam, Player &player) :
+        freeCam(freeCam), playerCam(playerCam), player(player), isPaused(false), isEagleView(false) {}
 
-    void processKeyboard(Action action, float deltaTime) override
-    {
-        if (action == PAUSE)
-        {
+    void processKeyboard(const Action action, const float deltaTime) override {
+        if (action == PAUSE) {
             isPaused = !isPaused;
-            if (isPaused)
-            {
+            if (isPaused) {
                 disableControls();
                 return;
             }
@@ -27,24 +21,17 @@ class GameState : public InputObserver
             return;
         }
 
-        if (action == EAGLE_VIEW)
-        {
+        if (action == EAGLE_VIEW) {
             isEagleView = !isEagleView;
             isEagleView ? enableEagleView() : enablePlayerView();
         }
     }
 
-    bool getIsPaused() const
-    {
-        return isPaused;
-    }
+    [[nodiscard]] bool getIsPaused() const { return isPaused; }
 
-    bool getIsEagleView() const
-    {
-        return isEagleView;
-    }
+    [[nodiscard]] bool getIsEagleView() const { return isEagleView; }
 
-  private:
+private:
     Camera &freeCam;
     Camera &playerCam;
     Player &player;
@@ -52,22 +39,19 @@ class GameState : public InputObserver
     bool isPaused;
     bool isEagleView;
 
-    void disableControls()
-    {
+    void disableControls() const {
         freeCam.setInputEnabled(false);
         playerCam.setInputEnabled(false);
         player.setInputEnabled(false);
     }
 
-    void enableEagleView()
-    {
+    void enableEagleView() const {
         freeCam.setInputEnabled(true);
         playerCam.setInputEnabled(false);
         player.setInputEnabled(false);
     }
 
-    void enablePlayerView()
-    {
+    void enablePlayerView() const {
         freeCam.setInputEnabled(false);
         playerCam.setInputEnabled(true);
         player.setInputEnabled(true);

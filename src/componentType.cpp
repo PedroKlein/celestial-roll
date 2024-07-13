@@ -10,52 +10,52 @@
 #include "physics/rigidBody.hpp"
 #include "transform.hpp"
 
-template <> ComponentType getComponentType<Transform>()
-{
+template<>
+ComponentType getComponentType<Transform>() {
     return ComponentType::Transform;
 }
 
-template <> ComponentType getComponentType<Collider>()
-{
+template<>
+ComponentType getComponentType<Collider>() {
     return ComponentType::Collider;
 }
 
-template <> ComponentType getComponentType<AABBCollider>()
-{
+template<>
+ComponentType getComponentType<AABBCollider>() {
     return ComponentType::Collider;
 }
 
-template <> ComponentType getComponentType<OBBCollider>()
-{
+template<>
+ComponentType getComponentType<OBBCollider>() {
     return ComponentType::Collider;
 }
 
-template <> ComponentType getComponentType<SphereCollider>()
-{
+template<>
+ComponentType getComponentType<SphereCollider>() {
     return ComponentType::Collider;
 }
 
-template <> ComponentType getComponentType<PhysicsMaterial>()
-{
+template<>
+ComponentType getComponentType<PhysicsMaterial>() {
     return ComponentType::PhysicsMaterial;
 }
 
-template <> ComponentType getComponentType<GravityComponent>()
-{
+template<>
+ComponentType getComponentType<GravityComponent>() {
     return ComponentType::Gravity;
 }
 
-template <> ComponentType getComponentType<RigidBody>()
-{
+template<>
+ComponentType getComponentType<RigidBody>() {
     return ComponentType::RigidBody;
 }
 
-template <> ComponentType getComponentType<Renderer>()
-{
+template<>
+ComponentType getComponentType<Renderer>() {
     return ComponentType::Renderer;
 }
 
-template <> ComponentType getComponentType<LightEmitter>()
-{
+template<>
+ComponentType getComponentType<LightEmitter>() {
     return ComponentType::LightEmitter;
 }

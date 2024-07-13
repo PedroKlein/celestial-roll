@@ -1,100 +1,64 @@
 #pragma once
 
-#include "debug.hpp"
-#include "game/component.hpp"
-#include "math/matrix.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include <iostream>
+#include "game/component.hpp"
+#include "math/matrix.hpp"
 
-class Transform : public Component
-{
-  public:
-    glm::vec4 position, previousPosition;
-    glm::vec3 scale, previousScale;
-    glm::quat rotation, previousRotation;
+class Transform final : public Component {
+public:
+    glm::vec4 position, previousPosition{};
+    glm::vec3 scale, previousScale{};
+    glm::quat rotation{}, previousRotation{};
 
-    Transform() : position(0.0f, 0.0f, 0.0f, 1.0f), rotation(glm::quat()), scale(1.0f)
-    {
+    Transform() : position(0.0f, 0.0f, 0.0f, 1.0f), scale(1.0f), rotation(glm::quat()) { saveState(); }
+
+    explicit Transform(const glm::vec3 &position) : position(position, 1.0f), scale(1.0f), rotation(glm::quat()) {
         saveState();
     }
 
-    Transform(const glm::vec3 &position) : position(position, 1.0f), rotation(glm::quat()), scale(1.0f)
-    {
+    Transform(const glm::vec3 &position, const glm::vec3 &scale) :
+        position(position, 1.0f), scale(scale), rotation(glm::quat()) {
         saveState();
     }
 
-    Transform(const glm::vec3 &position, const glm::vec3 &scale)
-        : position(position, 1.0f), scale(scale), rotation(glm::quat())
-    {
-        saveState();
-    }
-
-    Transform(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &eulerRotation)
-        : position(position, 1.0f), scale(scale)
-    {
+    Transform(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &eulerRotation) :
+        position(position, 1.0f), scale(scale) {
         setRotation(eulerRotation);
         saveState();
     }
 
-    void saveState()
-    {
+    void saveState() {
         previousPosition = position;
         previousScale = scale;
         previousRotation = rotation;
     }
 
-    glm::vec4 getPosition() const
-    {
-        return position;
-    }
+    [[nodiscard]] glm::vec4 getPosition() const { return position; }
 
-    void setPosition(const glm::vec3 &position)
-    {
-        this->position = glm::vec4(position, 1.0f);
-    }
+    void setPosition(const glm::vec3 &position) { this->position = glm::vec4(position, 1.0f); }
 
-    glm::vec3 getScale() const
-    {
-        return scale;
-    }
+    [[nodiscard]] glm::vec3 getScale() const { return scale; }
 
-    void setScale(const glm::vec3 &scale)
-    {
-        this->scale = scale;
-    }
+    void setScale(const glm::vec3 &scale) { this->scale = scale; }
 
-    glm::quat getRotation() const
-    {
-        return rotation;
-    }
+    [[nodiscard]] glm::quat getRotation() const { return rotation; }
 
-    void setRotation(const glm::vec3 &eulerRotation)
-    {
-        rotation = glm::quat(glm::radians(eulerRotation));
-    }
+    void setRotation(const glm::vec3 &eulerRotation) { rotation = glm::quat(glm::radians(eulerRotation)); }
 
-    glm::mat4 getModelMatrix() const
-    {
+    [[nodiscard]] glm::mat4 getModelMatrix() const {
         glm::mat4 model = math::translateMatrix(position.x, position.y, position.z);
         model *= glm::toMat4(rotation);
         model *= math::scaleMatrix(scale.x, scale.y, scale.z);
         return model;
     }
 
-    glm::mat4 getRotationMatrix() const
-    {
-        return glm::toMat4(rotation);
-    }
+    [[nodiscard]] glm::mat4 getRotationMatrix() const { return glm::toMat4(rotation); }
 
-    glm::vec3 getUp() const
-    {
-        return glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f) * rotation);
-    }
+    [[nodiscard]] glm::vec3 getUp() const { return glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f) * rotation); }
 
-    friend std::ostream &operator<<(std::ostream &os, const Transform &transform)
-    {
+    friend std::ostream &operator<<(std::ostream &os, const Transform &transform) {
         os << "Position: " << transform.position.x << ", " << transform.position.y << ", " << transform.position.z
            << std::endl;
         os << "Rotation: " << glm::eulerAngles(transform.rotation).x << ", " << glm::eulerAngles(transform.rotation).y

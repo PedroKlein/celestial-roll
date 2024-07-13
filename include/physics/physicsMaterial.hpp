@@ -1,36 +1,20 @@
 #pragma once
 
 #include "game/component.hpp"
-#include <memory>
 
-class PhysicsMaterial : public Component
-{
-  public:
-    PhysicsMaterial(float friction, float bounciness) : friction(friction), bounciness(bounciness)
-    {
-    }
+class PhysicsMaterial final : public Component {
+public:
+    PhysicsMaterial(const float friction, const float bounciness) : friction(friction), bounciness(bounciness) {}
 
-    float getFriction() const
-    {
-        return friction;
-    }
+    [[nodiscard]] float getFriction() const { return friction; }
 
-    void setFriction(float newFriction)
-    {
-        friction = newFriction;
-    }
+    void setFriction(const float newFriction) { friction = newFriction; }
 
-    float getBounciness() const
-    {
-        return bounciness;
-    }
+    [[nodiscard]] float getBounciness() const { return bounciness; }
 
-    void setBounciness(float newBounciness)
-    {
-        bounciness = newBounciness;
-    }
+    void setBounciness(const float newBounciness) { bounciness = newBounciness; }
 
-  private:
+private:
     float friction;
     float bounciness;
 };

@@ -6,18 +6,17 @@
 #include "interpolatedTransform.hpp"
 #include "math/matrix.hpp"
 #include "math/vector.hpp"
-#include <cmath>
 #include <glm/vec4.hpp>
 
-class Camera : public GameObject, public InputObserver
+class Camera final : public GameObject, public InputObserver
 {
   public:
     static glm::vec4 getWorldUp()
     {
-        return glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+        return {0.0f, 1.0f, 0.0f, 0.0f};
     }
 
-    Camera(const glm::vec3 &position = glm::vec3(0.0f, 0.0f, 0.0f), float yaw = 0.0f, float pitch = 0.0f)
+    explicit Camera(const glm::vec3 &position = glm::vec3(0.0f, 0.0f, 0.0f), const float yaw = 0.0f, const float pitch = 0.0f)
         : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), isFreeCam(true)
     {
         this->yaw = glm::radians(yaw);
@@ -28,7 +27,7 @@ class Camera : public GameObject, public InputObserver
         updateCameraVectors();
     }
 
-    void setTarget(const InterpolatedTransform &transform, float distance)
+    void setTarget(const InterpolatedTransform &transform, const float distance)
     {
         this->target = &transform;
         this->transform->position = target->getPosition() - glm::normalize(front) * distance;
@@ -37,23 +36,22 @@ class Camera : public GameObject, public InputObserver
         updateCameraVectors();
     }
 
-    glm::vec4 getPosition() const
+    [[nodiscard]] glm::vec4 getPosition() const
     {
         return transform->getPosition();
     }
 
-    glm::vec4 getFront() const
+    [[nodiscard]] glm::vec4 getFront() const
     {
         return front;
     }
 
-    glm::vec4 getRight() const
+    [[nodiscard]] glm::vec4 getRight() const
     {
         return right;
     }
 
-    glm::mat4 getViewMatrix()
-    {
+    [[nodiscard]] glm::mat4 getViewMatrix() const {
 
         glm::vec4 w = -front;
         glm::vec4 u = math::crossProduct(getWorldUp(), w);
@@ -61,30 +59,20 @@ class Camera : public GameObject, public InputObserver
         w = math::normalize(w);
         u = math::normalize(u);
 
-        glm::vec4 v = math::crossProduct(w, u);
+        const glm::vec4 v = math::crossProduct(w, u);
 
-        glm::vec4 origin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        constexpr glm::vec4 origin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-        glm::vec4 vector = transform->getPosition() - origin;
+        const glm::vec4 vector = transform->getPosition() - origin;
 
-        float ux = u.x;
-        float uy = u.y;
-        float uz = u.z;
-        float vx = v.x;
-        float vy = v.y;
-        float vz = v.z;
-        float wx = w.x;
-        float wy = w.y;
-        float wz = w.z;
-
-        return math::Matrix(ux, uy, uz, math::dotProduct(-u, vector), // Line 1
-                            vx, vy, vz, math::dotProduct(-v, vector), // Line 2
-                            wx, wy, wz, math::dotProduct(-w, vector), // Line 3
+        return math::Matrix(u.x, u.y, u.z, math::dotProduct(-u, vector), // Line 1
+                            v.x, v.y, v.z, math::dotProduct(-v, vector), // Line 2
+                            w.x, w.y, w.z, math::dotProduct(-w, vector), // Line 3
                             0.0f, 0.0f, 0.0f, 1.0f                    // Line 4
         );
     }
 
-    void processKeyboard(Action action, float deltaTime) override
+    void processKeyboard(const Action action, const float deltaTime) override
     {
         if (!isFreeCam)
         {
@@ -92,7 +80,7 @@ class Camera : public GameObject, public InputObserver
             return;
         }
 
-        float velocity = movementSpeed * deltaTime;
+        const float velocity = movementSpeed * deltaTime;
         glm::vec4 movement(0.0f, 0.0f, 0.0f, 0.0f);
 
         if (action == FORWARD)
@@ -107,13 +95,13 @@ class Camera : public GameObject, public InputObserver
         transform->position += movement;
     }
 
-    void processMouseMovement(double dx, double dy) override
+    void processMouseMovement(const double dx, const double dy) override
     {
         yaw -= 0.01f * dx * mouseSensitivity;
         pitch += 0.01f * dy * mouseSensitivity;
 
-        float pitchMax = glm::radians(89.0f);
-        float pitchMin = -pitchMax;
+        constexpr float pitchMax = glm::radians(89.0f);
+        constexpr float pitchMin = -pitchMax;
 
         if (pitch > pitchMax)
             pitch = pitchMax;
@@ -126,13 +114,13 @@ class Camera : public GameObject, public InputObserver
 
     void updateCameraVectors()
     {
-        glm::quat pitchQuat = glm::angleAxis(pitch, glm::vec3(1, 0, 0));
-        glm::quat yawQuat = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
+        const glm::quat pitchQuat = glm::angleAxis(pitch, glm::vec3(1, 0, 0));
+        const glm::quat yawQuat = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
 
-        glm::quat orientation = yawQuat * pitchQuat;
+        const glm::quat orientation = yawQuat * pitchQuat;
 
-        glm::vec4 defaultFront(0.0f, 0.0f, -1.0f, 0.0f);
-        glm::vec4 front = orientation * defaultFront;
+        constexpr glm::vec4 defaultFront(0.0f, 0.0f, -1.0f, 0.0f);
+        const glm::vec4 front = orientation * defaultFront;
 
         if (isFreeCam)
         {
@@ -147,18 +135,18 @@ class Camera : public GameObject, public InputObserver
         }
     }
 
-    ObjectType getObjectType() const override
+    [[nodiscard]] ObjectType getObjectType() const override
     {
         return ObjectType::Camera;
     }
 
   private:
-    const InterpolatedTransform *target;
+    const InterpolatedTransform *target{};
 
     std::shared_ptr<Transform> transform;
 
     glm::vec4 front;
-    glm::vec4 right;
+    glm::vec4 right{};
 
     float yaw = 0.0f;
     float pitch = 0.0f;

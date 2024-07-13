@@ -2,29 +2,18 @@
 
 #include "action.hpp"
 
-class InputObserver
-{
-  public:
-    virtual void processKeyboard(Action action, float deltaTime)
-    {
-    }
-    virtual void processMouseMovement(double dx, double dy)
-    {
-    }
-    virtual void processMouseButton(int button, int action)
-    {
-    }
+class InputObserver {
+public:
+    virtual ~InputObserver() = default;
 
-    void setInputEnabled(bool enabled)
-    {
-        inputEnabled = enabled;
-    }
+    virtual void processKeyboard(Action action, float deltaTime) {}
+    virtual void processMouseMovement(const double dx, const double dy) {}
+    virtual void processMouseButton(const int button, const int action) {}
 
-    bool getInputEnabled()
-    {
-        return inputEnabled;
-    }
+    void setInputEnabled(const bool enabled) { inputEnabled = enabled; }
 
-  protected:
+    [[nodiscard]] bool getInputEnabled() const { return inputEnabled; }
+
+protected:
     bool inputEnabled = true;
 };

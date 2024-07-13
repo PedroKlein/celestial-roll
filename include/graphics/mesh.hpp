@@ -1,18 +1,14 @@
 #pragma once
 
-#include "objLoader.hpp"
-#include "shader.hpp"
 #include <cstddef>
 #include <glad/glad.h>
 #include <vector>
+#include "objLoader.hpp"
 
-class Mesh
-{
-  public:
-    Mesh(const std::string &filename) : loader(filename)
-    {
-        if (!loader.loadModel())
-        {
+class Mesh {
+public:
+    explicit Mesh(const std::string &filename) : loader(filename) {
+        if (!loader.loadModel()) {
             throw std::runtime_error("Failed to load model");
         }
 
@@ -33,22 +29,21 @@ class Mesh
                      &loader.getIndices()[0], GL_STATIC_DRAW);
 
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(VertexAttribute),
-                              (void *)offsetof(VertexAttribute, position));
+                              reinterpret_cast<void *>(offsetof(VertexAttribute, position)));
         glEnableVertexAttribArray(0);
 
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(VertexAttribute),
-                              (void *)offsetof(VertexAttribute, normal));
+                              reinterpret_cast<void *>(offsetof(VertexAttribute, normal)));
         glEnableVertexAttribArray(1);
 
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexAttribute),
-                              (void *)offsetof(VertexAttribute, texcoord));
+                              reinterpret_cast<void *>(offsetof(VertexAttribute, texcoord)));
         glEnableVertexAttribArray(2);
 
         glBindVertexArray(0);
     }
 
-    void draw(const Material &material) const
-    {
+    void draw(const Material &material) const {
         material.applyShaderProperties();
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
@@ -56,16 +51,15 @@ class Mesh
         glBindVertexArray(0);
     }
 
-    ~Mesh()
-    {
+    ~Mesh() {
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);
         glDeleteBuffers(1, &EBO);
     }
 
-  private:
+private:
     std::vector<unsigned int> indices;
-    unsigned int VAO, VBO, EBO;
+    unsigned int VAO{}, VBO{}, EBO{};
 
     ObjLoader loader;
 };
