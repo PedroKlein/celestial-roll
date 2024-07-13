@@ -32,8 +32,8 @@ public:
         updateMatricesUBO(viewMatrix, projectionMatrix);
         updateViewPosUBO(viewPos);
 
-        // batch rendering
-        for (auto &[shaderId, renderers]: renderersByShader) {
+        // batch rendering opaque objects
+        for (auto &[shaderId, renderers]: renderersByOpaqueShader) {
             glUseProgram(shaderId);
 
             if (player.getShaderId() == shaderId) {
@@ -45,12 +45,31 @@ public:
             }
         }
 
-        debugAxis.render(player.getPosition());
+        glDepthMask(GL_FALSE);
+
+        // batch rendering non-opaque objects
+        for (auto &[shaderId, renderers]: renderersByNonOpaqueShader) {
+            glUseProgram(shaderId);
+
+            for (const auto &renderer: renderers) {
+                renderer->update(alpha);
+            }
+        }
+
+        glDepthMask(GL_TRUE);
+
+        // debugAxis.render(player.getPosition());
     }
 
     void addRenderer(const std::shared_ptr<Renderer> &renderer) {
         const unsigned int shaderID = renderer->material->shader->ID;
-        renderersByShader[shaderID].push_back(renderer);
+        const bool isOpaque = renderer->material->getIsOpaque();
+
+        if (isOpaque) {
+            renderersByOpaqueShader[shaderID].push_back(renderer);
+        } else {
+            renderersByNonOpaqueShader[shaderID].push_back(renderer);
+        }
     }
 
     void addLightEmitter(const std::shared_ptr<LightEmitter> &lightEmitter) {
@@ -78,7 +97,8 @@ private:
     GLuint uboLights{};
     GLuint uboViewPos{};
 
-    std::unordered_map<unsigned int, std::vector<std::shared_ptr<Renderer>>> renderersByShader;
+    std::unordered_map<unsigned int, std::vector<std::shared_ptr<Renderer>>> renderersByOpaqueShader;
+    std::unordered_map<unsigned int, std::vector<std::shared_ptr<Renderer>>> renderersByNonOpaqueShader;
     std::array<std::shared_ptr<LightEmitter>, MAX_LIGHTS> lightEmitters;
     std::vector<LightInfo> activeLights;
 

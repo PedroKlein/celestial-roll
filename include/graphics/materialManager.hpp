@@ -12,14 +12,15 @@ public:
         return instance;
     }
 
-    std::shared_ptr<Material> getMaterial(const std::string &filename, const std::string &shaderName = "default") {
+    std::shared_ptr<Material> getMaterial(const std::string &filename, const std::string &shaderName = "default",
+                                          const bool isOpaque = true) {
         const auto key = filename + shaderName;
         if (const auto it = materials.find(key); it != materials.end()) {
             return it->second;
         }
 
         std::cout << "Loading material: " << key << std::endl;
-        auto material = std::make_shared<Material>(filename, shaderName);
+        auto material = std::make_shared<Material>(filename, shaderName, isOpaque);
         materials[key] = material;
         return material;
     }

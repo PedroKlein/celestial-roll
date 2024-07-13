@@ -8,17 +8,20 @@
 #include "shaderManager.hpp"
 #include "texture.hpp"
 
+// TODO: refactor material to be decoupled from .mtl files
 class Material {
 public:
     glm::vec3 ambient;
     glm::vec3 diffuse;
     glm::vec3 specular;
     float shininess;
+    bool isOpaque;
     std::shared_ptr<Texture> diffuseTexture;
     std::shared_ptr<Shader> shader;
 
-    explicit Material(const std::string &materialPath, const std::string &shaderName = "default") :
-        ambient(1.0f), diffuse(1.0f), specular(1.0f), shininess(32.0f), loader(materialPath) {
+    explicit Material(const std::string &materialPath, const std::string &shaderName = "default",
+                      const bool isOpaque = true) :
+        ambient(1.0f), diffuse(1.0f), specular(1.0f), shininess(32.0f), isOpaque(isOpaque), loader(materialPath) {
         if (!loader.loadMaterial()) {
             throw std::runtime_error("Failed to load material");
         }
@@ -40,6 +43,8 @@ public:
     void setDiffuseTexture(const std::string &texturePath) {
         diffuseTexture = std::make_shared<Texture>(texturePath.c_str(), "diffuse");
     }
+
+    [[nodiscard]] bool getIsOpaque() const { return isOpaque; }
 
     void applyShaderProperties() const {
         shader->setVec3("material.ambient", ambient);
