@@ -9,15 +9,16 @@ class RigidBody;
 class Renderer;
 
 // order of update is important
-enum class ComponentType
-{
-    Transform,       // dont have update
-    Collider,        // dont have update
+enum class ComponentType {
+    Transform, // dont have update
+    Collider, // dont have update
     PhysicsMaterial, // dont have update
-    LightEmitter,    // dont have update
-    Gravity,         // have update
-    RigidBody,       // have update
-    Renderer,        // have update
+    LightEmitter, // dont have update
+    Gravity, // have update
+    RigidBody, // have update
+    Animation, // have update
+    Renderer, // have update
 };
 
-template <typename T> ComponentType getComponentType();
+template<typename T>
+ComponentType getComponentType();

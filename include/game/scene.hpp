@@ -37,6 +37,16 @@ public:
 
         addObject(std::make_shared<IcePlatform>(Transform{
                 glm::vec3(10.0f, -60.0f, -12.0f), glm::vec3(10.0f, 1.0f, 10.0f), glm::vec3(20.0f, 0.0f, 0.0f)}));
+
+        std::vector<glm::vec3> points = {
+                glm::vec3(0.0f, 0.0f, 0.0f), // P0
+                glm::vec3(0.0f, 0.0f, 19.40f), // P1
+                glm::vec3(100.0f, 0.0f, 11.10f), // P2
+                glm::vec3(100.0f, 0.0f, 0.0f) // P3
+        };
+
+        addObject(std::make_shared<MovingPlatform>(
+                Transform{glm::vec3(20.0f, -60.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f)}, points, 20.0f));
     }
 
     void updatePhysics(const float deltaTime) const {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bezierAnimation.hpp"
 #include "collision/aabbCollider.hpp"
 #include "game/gameObject.hpp"
 #include "graphics/materialManager.hpp"
@@ -53,4 +54,12 @@ class IcePlatform final : public Platform {
 public:
     explicit IcePlatform(const Transform &transform) :
         Platform(transform, "resources/materials/ice.mtl", "ice", 0.0f, 0.0f, false) {}
+};
+
+class MovingPlatform final : public Platform {
+public:
+    explicit MovingPlatform(const Transform &transform, const std::vector<glm::vec3> &points, const float time = 3.0f) :
+        Platform(transform) {
+        addComponent(std::make_shared<BezierAnimation>(points, time));
+    }
 };

@@ -1,4 +1,5 @@
 #include "game/componentType.hpp"
+#include "bezierAnimation.hpp"
 #include "collision/aabbCollider.hpp"
 #include "collision/collider.hpp"
 #include "collision/obbCollider.hpp"
@@ -58,4 +59,9 @@ ComponentType getComponentType<Renderer>() {
 template<>
 ComponentType getComponentType<LightEmitter>() {
     return ComponentType::LightEmitter;
+}
+
+template<>
+ComponentType getComponentType<BezierAnimation>() {
+    return ComponentType::Animation;
 }

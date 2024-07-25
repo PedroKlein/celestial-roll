@@ -43,6 +43,8 @@ public:
     }
 
     void updatePhysics(const float deltaTime) const {
+        getComponent<Transform>()->saveState();
+
         for (auto &comp: physicsComponents) {
             if (comp->isEnabled()) {
                 comp->update(deltaTime);
@@ -64,6 +66,6 @@ private:
     std::vector<std::shared_ptr<Component>> physicsComponents;
 
     static bool isPhysicsComponent(const ComponentType type) {
-        return type == ComponentType::Gravity || type == ComponentType::RigidBody;
+        return type == ComponentType::Gravity || type == ComponentType::RigidBody || type == ComponentType::Animation;
     }
 };
