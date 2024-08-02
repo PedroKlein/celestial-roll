@@ -56,10 +56,8 @@ public:
         Platform(transform, "resources/materials/ice.mtl", "ice", 0.0f, 0.0f, false) {}
 };
 
-class MovingPlatform final : public Platform {
+class JumpPlatform final : public Platform {
 public:
-    explicit MovingPlatform(const Transform &transform, const std::vector<glm::vec3> &points, const float time = 3.0f) :
-        Platform(transform) {
-        addComponent(std::make_shared<BezierAnimation>(points, time));
-    }
+    explicit JumpPlatform(const Transform &transform) :
+        Platform(transform, "resources/materials/sphere.mtl", "default", 0.8f, 0.1f) {}
 };
