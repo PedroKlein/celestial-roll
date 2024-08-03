@@ -10,6 +10,7 @@
 #include "physics/gravityComponent.hpp"
 #include "physics/physicsMaterial.hpp"
 #include "physics/rigidBody.hpp"
+#include "platform.hpp"
 
 class Player final : public GameObject, public InputObserver {
 public:
@@ -112,11 +113,12 @@ public:
         const glm::vec4 frictionVelocity = tangentialComponent * (1.0f - physicsMat->getFriction());
 
         if (other.getObjectType() == ObjectType::Platform) {
+            auto platform = dynamic_cast<const Platform *>(&other);
             rigidBody->velocity = bounceVelocity + frictionVelocity;
 
             if (rigidBody->isGrounded && collisionNormal.y > 0.7) {
                 currentSurfaceNormal = collisionNormal;
-                updateRotation(deltaTime);
+                updateRotation(deltaTime, platform->getPlatformType() == PlatformType::Ice);
             }
         } else {
             rigidBody->velocity -= 2.0f * normalComponent;
@@ -131,14 +133,20 @@ public:
 
     [[nodiscard]] unsigned int getShaderId() const { return renderer->material->shader->ID; }
 
-    void updateRotation(const float deltaTime) const {
+    void updateRotation(const float deltaTime, bool isIce = false) const {
         const glm::vec4 movementDirection = glm::normalize(rigidBody->velocity);
         const glm::vec4 rotationAxis = math::crossProduct(movementDirection, Camera::getWorldUp());
         if (glm::length(rotationAxis) > 0) {
             const float movementDistance = glm::length(glm::vec3(rigidBody->velocity)) * deltaTime;
             constexpr float rotationSpeedFactor = 10.0f;
-            const float rotationAngle =
+            float rotationAngle =
                     -movementDistance / (2.0f * glm::pi<float>() * transform->scale.x) * rotationSpeedFactor;
+
+            if (isIce) {
+                constexpr float iceSlideFactor = 0.2f;
+                rotationAngle *= iceSlideFactor;
+            }
+
             const glm::quat rotationDelta = glm::angleAxis(rotationAngle, glm::vec3(rotationAxis));
             transform->rotation = glm::normalize(rotationDelta * transform->rotation);
         }

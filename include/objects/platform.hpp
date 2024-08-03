@@ -8,6 +8,8 @@
 #include "graphics/renderer.hpp"
 #include "physics/physicsMaterial.hpp"
 
+enum PlatformType { Normal, Ice, Jump };
+
 class Platform : public GameObject {
 public:
     virtual ~Platform() = default;
@@ -36,6 +38,8 @@ public:
 
     [[nodiscard]] ObjectType getObjectType() const override { return ObjectType::Platform; }
 
+    virtual PlatformType getPlatformType() const { return PlatformType::Normal; }
+
     // TODO: this is dumb, refactor
     static void initializeShaders() {
         ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, "resources/shaders/ice.frag", "ice");
@@ -54,10 +58,14 @@ class IcePlatform final : public Platform {
 public:
     explicit IcePlatform(const Transform &transform) :
         Platform(transform, "resources/materials/ice.mtl", "ice", 0.0f, 0.0f, false) {}
+
+    PlatformType getPlatformType() const override { return PlatformType::Ice; }
 };
 
 class JumpPlatform final : public Platform {
 public:
     explicit JumpPlatform(const Transform &transform) :
         Platform(transform, "resources/materials/sphere.mtl", "default", 0.8f, 0.1f) {}
+
+    PlatformType getPlatformType() const override { return PlatformType::Jump; }
 };
