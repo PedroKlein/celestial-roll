@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <vector>
@@ -10,6 +11,7 @@
 enum class ObjectType {
     Player,
     Platform,
+    DeathBox,
     Light,
     Camera,
 };
@@ -30,6 +32,25 @@ public:
 
         if (isPhysicsComponent(type)) {
             physicsComponents.push_back(component);
+        }
+    }
+
+    template<typename T>
+    void removeComponent() {
+        const ComponentType type = getComponentType<T>();
+
+        auto it = components.find(type);
+        if (it != components.end()) {
+            if (isPhysicsComponent(type)) {
+                auto physIt =
+                        std::find_if(physicsComponents.begin(), physicsComponents.end(),
+                                     [&it](const std::shared_ptr<Component> &comp) { return comp == it->second; });
+                if (physIt != physicsComponents.end()) {
+                    physicsComponents.erase(physIt);
+                }
+            }
+            it->second->setGameObject(nullptr);
+            components.erase(it);
         }
     }
 

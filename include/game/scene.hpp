@@ -7,6 +7,7 @@
 #include "graphics/renderManager.hpp"
 #include "math/matrix.hpp"
 #include "objects/camera.hpp"
+#include "objects/deathBox.hpp"
 #include "objects/light.hpp"
 #include "objects/platform.hpp"
 #include "objects/player.hpp"
@@ -19,7 +20,7 @@ public:
         RenderManager::initializeShaders();
 
         this->freeCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f);
-        this->playerCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, -30.0f);
+        this->playerCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), -90.0f, -30.0f);
 
         this->player = std::make_unique<Player>(*playerCam);
 
@@ -29,6 +30,9 @@ public:
         renderManager = std::make_unique<RenderManager>(*player);
 
         addObject(std::make_shared<Light>(Transform{glm::vec3(0.0f, 10.0f, 10.0f)}, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+
+        addObject(std::make_shared<DeathBox>(
+                Transform{glm::vec3(0.0f, -40.0f, 0.0f), glm::vec3(1000.0f, 1.0f, 1000.0f)}));
 
         initializePlatforms();
     }
@@ -95,19 +99,19 @@ private:
 
     void initializePlatforms() {
         addObject(std::make_shared<Platform>(Transform{glm::vec3(0.0f, -10.0f, 0.0f), glm::vec3(10.0f, 1.0f, 5.0f)}));
-        addObject(std::make_shared<Platform>(Transform{glm::vec3(20.0f, -10.0f, 0.0f), glm::vec3(10.0f, 1.0f, 5.0f)}));
+        addObject(std::make_shared<Platform>(Transform{glm::vec3(20.0f, -10.0f, 0.0f), glm::vec3(10.0f, 1.0f, 4.98f)}));
         addObject(std::make_shared<IcePlatform>(Transform{
                 glm::vec3(38.18f, -14.86f, 0.0f), glm::vec3(10.0f, 1.0f, 5.0f), glm::vec3(0.0f, 0.0f, -30.0f)}));
-        addObject(std::make_shared<IcePlatform>(
-                Transform{glm::vec3(56.33f, -20.0f, 0.0f), glm::vec3(10.0f, 1.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f)}));
+        addObject(std::make_shared<IcePlatform>(Transform{glm::vec3(56.33f, -20.0f, 0.0f),
+                                                          glm::vec3(10.0f, 1.0f, 4.98f), glm::vec3(0.0f, 0.0f, 0.0f)}));
         addObject(std::make_shared<IcePlatform>(
                 Transform{glm::vec3(74.0f, -15.0f, 0.0f), glm::vec3(10.0f, 1.0f, 5.0f), glm::vec3(0.0f, 0.0f, 30.0f)}));
-        addObject(std::make_shared<Platform>(Transform{glm::vec3(60.0f, -20.0f, 15.0f), glm::vec3(10.0f, 1.0f, 5.0f),
+        addObject(std::make_shared<Platform>(Transform{glm::vec3(60.0f, -20.0f, 15.0f), glm::vec3(10.0f, 1.0f, 4.98f),
                                                        glm::vec3(0.0f, 90.0f, 0.0f)}));
         addObject(std::make_shared<Platform>(Transform{glm::vec3(60.0f, -17.0f, 33.0f), glm::vec3(10.0f, 1.0f, 5.0f),
                                                        glm::vec3(90.0f, -70.0f, 90.0f)}));
         addObject(std::make_shared<JumpPlatform>(Transform{
-                glm::vec3(60.0f, -13.66f, 52.1f), glm::vec3(10.0f, 1.0f, 5.0f), glm::vec3(0.0f, 90.0f, 00.0f)}));
+                glm::vec3(60.0f, -13.66f, 52.1f), glm::vec3(10.0f, 1.0f, 4.98f), glm::vec3(0.0f, 90.0f, 00.0f)}));
 
         auto movingPlatform = std::make_shared<Platform>(
                 Transform{glm::vec3(80.0f, -12.0f, 55.0f), glm::vec3(10.0f, 1.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f)});

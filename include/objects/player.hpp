@@ -2,6 +2,7 @@
 
 #include "camera.hpp"
 #include "collision/sphereCollider.hpp"
+#include "debug.hpp"
 #include "game/gameObject.hpp"
 #include "graphics/materialManager.hpp"
 #include "graphics/meshManager.hpp"
@@ -15,7 +16,7 @@
 class Player final : public GameObject, public InputObserver {
 public:
     explicit Player(Camera &camera) : camera(camera) {
-        transform = std::make_shared<Transform>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f));
+        transform = std::make_shared<Transform>(playerSpawnPoint, glm::vec3(1.0f));
         addComponent(transform);
 
         renderer = std::make_shared<Renderer>(
@@ -99,6 +100,15 @@ public:
 
     void handleCollision(const GameObject &other, const glm::vec4 collisionNormal, const float penetrationDepth,
                          const float deltaTime) {
+        if (isOnDeathRoutine) {
+            return;
+        }
+
+        if (other.getObjectType() == ObjectType::DeathBox) {
+            deathRoutine();
+            return;
+        }
+
         const auto otherTransform = other.getComponent<Transform>();
         const auto physicsMat = other.getComponent<PhysicsMaterial>();
 
@@ -160,8 +170,32 @@ private:
     std::shared_ptr<RigidBody> rigidBody;
     std::shared_ptr<SphereCollider> sphereCollider;
     std::shared_ptr<GravityComponent> gravity;
+    bool isOnDeathRoutine = false;
+
+    constexpr static glm::vec3 playerSpawnPoint = glm::vec3(0.0f, 0.0f, 0.0f);
 
     float movementSpeed = 2.0f;
 
     [[nodiscard]] glm::vec4 getInterpolatedPosition() const { return renderer->interpolatedTransform->getPosition(); }
+
+    void deathRoutine() {
+        isOnDeathRoutine = true;
+        rigidBody->initValues();
+        gravity->disable();
+        inputEnabled = false;
+
+        const auto relativeEnd = playerSpawnPoint - glm::vec3(transform->getPosition());
+
+        std::vector<glm::vec3> points = {glm::vec3(0.0f, 0.0f, -0.0f), glm::vec3(0.0f, 10.0f, 0.0f),
+                                         glm::vec3(0.0f, 30.0f, 0.0f), relativeEnd};
+
+        auto bezierAnimation = std::make_shared<BezierAnimation>(points, 5.0f, false);
+        bezierAnimation->setOnEndCallback([this]() {
+            isOnDeathRoutine = false;
+            inputEnabled = true;
+            removeComponent<BezierAnimation>();
+            std::cout << "Player respawned\n";
+        });
+        addComponent(std::move(bezierAnimation));
+    }
 };

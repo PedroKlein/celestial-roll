@@ -29,6 +29,13 @@ public:
         }
     }
 
+    void initValues() {
+        velocity = glm::vec4(0, 0, 0, 0);
+        inputVelocity = glm::vec4(0, 0, 0, 0);
+        acceleration = glm::vec4(0, 0, 0, 0);
+        forceAccumulator = glm::vec4(0, 0, 0, 0);
+    }
+
     void update(float deltaTime) override {
         if (!transform) {
             return;

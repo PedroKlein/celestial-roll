@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <glm/glm.hpp>
 #include <vector>
 #include "game/component.hpp"
@@ -26,9 +27,22 @@ public:
             if (currentTime > totalTime) {
                 isForward = false;
                 currentTime = totalTime;
+                if (onEndCallback)
+                    onEndCallback();
             } else if (currentTime < 0) {
                 isForward = true;
                 currentTime = 0;
+                if (onEndCallback)
+                    onEndCallback();
+            }
+        } else {
+            currentTime += deltaTime;
+            if (currentTime > totalTime) {
+                currentTime = totalTime;
+                if (onEndCallback) {
+                    onEndCallback();
+                    return;
+                }
             }
         }
 
@@ -37,10 +51,14 @@ public:
         transform->setPosition(initialPosition + position);
     }
 
+    void setOnEndCallback(std::function<void()> callback) { onEndCallback = callback; }
+
 private:
     std::shared_ptr<Transform> transform;
     glm::vec3 initialPosition;
     std::vector<glm::vec3> controlPoints;
+    std::function<void()> onEndCallback;
+
     float totalTime;
     float currentTime;
     bool isLooping;
