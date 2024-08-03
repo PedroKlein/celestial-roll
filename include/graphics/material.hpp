@@ -41,7 +41,7 @@ public:
     }
 
     void setDiffuseTexture(const std::string &texturePath) {
-        diffuseTexture = std::make_shared<Texture>(texturePath.c_str(), "diffuse");
+        diffuseTexture = std::make_shared<Texture>(texturePath.c_str());
     }
 
     [[nodiscard]] bool getIsOpaque() const { return isOpaque; }
@@ -55,7 +55,7 @@ public:
         glActiveTexture(GL_TEXTURE0);
 
         if (diffuseTexture) {
-            glBindTexture(GL_TEXTURE_2D, diffuseTexture->getID());
+            diffuseTexture->bind();
             shader->setInt("material.diffuseTexture", 0);
         } else {
             glBindTexture(GL_TEXTURE_2D, 0);

@@ -9,6 +9,7 @@
 #include "objects/debugAxis.hpp"
 #include "objects/platform.hpp"
 #include "objects/player.hpp"
+#include "objects/skybox.hpp"
 
 class RenderManager {
 public:
@@ -17,7 +18,7 @@ public:
         Platform::initializeShaders();
     }
 
-    explicit RenderManager(Player &player) : player(player), debugAxis() {
+    explicit RenderManager(Player &player) : player(player), debugAxis(), skybox() {
         setupMatricesUBO();
         setupLightsUBO();
         setupViewPosUBO();
@@ -31,6 +32,8 @@ public:
 
         updateMatricesUBO(viewMatrix, projectionMatrix);
         updateViewPosUBO(viewPos);
+
+        skybox.render();
 
         // batch rendering opaque objects
         for (auto &[shaderId, renderers]: renderersByOpaqueShader) {
@@ -104,6 +107,7 @@ private:
 
     Player &player;
     DebugAxis debugAxis;
+    Skybox skybox;
 
     void setupMatricesUBO() {
         glGenBuffers(1, &uboMatrices);
