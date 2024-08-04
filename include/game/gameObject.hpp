@@ -12,6 +12,7 @@ enum class ObjectType {
     Player,
     Platform,
     DeathBox,
+    Star,
     Light,
     Camera,
 };

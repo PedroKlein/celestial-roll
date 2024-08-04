@@ -1,5 +1,6 @@
 #pragma once
 
+#include <GLFW/glfw3.h>
 #include <array>
 #include <memory>
 #include <unordered_map>
@@ -21,7 +22,7 @@ public:
     explicit RenderManager(Player &player) : player(player), debugAxis(), skybox() {
         setupMatricesUBO();
         setupLightsUBO();
-        setupViewPosUBO();
+        setupCommonUBO();
     }
 
     ~RenderManager() { glDeleteBuffers(1, &uboMatrices); }
@@ -31,7 +32,7 @@ public:
         clear();
 
         updateMatricesUBO(viewMatrix, projectionMatrix);
-        updateViewPosUBO(viewPos);
+        updateCommonUBO(viewPos, glfwGetTime());
 
         skybox.render();
 
@@ -98,7 +99,7 @@ private:
     static constexpr size_t MAX_LIGHTS = 10;
     GLuint uboMatrices{};
     GLuint uboLights{};
-    GLuint uboViewPos{};
+    GLuint uboCommon{};
 
     std::unordered_map<unsigned int, std::vector<std::shared_ptr<Renderer>>> renderersByOpaqueShader;
     std::unordered_map<unsigned int, std::vector<std::shared_ptr<Renderer>>> renderersByNonOpaqueShader;
@@ -142,17 +143,20 @@ private:
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
-    void setupViewPosUBO() {
-        glGenBuffers(1, &uboViewPos);
-        glBindBuffer(GL_UNIFORM_BUFFER, uboViewPos);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec3), nullptr, GL_STATIC_DRAW);
+    void setupCommonUBO() {
+        glGenBuffers(1, &uboCommon);
+        glBindBuffer(GL_UNIFORM_BUFFER, uboCommon);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(CommonUBO), nullptr, GL_STATIC_DRAW);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
-        glBindBufferBase(GL_UNIFORM_BUFFER, UBO_VIEW_POS_BINDING_POINT, uboViewPos);
+        glBindBufferBase(GL_UNIFORM_BUFFER, UBO_VIEW_POS_BINDING_POINT, uboCommon);
     }
 
-    void updateViewPosUBO(const glm::vec3 &viewPos) const {
-        glBindBuffer(GL_UNIFORM_BUFFER, uboViewPos);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), &viewPos);
+    void updateCommonUBO(const glm::vec3 &viewPos, const float time) const {
+        CommonUBO commonUBO{};
+        commonUBO.viewPos = viewPos;
+        commonUBO.time = time;
+        glBindBuffer(GL_UNIFORM_BUFFER, uboCommon);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(CommonUBO), &commonUBO);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
@@ -166,5 +170,11 @@ private:
         // padding to ensure data alignment, vec4 is 16 bytes, so 4 for int and more 12 to align to 16
         char pad[12];
         LightInfo lights[MAX_LIGHTS];
+    };
+
+    struct CommonUBO {
+        float time;
+        char pad[9];
+        glm::vec3 viewPos;
     };
 };

@@ -26,7 +26,7 @@ public:
         glUseProgram(ID);
         bindUniformBlock("Matrices", 0);
         bindUniformBlock("Lights", 1);
-        bindUniformBlock("ViewPos", 2);
+        bindUniformBlock("Common", 2);
 
         glDetachShader(ID, vertex);
         glDetachShader(ID, fragment);

@@ -34,6 +34,7 @@ public:
         inputVelocity = glm::vec4(0, 0, 0, 0);
         acceleration = glm::vec4(0, 0, 0, 0);
         forceAccumulator = glm::vec4(0, 0, 0, 0);
+        isGrounded = false;
     }
 
     void update(float deltaTime) override {
@@ -73,6 +74,8 @@ public:
 
     [[nodiscard]] float getMass() const { return mass; }
 
+    [[nodiscard]] glm::vec4 getPos() const { return transform->position; }
+
     void setMass(const float newMass) {
         mass = newMass;
         if (newMass != 0) {
@@ -80,6 +83,18 @@ public:
         } else {
             inverseMass = 0;
         }
+    }
+
+
+    void addGravitationalSource(const RigidBody &source) {
+        static const float G = 6.67430e-11; // Gravitational constant
+
+        glm::vec4 r = source.getPos() - getPos();
+        float distance = math::norm(r);
+        glm::vec4 direction = math::normalize(r);
+
+        glm::vec4 force = G * (mass * source.mass) / (distance * distance) * direction;
+        forceAccumulator += force;
     }
 
 private:

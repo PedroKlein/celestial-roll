@@ -11,6 +11,7 @@
 #include "objects/light.hpp"
 #include "objects/platform.hpp"
 #include "objects/player.hpp"
+#include "objects/star.hpp"
 
 class Scene {
 public:
@@ -29,10 +30,15 @@ public:
         collisionManager = std::make_unique<CollisionManager>(*player);
         renderManager = std::make_unique<RenderManager>(*player);
 
-        addObject(std::make_shared<Light>(Transform{glm::vec3(0.0f, 10.0f, 10.0f)}, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+        // Global light
+        addObject(std::make_shared<Light>(Transform{glm::vec3(0.0f, 10.0f, 10.0f)}, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                                          1.0f, 1.0e-2f, 1.0e-4f));
 
         addObject(std::make_shared<DeathBox>(
                 Transform{glm::vec3(0.0f, -40.0f, 0.0f), glm::vec3(1000.0f, 1.0f, 1000.0f)}));
+
+
+        addObject(std::make_shared<Star>(Transform{glm::vec3(60.0f, -10.0f, -20.0f), glm::vec3(5.0f, 5.0f, 5.0f)}));
 
         initializePlatforms();
     }
@@ -40,6 +46,10 @@ public:
     void updatePhysics(const float deltaTime) const {
         if (gameState->getIsPaused()) {
             return;
+        }
+
+        for (auto &source: gravitationalSources) {
+            player->addGravitationalSource(*source);
         }
 
         player->updatePhysics(deltaTime);
@@ -73,6 +83,10 @@ public:
             renderManager->addLightEmitter(light);
         }
 
+        if (object->getObjectType() == ObjectType::Star) {
+            gravitationalSources.push_back(object->getComponent<RigidBody>());
+        }
+
         objects.push_back(object);
     }
 
@@ -88,6 +102,7 @@ public:
 
 private:
     std::vector<std::shared_ptr<GameObject>> objects;
+    std::vector<std::shared_ptr<RigidBody>> gravitationalSources;
 
     std::unique_ptr<Player> player;
     std::unique_ptr<Camera> freeCam;

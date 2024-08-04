@@ -30,6 +30,7 @@ public:
         addComponent(sphereCollider);
 
         rigidBody = std::make_shared<RigidBody>(20.0f);
+        rigidBody->disable();
         addComponent(rigidBody);
 
         gravity = std::make_shared<GravityComponent>();
@@ -43,6 +44,7 @@ public:
         }
 
         gravity->enable();
+        rigidBody->enable();
 
         // moves the player only in the xz plane
         glm::vec4 cameraFrontInXZ = glm::vec4(camera.getFront().x, 0.0f, camera.getFront().z, 0.0f);
@@ -162,6 +164,8 @@ public:
         }
     }
 
+    void addGravitationalSource(const RigidBody &source) const { rigidBody->addGravitationalSource(source); }
+
 private:
     Camera &camera;
     glm::vec4 currentSurfaceNormal{};
@@ -180,7 +184,7 @@ private:
 
     void deathRoutine() {
         isOnDeathRoutine = true;
-        rigidBody->initValues();
+        rigidBody->disable();
         gravity->disable();
         inputEnabled = false;
 
@@ -193,8 +197,9 @@ private:
         bezierAnimation->setOnEndCallback([this]() {
             isOnDeathRoutine = false;
             inputEnabled = true;
+            rigidBody->initValues();
             removeComponent<BezierAnimation>();
-            std::cout << "Player respawned\n";
+            std::cout << "Player respawned" << std::endl;
         });
         addComponent(std::move(bezierAnimation));
     }

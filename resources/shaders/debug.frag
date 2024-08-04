@@ -15,7 +15,8 @@ layout(std140) uniform Lights {
     Light lights[MAX_LIGHTS];
 };
 
-layout(std140) uniform ViewPos {
+layout(std140) uniform Common {
+    float time;
     vec3 viewPos;
 };
 
