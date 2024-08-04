@@ -27,7 +27,7 @@ public:
 
         addComponent(std::make_shared<LightEmitter>(color, 1.0f, 1.0e-2f, 5.0e-3f));
 
-        addComponent(std::make_shared<SphereCollider>(transform.scale.x / 2.0f));
+        addComponent(std::make_shared<SphereCollider>(transform.scale.x));
     }
 
     [[nodiscard]] ObjectType getObjectType() const override { return ObjectType::Star; }

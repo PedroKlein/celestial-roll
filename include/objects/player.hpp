@@ -106,7 +106,7 @@ public:
             return;
         }
 
-        if (other.getObjectType() == ObjectType::DeathBox) {
+        if (other.getObjectType() == ObjectType::DeathBox || other.getObjectType() == ObjectType::Star) {
             deathRoutine();
             return;
         }

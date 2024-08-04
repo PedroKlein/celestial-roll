@@ -102,4 +102,22 @@ public:
 
         return result;
     }
+
+    static CollisionResult sphereToSphere(const glm::vec4 &sphere1Center, float sphere1Radius,
+                                          const glm::vec4 &sphere2Center, float sphere2Radius) {
+        CollisionResult result{false, glm::vec4(0.0f), 0};
+
+        const glm::vec4 distance = sphere1Center - sphere2Center;
+        const float distSquared = math::dotProduct(distance, distance);
+
+        if (distSquared < (sphere1Radius + sphere2Radius) * (sphere1Radius + sphere2Radius)) {
+            result.collided = true;
+            const float dist = sqrt(distSquared);
+
+            result.penetrationDepth = sphere1Radius + sphere2Radius - dist;
+            result.normal = math::normalize(distance);
+        }
+
+        return result;
+    }
 };

@@ -24,6 +24,11 @@ public:
                                                     otherOBB->getHalfWidths(), otherOBB->getRotationMatrix());
         }
 
+        if (const auto otherSphere = dynamic_cast<const SphereCollider *>(&other); otherSphere && transform) {
+            result = CollisionDetector::sphereToSphere(getPosition(), getRadius(), otherSphere->getPosition(),
+                                                       otherSphere->getRadius());
+        }
+
         return result;
     }
 
