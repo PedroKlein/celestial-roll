@@ -38,7 +38,7 @@ public:
     }
 
     void update(float deltaTime) override {
-        if (!transform) {
+        if (!transform || !isEnabled()) {
             return;
         }
 
@@ -87,6 +87,10 @@ public:
 
 
     void addGravitationalSource(const RigidBody &source) {
+        if (!isEnabled() || !source.isEnabled()) {
+            return;
+        }
+
         static const float G = 6.67430e-11; // Gravitational constant
 
         glm::vec4 r = source.getPos() - getPos();
@@ -94,7 +98,7 @@ public:
         glm::vec4 direction = math::normalize(r);
 
         glm::vec4 force = G * (mass * source.mass) / (distance * distance) * direction;
-        forceAccumulator += force;
+        applyForce(force);
     }
 
 private:
