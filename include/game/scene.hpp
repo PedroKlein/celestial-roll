@@ -19,6 +19,7 @@ public:
 
     void init() {
         RenderManager::initializeShaders();
+        RenderManager::initializeMaterials();
 
         this->freeCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f);
         this->playerCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), -90.0f, -30.0f);

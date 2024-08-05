@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include "material.hpp"
 
-// TODO: refacor the usage of shader name
 class MaterialManager {
 public:
     static MaterialManager &getInstance() {
@@ -12,17 +11,16 @@ public:
         return instance;
     }
 
-    std::shared_ptr<Material> getMaterial(const std::string &filename, const std::string &shaderName = "default",
-                                          const bool isOpaque = true) {
-        const auto key = filename + shaderName;
-        if (const auto it = materials.find(key); it != materials.end()) {
+    void saveMaterial(const std::shared_ptr<Material> &material, const std::string &name) {
+        materials[name] = material;
+    }
+
+    std::shared_ptr<Material> getMaterial(const std::string &name) {
+        if (const auto it = materials.find(name); it != materials.end()) {
             return it->second;
         }
 
-        std::cout << "Loading material: " << key << std::endl;
-        auto material = std::make_shared<Material>(filename, shaderName, isOpaque);
-        materials[key] = material;
-        return material;
+        return nullptr;
     }
 
     MaterialManager(MaterialManager const &) = delete;

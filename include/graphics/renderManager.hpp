@@ -16,7 +16,41 @@ class RenderManager {
 public:
     static void initializeShaders() {
         ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, DEFAULT_FRAGMENT_SHADER_PATH, "default");
-        Platform::initializeShaders();
+        ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, "resources/shaders/ice.frag", "ice");
+        ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, "resources/shaders/star.frag", "star");
+    }
+
+    static void initializeMaterials() {
+        auto defaultShader = ShaderManager::getInstance().getShader("default");
+        auto iceShader = ShaderManager::getInstance().getShader("ice");
+        auto starShader = ShaderManager::getInstance().getShader("star");
+
+        auto defaultMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.5f), glm::vec3(0.0f), 1.0f);
+        defaultMaterial->setShader(defaultShader);
+        defaultMaterial->setTexture(MaterialTextureType::Diffuse, "resources/textures/platform/platform_diffuse.png");
+        defaultMaterial->setTexture(MaterialTextureType::Height, "resources/textures/platform/platform_height.png");
+        defaultMaterial->setTexture(MaterialTextureType::Normal, "resources/textures/platform/platform_normal.png");
+        defaultMaterial->setTexture(MaterialTextureType::Roughness,
+                                    "resources/textures/platform/platform_roughness.png");
+        defaultMaterial->setTexture(MaterialTextureType::AO, "resources/textures/platform/platform_ao.png");
+        MaterialManager::getInstance().saveMaterial(defaultMaterial, "default");
+
+        auto iceMaterial = std::make_shared<Material>(glm::vec3(0.1f), glm::vec3(0.6f), glm::vec3(0.5f), 32.0f, false);
+        iceMaterial->setShader(iceShader);
+        iceMaterial->setTexture(MaterialTextureType::Diffuse, "resources/textures/ice.jpg");
+        MaterialManager::getInstance().saveMaterial(iceMaterial, "ice");
+
+        auto starMaterial = std::make_shared<Material>(glm::vec3(0.1f), glm::vec3(0.6f), glm::vec3(0.5f), 32.0f);
+        starMaterial->setShader(starShader);
+        MaterialManager::getInstance().saveMaterial(starMaterial, "star");
+
+        auto playerMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(0.5f), 32.0f);
+        playerMaterial->setShader(defaultShader);
+        playerMaterial->setTexture(MaterialTextureType::Diffuse, "resources/textures/player/player_diffuse.png");
+        playerMaterial->setTexture(MaterialTextureType::Height, "resources/textures/player/player_height.png");
+        playerMaterial->setTexture(MaterialTextureType::Normal, "resources/textures/player/player_normal.png");
+        playerMaterial->setTexture(MaterialTextureType::Roughness, "resources/textures/player/player_roughness.png");
+        MaterialManager::getInstance().saveMaterial(playerMaterial, "player");
     }
 
     explicit RenderManager(Player &player) : player(player), debugAxis(), skybox() {

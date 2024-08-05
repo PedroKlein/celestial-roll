@@ -3,12 +3,12 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <string>
-#include "mtlLoader.hpp"
+#include <unordered_map>
 #include "shader.hpp"
-#include "shaderManager.hpp"
 #include "texture.hpp"
 
-// TODO: refactor material to be decoupled from .mtl files
+enum class MaterialTextureType { Diffuse, Specular, Normal, Height, Roughness, AO };
+
 class Material {
 public:
     glm::vec3 ambient;
@@ -16,33 +16,18 @@ public:
     glm::vec3 specular;
     float shininess;
     bool isOpaque;
-    std::shared_ptr<Texture> diffuseTexture;
+    std::unordered_map<MaterialTextureType, std::shared_ptr<Texture>> textures;
     std::shared_ptr<Shader> shader;
 
-    explicit Material(const std::string &materialPath, const std::string &shaderName = "default",
-                      const bool isOpaque = true) :
-        ambient(1.0f), diffuse(1.0f), specular(1.0f), shininess(32.0f), isOpaque(isOpaque), loader(materialPath) {
-        if (!loader.loadMaterial()) {
-            throw std::runtime_error("Failed to load material");
-        }
+    explicit Material(const glm::vec3 &ambient, const glm::vec3 &diffuse, const glm::vec3 &specular, float shininess,
+                      bool isOpaque = true) :
+        ambient(ambient), diffuse(diffuse), specular(specular), shininess(shininess), isOpaque(isOpaque) {}
 
-        const RawMaterial rawMat = loader.getRawMaterial();
-
-        ambient = glm::vec3(rawMat.ambient[0], rawMat.ambient[1], rawMat.ambient[2]);
-        diffuse = glm::vec3(rawMat.diffuse[0], rawMat.diffuse[1], rawMat.diffuse[2]);
-        specular = glm::vec3(rawMat.specular[0], rawMat.specular[1], rawMat.specular[2]);
-        shininess = rawMat.shininess;
-
-        if (!rawMat.diffuseTexturePath.empty()) {
-            setDiffuseTexture(rawMat.diffuseTexturePath);
-        }
-
-        shader = ShaderManager::getInstance().getShader(shaderName);
+    void setTexture(MaterialTextureType type, const std::string &texturePath) {
+        textures[type] = std::make_shared<Texture>(texturePath);
     }
 
-    void setDiffuseTexture(const std::string &texturePath) {
-        diffuseTexture = std::make_shared<Texture>(texturePath.c_str());
-    }
+    void setShader(const std::shared_ptr<Shader> &shader) { this->shader = shader; }
 
     [[nodiscard]] bool getIsOpaque() const { return isOpaque; }
 
@@ -52,17 +37,35 @@ public:
         shader->setVec3("material.specular", specular);
         shader->setFloat("material.shininess", shininess);
 
-        glActiveTexture(GL_TEXTURE0);
-
-        if (diffuseTexture) {
-            diffuseTexture->bind();
-            shader->setInt("material.diffuseTexture", 0);
-        } else {
-            glBindTexture(GL_TEXTURE_2D, 0);
-            shader->setInt("material.diffuseTexture", 0);
-        }
+        applyTextures();
     }
 
 private:
-    MtlLoader loader;
+    void applyTextures() const {
+        int textureUnit = 0;
+        for (const auto &[type, texture]: textures) {
+            glActiveTexture(GL_TEXTURE0 + textureUnit);
+            texture->bind();
+            shader->setInt(getUniformName(type), textureUnit++);
+        }
+    }
+
+    static std::string getUniformName(MaterialTextureType type) {
+        switch (type) {
+            case MaterialTextureType::Diffuse:
+                return "material.diffuseTexture";
+            case MaterialTextureType::Specular:
+                return "material.specularTexture";
+            case MaterialTextureType::Normal:
+                return "material.normalTexture";
+            case MaterialTextureType::Height:
+                return "material.heightTexture";
+            case MaterialTextureType::Roughness:
+                return "material.roughnessTexture";
+            case MaterialTextureType::AO:
+                return "material.aoTexture";
+            default:
+                return ""; // Error handling or assertion could be added here
+        }
+    }
 };

@@ -19,9 +19,8 @@ public:
         transform = std::make_shared<Transform>(playerSpawnPoint, glm::vec3(1.0f));
         addComponent(transform);
 
-        renderer = std::make_shared<Renderer>(
-                MeshManager::getInstance().getMesh("resources/models/sphere.obj"),
-                MaterialManager::getInstance().getMaterial("resources/materials/sphere.mtl"));
+        renderer = std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/sphere.obj"),
+                                              MaterialManager::getInstance().getMaterial("player"));
         addComponent(renderer);
 
         camera.setTarget(*renderer->interpolatedTransform, 10.0f);
