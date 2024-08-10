@@ -31,9 +31,13 @@ public:
         collisionManager = std::make_unique<CollisionManager>(*player);
         renderManager = std::make_unique<RenderManager>(*player);
 
+        if (const std::shared_ptr<LightEmitter> light = player->getComponent<LightEmitter>()) {
+            renderManager->addLightEmitter(light);
+        }
+
         // Global light
-        addObject(std::make_shared<Light>(Transform{glm::vec3(0.0f, 10.0f, 10.0f)}, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-                                          1.0f, 1.0e-2f, 1.0e-4f));
+        addObject(std::make_shared<Light>(Transform{glm::vec3(100.0f, 100.0f, 100.0f)},
+                                          glm::vec4(1.0f, 1.0f, 1.0f, 0.1f), 1.0f, 0, 0));
 
         addObject(std::make_shared<DeathBox>(
                 Transform{glm::vec3(0.0f, -40.0f, 0.0f), glm::vec3(1000.0f, 1.0f, 1000.0f)}));
@@ -129,7 +133,7 @@ private:
         addObject(std::make_shared<JumpPlatform>(Transform{
                 glm::vec3(60.0f, -13.66f, 52.1f), glm::vec3(1.0f, 1.0f, 0.98f), glm::vec3(0.0f, 90.0f, 00.0f)}));
 
-        auto movingPlatform = std::make_shared<Platform>(
+        auto movingPlatform = std::make_shared<JumpPlatform>(
                 Transform{glm::vec3(80.0f, -12.0f, 55.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f)});
         std::vector<glm::vec3> points = {
                 glm::vec3(0.0f, 0.0f, 0.0f), // P0

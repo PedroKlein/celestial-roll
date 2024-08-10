@@ -51,14 +51,14 @@ protected:
 
 class IcePlatform final : public Platform {
 public:
-    explicit IcePlatform(const Transform &transform) : Platform(transform, "ice", 0.0f, 0.0f, false) {}
+    explicit IcePlatform(const Transform &transform) : Platform(transform, "ice", 0.0f, 0.001f, false) {}
 
     PlatformType getPlatformType() const override { return PlatformType::Ice; }
 };
 
 class JumpPlatform final : public Platform {
 public:
-    explicit JumpPlatform(const Transform &transform) : Platform(transform, "ice", 0.8f, 0.1f) {}
+    explicit JumpPlatform(const Transform &transform) : Platform(transform, "tiles", 0.8f, 0.1f) {}
 
     PlatformType getPlatformType() const override { return PlatformType::Jump; }
 };

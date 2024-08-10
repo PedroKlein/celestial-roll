@@ -4,6 +4,7 @@
 #include "collision/sphereCollider.hpp"
 #include "debug.hpp"
 #include "game/gameObject.hpp"
+#include "graphics/lightEmitter.hpp"
 #include "graphics/materialManager.hpp"
 #include "graphics/meshManager.hpp"
 #include "graphics/renderer.hpp"
@@ -35,6 +36,8 @@ public:
         gravity = std::make_shared<GravityComponent>();
         gravity->disable();
         addComponent(gravity);
+
+        addComponent(std::make_shared<LightEmitter>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, 1.0e-2f, 5.0e-2f));
     }
 
     void processKeyboard(const Action action, const float deltaTime) override {

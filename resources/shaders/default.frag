@@ -70,11 +70,11 @@ void main()
         vec3 ambient = material.ambient * lightColor * ao;
 
         // Diffuse
-        vec3 lightDir = normalize(lightPos - FragPos);
-        float diff = max(dot(normal, lightDir), 0.0);
-        vec3 diffuse = material.diffuse * diff * lightColor;
+
+        vec3 diffuse = material.diffuse  * lightColor;
 
         // Specular (modified to include roughness)
+        vec3 lightDir = normalize(lightPos - FragPos);
         vec3 reflectDir = reflect(-lightDir, normal);
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess * (1.0 - roughness));
         vec3 specular = material.specular * spec * lightColor;
