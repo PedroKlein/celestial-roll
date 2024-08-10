@@ -35,7 +35,8 @@ public:
     void setColor(const glm::vec4 &newColor) { color = newColor; }
 
     [[nodiscard]] LightInfo getLight() const {
-        return LightInfo{transform->getPosition(), color, constant, linear, quadratic};
+        // slightly above the object
+        return LightInfo{transform->getPosition() + glm::vec4(0, 1.2f, 0, 1.0f), color, constant, linear, quadratic};
     }
 
 private:

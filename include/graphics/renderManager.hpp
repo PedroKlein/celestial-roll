@@ -16,7 +16,38 @@ class RenderManager {
 public:
     static void initializeShaders() {
         ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, DEFAULT_FRAGMENT_SHADER_PATH, "default");
-        Platform::initializeShaders();
+        ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, "resources/shaders/ice.frag", "ice");
+        ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, "resources/shaders/star.frag", "star");
+    }
+
+    static void initializeMaterials() {
+        auto defaultShader = ShaderManager::getInstance().getShader("default");
+        auto iceShader = ShaderManager::getInstance().getShader("ice");
+        auto starShader = ShaderManager::getInstance().getShader("star");
+
+        auto defaultMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.5f), glm::vec3(0.0f), 1.0f);
+        defaultMaterial->setShader(defaultShader);
+        defaultMaterial->setPBRTexture("resources/textures/platform");
+        MaterialManager::getInstance().saveMaterial(defaultMaterial, "default");
+
+        auto tilesMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.5f), glm::vec3(0.0f), 1.0f);
+        tilesMaterial->setShader(defaultShader);
+        tilesMaterial->setPBRTexture("resources/textures/tiles");
+        MaterialManager::getInstance().saveMaterial(tilesMaterial, "tiles");
+
+        auto iceMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(0.0f), 1.0f, false);
+        iceMaterial->setShader(iceShader);
+        iceMaterial->setPBRTexture("resources/textures/ice");
+        MaterialManager::getInstance().saveMaterial(iceMaterial, "ice");
+
+        auto starMaterial = std::make_shared<Material>(glm::vec3(0.1f), glm::vec3(0.6f), glm::vec3(0.5f), 32.0f);
+        starMaterial->setShader(starShader);
+        MaterialManager::getInstance().saveMaterial(starMaterial, "star");
+
+        auto playerMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(0.5f), 32.0f);
+        playerMaterial->setShader(defaultShader);
+        playerMaterial->setPBRTexture("resources/textures/marble");
+        MaterialManager::getInstance().saveMaterial(playerMaterial, "player");
     }
 
     explicit RenderManager(Player &player) : player(player), debugAxis(), skybox() {
@@ -33,6 +64,7 @@ public:
 
         updateMatricesUBO(viewMatrix, projectionMatrix);
         updateCommonUBO(viewPos, glfwGetTime());
+        updateLightsUBO();
 
         skybox.render();
 
@@ -82,9 +114,6 @@ public:
         for (size_t i = 0; i < MAX_LIGHTS; i++) {
             if (!lightEmitters[i]) {
                 lightEmitters[i] = lightEmitter;
-                // currently only static light emmiters are suporeted
-                activeLights.push_back(lightEmitter->getLight());
-                updateLightsUBO();
                 return;
             }
         }
@@ -104,7 +133,6 @@ private:
     std::unordered_map<unsigned int, std::vector<std::shared_ptr<Renderer>>> renderersByOpaqueShader;
     std::unordered_map<unsigned int, std::vector<std::shared_ptr<Renderer>>> renderersByNonOpaqueShader;
     std::array<std::shared_ptr<LightEmitter>, MAX_LIGHTS> lightEmitters;
-    std::vector<LightInfo> activeLights;
 
     Player &player;
     DebugAxis debugAxis;
@@ -134,6 +162,14 @@ private:
     }
 
     void updateLightsUBO() const {
+        std::vector<LightInfo> activeLights;
+
+        for (size_t i = 0; i < MAX_LIGHTS; i++) {
+            if (lightEmitters[i]) {
+                activeLights.push_back(lightEmitters[i]->getLight());
+            }
+        }
+
         LightsUBO lightsUBO{};
         lightsUBO.lightCount = activeLights.size();
         std::memcpy(lightsUBO.lights, activeLights.data(), activeLights.size() * sizeof(LightInfo));

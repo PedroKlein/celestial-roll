@@ -10,26 +10,26 @@
 
 enum PlatformType { Normal, Ice, Jump };
 
+constexpr glm::vec3 defaultSize = {10.0f, 1.0f, 5.0f};
+
 class Platform : public GameObject {
 public:
     virtual ~Platform() = default;
 
-    explicit Platform(const Transform &transform,
-                      const std::string &materialFilePath = "resources/materials/default.mtl",
-                      const std::string &shaderName = "default", float boucinness = 0.0f, float friction = 0.1f,
-                      const bool isOpaque = true) : boucinness(boucinness), friction(friction) {
+    explicit Platform(const Transform &transform, const std::string &materialName = "default", float boucinness = 0.0f,
+                      float friction = 0.1f, const bool isOpaque = true) : boucinness(boucinness), friction(friction) {
         this->transform = std::make_shared<Transform>(transform);
         addComponent(this->transform);
 
-        addComponent(std::make_shared<Renderer>(
-                MeshManager::getInstance().getMesh("resources/models/cube.obj"),
-                MaterialManager::getInstance().getMaterial(materialFilePath, shaderName, isOpaque)));
+        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/platform.obj"),
+                                                MaterialManager::getInstance().getMaterial(materialName)));
 
         if (this->transform->rotation == glm::quat()) {
-            collider = std::make_shared<AABBCollider>(-this->transform->scale, this->transform->scale);
+            collider = std::make_shared<AABBCollider>(-defaultSize * this->transform->scale,
+                                                      defaultSize * this->transform->scale);
             addComponent(collider);
         } else {
-            collider = std::make_shared<OBBCollider>(this->transform->scale);
+            collider = std::make_shared<OBBCollider>(defaultSize * this->transform->scale);
             addComponent(collider);
         }
 
@@ -39,11 +39,6 @@ public:
     [[nodiscard]] ObjectType getObjectType() const override { return ObjectType::Platform; }
 
     virtual PlatformType getPlatformType() const { return PlatformType::Normal; }
-
-    // TODO: this is dumb, refactor
-    static void initializeShaders() {
-        ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, "resources/shaders/ice.frag", "ice");
-    }
 
 private:
     std::shared_ptr<Transform> transform;
@@ -56,16 +51,14 @@ protected:
 
 class IcePlatform final : public Platform {
 public:
-    explicit IcePlatform(const Transform &transform) :
-        Platform(transform, "resources/materials/ice.mtl", "ice", 0.0f, 0.0f, false) {}
+    explicit IcePlatform(const Transform &transform) : Platform(transform, "ice", 0.0f, 0.001f, false) {}
 
     PlatformType getPlatformType() const override { return PlatformType::Ice; }
 };
 
 class JumpPlatform final : public Platform {
 public:
-    explicit JumpPlatform(const Transform &transform) :
-        Platform(transform, "resources/materials/sphere.mtl", "default", 0.8f, 0.1f) {}
+    explicit JumpPlatform(const Transform &transform) : Platform(transform, "tiles", 0.8f, 0.1f) {}
 
     PlatformType getPlatformType() const override { return PlatformType::Jump; }
 };

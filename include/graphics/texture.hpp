@@ -10,8 +10,9 @@ enum class TextureType { Texture2D, CubeMap };
 
 class Texture {
 public:
-    Texture(const char *texturePath, const GLint wrapMode = GL_REPEAT, const GLint minFilter = GL_LINEAR_MIPMAP_LINEAR,
-            const GLint magFilter = GL_LINEAR) : textureType(TextureType::Texture2D), path(texturePath) {
+    Texture(const std::string &texturePath, const GLint wrapMode = GL_REPEAT,
+            const GLint minFilter = GL_LINEAR_MIPMAP_LINEAR, const GLint magFilter = GL_LINEAR) :
+        textureType(TextureType::Texture2D), path(texturePath) {
         glGenTextures(1, &ID);
         if (ID == 0)
             throw std::runtime_error("Failed to generate texture");
@@ -54,14 +55,14 @@ private:
     TextureType textureType;
     std::string path;
 
-    void loadSingleTexture(const char *texturePath, GLint wrapMode, GLint minFilter, GLint magFilter) {
+    void loadSingleTexture(const std::string &texturePath, GLint wrapMode, GLint minFilter, GLint magFilter) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 
         int width, height, nrChannels;
-        unsigned char *data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
+        unsigned char *data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
         if (data) {
             GLenum format = (nrChannels == 1) ? GL_RED : (nrChannels == 3) ? GL_RGB : GL_RGBA;
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);

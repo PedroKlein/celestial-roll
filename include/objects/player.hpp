@@ -4,6 +4,7 @@
 #include "collision/sphereCollider.hpp"
 #include "debug.hpp"
 #include "game/gameObject.hpp"
+#include "graphics/lightEmitter.hpp"
 #include "graphics/materialManager.hpp"
 #include "graphics/meshManager.hpp"
 #include "graphics/renderer.hpp"
@@ -19,9 +20,8 @@ public:
         transform = std::make_shared<Transform>(playerSpawnPoint, glm::vec3(1.0f));
         addComponent(transform);
 
-        renderer = std::make_shared<Renderer>(
-                MeshManager::getInstance().getMesh("resources/models/sphere.obj"),
-                MaterialManager::getInstance().getMaterial("resources/materials/sphere.mtl"));
+        renderer = std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/sphere.obj"),
+                                              MaterialManager::getInstance().getMaterial("player"));
         addComponent(renderer);
 
         camera.setTarget(*renderer->interpolatedTransform, 10.0f);
@@ -36,6 +36,8 @@ public:
         gravity = std::make_shared<GravityComponent>();
         gravity->disable();
         addComponent(gravity);
+
+        addComponent(std::make_shared<LightEmitter>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 1.0f, 1.0e-2f, 5.0e-2f));
     }
 
     void processKeyboard(const Action action, const float deltaTime) override {
