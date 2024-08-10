@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <glm/glm.hpp>
 #include <memory>
 #include <string>
@@ -8,6 +9,11 @@
 #include "texture.hpp"
 
 enum class MaterialTextureType { Diffuse, Specular, Normal, Height, Roughness, AO };
+
+const std::unordered_map<MaterialTextureType, std::string> textureTypeNames = {
+        {MaterialTextureType::Diffuse, "diffuse"},     {MaterialTextureType::Specular, "specular"},
+        {MaterialTextureType::Normal, "normal"},       {MaterialTextureType::Height, "height"},
+        {MaterialTextureType::Roughness, "roughness"}, {MaterialTextureType::AO, "ao"}};
 
 class Material {
 public:
@@ -23,8 +29,23 @@ public:
                       bool isOpaque = true) :
         ambient(ambient), diffuse(diffuse), specular(specular), shininess(shininess), isOpaque(isOpaque) {}
 
-    void setTexture(MaterialTextureType type, const std::string &texturePath) {
+    void setTexture(MaterialTextureType type, const std::string &texturePath, const GLint wrapMode = GL_REPEAT,
+                    const GLint minFilter = GL_LINEAR_MIPMAP_LINEAR, const GLint magFilter = GL_LINEAR) {
         textures[type] = std::make_shared<Texture>(texturePath);
+    }
+
+    void setPBRTexture(const std::string &pbrTextureDir, const GLint wrapMode = GL_REPEAT,
+                       const GLint minFilter = GL_LINEAR_MIPMAP_LINEAR, const GLint magFilter = GL_LINEAR) {
+        for (const auto &entry: std::filesystem::directory_iterator(pbrTextureDir)) {
+            std::string filename = entry.path().filename().string();
+
+            for (const auto &[type, name]: textureTypeNames) {
+                if (filename.find(name) != std::string::npos) {
+                    setTexture(type, entry.path().string(), wrapMode, minFilter, magFilter);
+                    break;
+                }
+            }
+        }
     }
 
     void setShader(const std::shared_ptr<Shader> &shader) { this->shader = shader; }
