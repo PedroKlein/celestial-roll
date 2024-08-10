@@ -7,7 +7,9 @@
 class GameState final : public InputObserver {
 public:
     GameState(Camera &freeCam, Camera &playerCam, Player &player) :
-        freeCam(freeCam), playerCam(playerCam), player(player), isPaused(false), isEagleView(false) {}
+        freeCam(freeCam), playerCam(playerCam), player(player), isPaused(false), isEagleView(false) {
+        enablePlayerView();
+    }
 
     void processKeyboard(const Action action, const float deltaTime) override {
         if (action == PAUSE) {

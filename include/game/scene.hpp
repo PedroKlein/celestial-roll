@@ -21,19 +21,18 @@ public:
         RenderManager::initializeShaders();
         RenderManager::initializeMaterials();
 
-        this->freeCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f);
-        this->playerCam = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), -90.0f, -30.0f);
+        this->freeCam = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f);
+        this->playerCam = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), -90.0f, -30.0f);
 
-        this->player = std::make_unique<Player>(*playerCam);
+        this->player = std::make_shared<Player>(*playerCam);
 
         this->gameState = std::make_unique<GameState>(*freeCam, *playerCam, *player);
 
         collisionManager = std::make_unique<CollisionManager>(*player);
         renderManager = std::make_unique<RenderManager>(*player);
 
-        if (const std::shared_ptr<LightEmitter> light = player->getComponent<LightEmitter>()) {
-            renderManager->addLightEmitter(light);
-        }
+        addObject(player);
+        addObject(freeCam);
 
         // Global light
         addObject(std::make_shared<Light>(Transform{glm::vec3(100.0f, 100.0f, 100.0f)},
@@ -56,8 +55,6 @@ public:
         for (auto &source: gravitationalSources) {
             player->addGravitationalSource(*source);
         }
-
-        player->updatePhysics(deltaTime);
 
         for (auto &obj: objects) {
             obj->updatePhysics(deltaTime);
@@ -109,9 +106,9 @@ private:
     std::vector<std::shared_ptr<GameObject>> objects;
     std::vector<std::shared_ptr<RigidBody>> gravitationalSources;
 
-    std::unique_ptr<Player> player;
-    std::unique_ptr<Camera> freeCam;
-    std::unique_ptr<Camera> playerCam;
+    std::shared_ptr<Player> player;
+    std::shared_ptr<Camera> freeCam;
+    std::shared_ptr<Camera> playerCam;
     std::unique_ptr<GameState> gameState;
 
     std::unique_ptr<CollisionManager> collisionManager;

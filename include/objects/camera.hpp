@@ -1,34 +1,33 @@
 #pragma once
 
+#include <glm/vec4.hpp>
 #include "game/gameObject.hpp"
 #include "glm/trigonometric.hpp"
+#include "graphics/materialManager.hpp"
+#include "graphics/meshManager.hpp"
 #include "input/inputObserver.hpp"
 #include "interpolatedTransform.hpp"
 #include "math/matrix.hpp"
 #include "math/vector.hpp"
-#include <glm/vec4.hpp>
 
-class Camera final : public GameObject, public InputObserver
-{
-  public:
-    static glm::vec4 getWorldUp()
-    {
-        return {0.0f, 1.0f, 0.0f, 0.0f};
-    }
+class Camera final : public GameObject, public InputObserver {
+public:
+    static glm::vec4 getWorldUp() { return {0.0f, 1.0f, 0.0f, 0.0f}; }
 
-    explicit Camera(const glm::vec3 &position = glm::vec3(0.0f, 0.0f, 0.0f), const float yaw = 0.0f, const float pitch = 0.0f)
-        : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), isFreeCam(true)
-    {
+    explicit Camera(const glm::vec3 &position = glm::vec3(0.0f, 0.0f, 0.0f), const float yaw = 0.0f,
+                    const float pitch = 0.0f) : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), isFreeCam(true) {
         this->yaw = glm::radians(yaw);
         this->pitch = glm::radians(pitch);
-        transform = std::make_shared<Transform>(position);
+        transform = std::make_shared<Transform>(position, glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(90.0f, 0.0f, 0.0f));
         addComponent(transform);
+
+        // addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/camera.obj"),
+        //                                         MaterialManager::getInstance().getMaterial("camera")));
 
         updateCameraVectors();
     }
 
-    void setTarget(const InterpolatedTransform &transform, const float distance)
-    {
+    void setTarget(const InterpolatedTransform &transform, const float distance) {
         this->target = &transform;
         this->transform->position = target->getPosition() - glm::normalize(front) * distance;
         this->distance = distance;
@@ -36,20 +35,11 @@ class Camera final : public GameObject, public InputObserver
         updateCameraVectors();
     }
 
-    [[nodiscard]] glm::vec4 getPosition() const
-    {
-        return transform->getPosition();
-    }
+    [[nodiscard]] glm::vec4 getPosition() const { return transform->getPosition(); }
 
-    [[nodiscard]] glm::vec4 getFront() const
-    {
-        return front;
-    }
+    [[nodiscard]] glm::vec4 getFront() const { return front; }
 
-    [[nodiscard]] glm::vec4 getRight() const
-    {
-        return right;
-    }
+    [[nodiscard]] glm::vec4 getRight() const { return right; }
 
     [[nodiscard]] glm::mat4 getViewMatrix() const {
 
@@ -68,14 +58,12 @@ class Camera final : public GameObject, public InputObserver
         return math::Matrix(u.x, u.y, u.z, math::dotProduct(-u, vector), // Line 1
                             v.x, v.y, v.z, math::dotProduct(-v, vector), // Line 2
                             w.x, w.y, w.z, math::dotProduct(-w, vector), // Line 3
-                            0.0f, 0.0f, 0.0f, 1.0f                    // Line 4
+                            0.0f, 0.0f, 0.0f, 1.0f // Line 4
         );
     }
 
-    void processKeyboard(const Action action, const float deltaTime) override
-    {
-        if (!isFreeCam)
-        {
+    void processKeyboard(const Action action, const float deltaTime) override {
+        if (!isFreeCam) {
             updateCameraVectors();
             return;
         }
@@ -95,8 +83,7 @@ class Camera final : public GameObject, public InputObserver
         transform->position += movement;
     }
 
-    void processMouseMovement(const double dx, const double dy) override
-    {
+    void processMouseMovement(const double dx, const double dy) override {
         yaw -= 0.01f * dx * mouseSensitivity;
         pitch += 0.01f * dy * mouseSensitivity;
 
@@ -112,8 +99,7 @@ class Camera final : public GameObject, public InputObserver
         updateCameraVectors();
     }
 
-    void updateCameraVectors()
-    {
+    void updateCameraVectors() {
         const glm::quat pitchQuat = glm::angleAxis(pitch, glm::vec3(1, 0, 0));
         const glm::quat yawQuat = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
 
@@ -122,25 +108,19 @@ class Camera final : public GameObject, public InputObserver
         constexpr glm::vec4 defaultFront(0.0f, 0.0f, -1.0f, 0.0f);
         const glm::vec4 front = orientation * defaultFront;
 
-        if (isFreeCam)
-        {
+        if (isFreeCam) {
             this->front = front;
             this->right = math::normalize(math::crossProduct(this->front, getWorldUp()));
-        }
-        else
-        {
+        } else {
             transform->position = target->getPosition() - distance * front;
             this->front = math::normalize(target->getPosition() - transform->getPosition());
             this->right = math::normalize(math::crossProduct(this->front, getWorldUp()));
         }
     }
 
-    [[nodiscard]] ObjectType getObjectType() const override
-    {
-        return ObjectType::Camera;
-    }
+    [[nodiscard]] ObjectType getObjectType() const override { return ObjectType::Camera; }
 
-  private:
+private:
     const InterpolatedTransform *target{};
 
     std::shared_ptr<Transform> transform;

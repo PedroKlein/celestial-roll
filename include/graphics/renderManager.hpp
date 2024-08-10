@@ -48,6 +48,11 @@ public:
         playerMaterial->setShader(defaultShader);
         playerMaterial->setPBRTexture("resources/textures/marble");
         MaterialManager::getInstance().saveMaterial(playerMaterial, "player");
+
+        auto cameraMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(0.5f), 32.0f);
+        cameraMaterial->setShader(defaultShader);
+        cameraMaterial->setTexture(MaterialTextureType::Diffuse, "resources/textures/camera.jpg");
+        MaterialManager::getInstance().saveMaterial(cameraMaterial, "camera");
     }
 
     explicit RenderManager(Player &player) : player(player), debugAxis(), skybox() {
