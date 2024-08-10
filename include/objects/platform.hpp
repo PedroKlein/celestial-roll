@@ -10,6 +10,8 @@
 
 enum PlatformType { Normal, Ice, Jump };
 
+constexpr glm::vec3 defaultSize = {10.0f, 1.0f, 5.0f};
+
 class Platform : public GameObject {
 public:
     virtual ~Platform() = default;
@@ -19,14 +21,15 @@ public:
         this->transform = std::make_shared<Transform>(transform);
         addComponent(this->transform);
 
-        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/cube.obj"),
+        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/platform.obj"),
                                                 MaterialManager::getInstance().getMaterial(materialName)));
 
         if (this->transform->rotation == glm::quat()) {
-            collider = std::make_shared<AABBCollider>(-this->transform->scale, this->transform->scale);
+            collider = std::make_shared<AABBCollider>(-defaultSize * this->transform->scale,
+                                                      defaultSize * this->transform->scale);
             addComponent(collider);
         } else {
-            collider = std::make_shared<OBBCollider>(this->transform->scale);
+            collider = std::make_shared<OBBCollider>(defaultSize * this->transform->scale);
             addComponent(collider);
         }
 
