@@ -21,8 +21,8 @@ public:
         transform = std::make_shared<Transform>(position, glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(90.0f, 0.0f, 0.0f));
         addComponent(transform);
 
-        // addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/camera.obj"),
-        //                                         MaterialManager::getInstance().getMaterial("camera")));
+        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/camera.obj"),
+                                                MaterialManager::getInstance().getMaterial("camera"), 1.0f, &front));
 
         updateCameraVectors();
     }

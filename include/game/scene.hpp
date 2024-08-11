@@ -33,6 +33,7 @@ public:
 
         addObject(player);
         addObject(freeCam);
+        addObject(playerCam);
 
         // Global light
         addObject(std::make_shared<Light>(Transform{glm::vec3(100.0f, 100.0f, 100.0f)},
