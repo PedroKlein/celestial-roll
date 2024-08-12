@@ -51,7 +51,7 @@ public:
 
         auto cameraMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(0.5f), 32.0f);
         cameraMaterial->setShader(defaultShader);
-        cameraMaterial->setTexture(MaterialTextureType::Diffuse, "resources/textures/camera.jpg");
+        cameraMaterial->setTexture(MaterialTextureType::Diffuse, "resources/textures/camera.jpg"); // -z and y
         MaterialManager::getInstance().saveMaterial(cameraMaterial, "camera");
     }
 

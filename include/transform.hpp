@@ -23,9 +23,19 @@ public:
         saveState();
     }
 
+    Transform(const glm::vec3 &position, const glm::quat &quat) :
+        position(position, 1.0f), scale(1.0f), rotation(quat) {
+        saveState();
+    }
+
     Transform(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &eulerRotation) :
         position(position, 1.0f), scale(scale) {
         setRotation(eulerRotation);
+        saveState();
+    }
+
+    Transform(const glm::vec3 &position, const glm::vec3 &scale, const glm::quat &quat) :
+        position(position, 1.0f), scale(scale), rotation(quat) {
         saveState();
     }
 
@@ -46,6 +56,8 @@ public:
     [[nodiscard]] glm::quat getRotation() const { return rotation; }
 
     void setRotation(const glm::vec3 &eulerRotation) { rotation = glm::quat(glm::radians(eulerRotation)); }
+
+    void setRotation(const glm::quat &rotation) { this->rotation = rotation; }
 
     [[nodiscard]] glm::mat4 getModelMatrix() const {
         glm::mat4 model = math::translateMatrix(position.x, position.y, position.z);

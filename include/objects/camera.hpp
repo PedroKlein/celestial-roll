@@ -18,7 +18,8 @@ public:
                     const float pitch = 0.0f) : front(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), isFreeCam(true) {
         this->yaw = glm::radians(yaw);
         this->pitch = glm::radians(pitch);
-        transform = std::make_shared<Transform>(position, glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(90.0f, 0.0f, 0.0f));
+
+        transform = std::make_shared<Transform>(position, glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(pitch, yaw, 0.0f));
         addComponent(transform);
 
         addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/camera.obj"),
@@ -104,6 +105,7 @@ public:
         const glm::quat yawQuat = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
 
         const glm::quat orientation = yawQuat * pitchQuat;
+        this->transform->setRotation(orientation);
 
         constexpr glm::vec4 defaultFront(0.0f, 0.0f, -1.0f, 0.0f);
         const glm::vec4 front = orientation * defaultFront;

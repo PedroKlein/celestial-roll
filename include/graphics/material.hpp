@@ -31,7 +31,7 @@ public:
 
     void setTexture(MaterialTextureType type, const std::string &texturePath, const GLint wrapMode = GL_REPEAT,
                     const GLint minFilter = GL_LINEAR_MIPMAP_LINEAR, const GLint magFilter = GL_LINEAR) {
-        textures[type] = std::make_shared<Texture>(texturePath);
+        textures[type] = std::make_shared<Texture>(texturePath, wrapMode, minFilter, magFilter);
     }
 
     void setPBRTexture(const std::string &pbrTextureDir, const GLint wrapMode = GL_REPEAT,
