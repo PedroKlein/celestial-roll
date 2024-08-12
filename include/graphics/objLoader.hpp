@@ -61,9 +61,10 @@ private:
                                                                   attrib.normals[3 * idx.normal_index + 2], 0.0f)
                                                       : glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
-                    va.texcoord = idx.texcoord_index >= 0 ? glm::vec2(attrib.texcoords[2 * idx.texcoord_index + 0],
-                                                                      attrib.texcoords[2 * idx.texcoord_index + 1])
-                                                          : glm::vec2(0.0f, 0.0f);
+                    va.texcoord = idx.texcoord_index >= 0
+                                          ? glm::vec2(attrib.texcoords[2 * idx.texcoord_index + 0],
+                                                      1.0f - attrib.texcoords[2 * idx.texcoord_index + 1]) // Flip Y
+                                          : glm::vec2(0.0f, 0.0f);
 
                     vertexAttributes.push_back(va);
                     indices.push_back(vertexAttributes.size() - 1);

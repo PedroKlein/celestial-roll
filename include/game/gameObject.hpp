@@ -8,14 +8,7 @@
 #include "componentType.hpp"
 #include "graphics/renderer.hpp"
 
-enum class ObjectType {
-    Player,
-    Platform,
-    DeathBox,
-    Star,
-    Light,
-    Camera,
-};
+enum class ObjectType { Player, Platform, DeathBox, Star, Light, Camera, Other };
 
 class GameObject {
 public:

@@ -53,6 +53,11 @@ public:
         cameraMaterial->setShader(defaultShader);
         cameraMaterial->setTexture(MaterialTextureType::Diffuse, "resources/textures/camera.jpg"); // -z and y
         MaterialManager::getInstance().saveMaterial(cameraMaterial, "camera");
+
+        auto duckMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(0.5f), 32.0f);
+        duckMaterial->setShader(defaultShader);
+        duckMaterial->setTexture(MaterialTextureType::Diffuse, "resources/textures/duck.jpg");
+        MaterialManager::getInstance().saveMaterial(duckMaterial, "duck");
     }
 
     explicit RenderManager(Player &player) : player(player), debugAxis(), skybox() {
