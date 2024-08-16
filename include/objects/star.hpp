@@ -22,7 +22,7 @@ public:
         addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/sphere.obj"),
                                                 MaterialManager::getInstance().getMaterial(materialName)));
 
-        addComponent(std::make_shared<LightEmitter>(color, 1.0f, 1.0e-2f, 5.0e-3f));
+        addComponent(std::make_shared<LightEmitter>(color, 1.0f, 1.0e-2f, 2.0e-3f));
 
         addComponent(std::make_shared<SphereCollider>(transform.scale.x));
     }

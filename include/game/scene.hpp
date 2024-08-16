@@ -22,7 +22,7 @@ public:
         RenderManager::initializeShaders();
         RenderManager::initializeMaterials();
 
-        this->freeCam = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f);
+        this->freeCam = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 5.0f), 0.0f, 0.0f);
         this->playerCam = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 0.0f), -90.0f, -30.0f);
 
         this->player = std::make_shared<Player>(*playerCam);
@@ -38,7 +38,7 @@ public:
 
         // Global light
         addObject(std::make_shared<Light>(Transform{glm::vec3(100.0f, 100.0f, 100.0f)},
-                                          glm::vec4(1.0f, 1.0f, 1.0f, 0.1f), 1.0f, 0, 0));
+                                          glm::vec4(1.0f, 1.0f, 1.0f, 0.2f), 1.0f, 0, 0));
 
         addObject(std::make_shared<DeathBox>(
                 Transform{glm::vec3(0.0f, -40.0f, 0.0f), glm::vec3(1000.0f, 1.0f, 1000.0f)}));

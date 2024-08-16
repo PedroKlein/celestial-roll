@@ -18,43 +18,46 @@ public:
         ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, DEFAULT_FRAGMENT_SHADER_PATH, "default");
         ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, "resources/shaders/ice.frag", "ice");
         ShaderManager::getInstance().loadShader(DEFAULT_VERTEX_SHADER_PATH, "resources/shaders/star.frag", "star");
+        ShaderManager::getInstance().loadShader("resources/shaders/gouraud.vert", "resources/shaders/gouraud.frag",
+                                                "gouraud");
     }
 
     static void initializeMaterials() {
         auto defaultShader = ShaderManager::getInstance().getShader("default");
         auto iceShader = ShaderManager::getInstance().getShader("ice");
         auto starShader = ShaderManager::getInstance().getShader("star");
+        auto gouraudShader = ShaderManager::getInstance().getShader("gouraud");
 
         auto defaultMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.5f), glm::vec3(0.0f), 1.0f);
         defaultMaterial->setShader(defaultShader);
         defaultMaterial->setPBRTexture("resources/textures/platform");
         MaterialManager::getInstance().saveMaterial(defaultMaterial, "default");
 
-        auto tilesMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.5f), glm::vec3(0.0f), 1.0f);
+        auto tilesMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.5f), glm::vec3(0.0f), 32.0f);
         tilesMaterial->setShader(defaultShader);
         tilesMaterial->setPBRTexture("resources/textures/tiles");
         MaterialManager::getInstance().saveMaterial(tilesMaterial, "tiles");
 
-        auto iceMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(0.0f), 1.0f, false);
+        auto iceMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(1.0f), 1.0f, false);
         iceMaterial->setShader(iceShader);
         iceMaterial->setPBRTexture("resources/textures/ice");
         MaterialManager::getInstance().saveMaterial(iceMaterial, "ice");
 
-        auto starMaterial = std::make_shared<Material>(glm::vec3(0.1f), glm::vec3(0.6f), glm::vec3(0.5f), 32.0f);
+        auto starMaterial = std::make_shared<Material>(glm::vec3(1.1f), glm::vec3(0.6f), glm::vec3(0.5f), 1.0f);
         starMaterial->setShader(starShader);
         MaterialManager::getInstance().saveMaterial(starMaterial, "star");
 
-        auto playerMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(0.5f), 32.0f);
+        auto playerMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.0f), glm::vec3(0.8f), 1.0f);
         playerMaterial->setShader(defaultShader);
         playerMaterial->setPBRTexture("resources/textures/marble");
         MaterialManager::getInstance().saveMaterial(playerMaterial, "player");
 
-        auto cameraMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(0.5f), 32.0f);
-        cameraMaterial->setShader(defaultShader);
+        auto cameraMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(0.0f), 1.0f);
+        cameraMaterial->setShader(gouraudShader);
         cameraMaterial->setTexture(MaterialTextureType::Diffuse, "resources/textures/camera.jpg"); // -z and y
         MaterialManager::getInstance().saveMaterial(cameraMaterial, "camera");
 
-        auto duckMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(0.5f), 32.0f);
+        auto duckMaterial = std::make_shared<Material>(glm::vec3(1.0f), glm::vec3(0.6f), glm::vec3(0.0f), 1.0f);
         duckMaterial->setShader(defaultShader);
         duckMaterial->setTexture(MaterialTextureType::Diffuse, "resources/textures/duck.jpg");
         MaterialManager::getInstance().saveMaterial(duckMaterial, "duck");

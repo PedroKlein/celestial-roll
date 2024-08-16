@@ -28,7 +28,7 @@ public:
         const float accumulatedTime = processPhysics(frameTime);
         renderScene(accumulatedTime);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
         // sleepToCapFrameRate(frameTime);
     }
 
@@ -49,6 +49,7 @@ private:
         const auto currentFrameTime = std::chrono::high_resolution_clock::now();
         const float frameTime = std::chrono::duration<float>(currentFrameTime - lastFrameTime).count();
         lastFrameTime = currentFrameTime;
+        // std::cout << "fps: " << 1.0f / frameTime << std::endl;
         return frameTime;
     }
 

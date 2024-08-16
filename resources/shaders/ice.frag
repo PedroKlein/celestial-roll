@@ -40,17 +40,8 @@ in vec3 Normal;
 
 out vec4 color;
 
-vec3 CalculateNormal()
-{
-    vec3 normal = texture(material.normalTexture, TexCoords).rgb;
-    normal = normalize(normal * 2.0 - 1.0); // Transforming from [0,1] range to [-1,1]
-    return normal;
-}
-
-void main()
-{
+void main() {
     vec3 texColor = texture(material.diffuseTexture, TexCoords).rgb;
-    vec3 normal = CalculateNormal();
     float roughness = texture(material.roughnessTexture, TexCoords).r;
     float ao = texture(material.aoTexture, TexCoords).r;
     vec3 viewDir = normalize(viewPos - FragPos);
@@ -61,7 +52,8 @@ void main()
         float lightIntensity = lights[i].color.a;
         vec3 lightColor = lights[i].color.rgb * lightIntensity;
 
-        // Calculate distance and attenuation
+        vec3 lightDir = normalize(lightPos - FragPos);
+        vec3 halfwayDir = normalize(lightDir + viewDir);
         float distance = length(lightPos - FragPos);
         float attenuation = 1.0 / (lights[i].constant + lights[i].linear * distance + lights[i].quadratic * distance * distance);
         lightColor *= attenuation;
@@ -70,13 +62,11 @@ void main()
         vec3 ambient = material.ambient * lightColor * ao;
 
         // Diffuse
+        float diff = max(dot(Normal, lightDir), 0.0);
+        vec3 diffuse = material.diffuse * lightColor * diff;
 
-        vec3 diffuse = material.diffuse  * lightColor;
-
-        // Specular (modified to include roughness)
-        vec3 lightDir = normalize(lightPos - FragPos);
-        vec3 reflectDir = reflect(-lightDir, normal);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess * (1.0 - roughness));
+        // Specular (Blinn-Phong)
+        float spec = pow(max(dot(Normal, halfwayDir), 0.0), material.shininess * (1.0 - roughness));
         vec3 specular = material.specular * spec * lightColor;
 
         result += ambient + diffuse + specular;

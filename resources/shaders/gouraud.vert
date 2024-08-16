@@ -7,10 +7,6 @@ struct Material {
     vec3 diffuse;
     vec3 specular;
     sampler2D diffuseTexture;
-    sampler2D normalTexture;
-    sampler2D roughnessTexture;
-    sampler2D heightTexture;
-    sampler2D aoTexture;
     float shininess;
 };
 
@@ -28,23 +24,28 @@ layout(std140) uniform Lights {
 };
 
 layout(std140) uniform Common {
-    float time;
     vec3 viewPos;
 };
 
 uniform Material material;
 
-in vec2 TexCoords;
-in vec3 FragPos;
-in vec3 Normal;
+layout (location = 0) in vec4 aPos;
+layout (location = 1) in vec4 aNormal;
+layout (location = 2) in vec2 aTexCoords;
 
-out vec4 color;
+out vec2 Tex;
+out vec3 Vcolor;
+
+layout (std140) uniform Matrices {
+    mat4 view;
+    mat4 projection;
+};
+
+uniform mat4 model;
 
 void main() {
-    vec3 texColor = texture(material.diffuseTexture, TexCoords).rgb;
-    float roughness = texture(material.roughnessTexture, TexCoords).r;
-    float ao = texture(material.aoTexture, TexCoords).r;
-    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 FragPos = vec3(model * aPos);
+    vec3 Normal = normalize(mat3(transpose(inverse(model))) * vec3(aNormal));
     vec3 result = vec3(0.0);
 
     for (int i = 0; i < lightCount; i++) {
@@ -53,24 +54,21 @@ void main() {
         vec3 lightColor = lights[i].color.rgb * lightIntensity;
 
         vec3 lightDir = normalize(lightPos - FragPos);
-        vec3 halfwayDir = normalize(lightDir + viewDir);
         float distance = length(lightPos - FragPos);
         float attenuation = 1.0 / (lights[i].constant + lights[i].linear * distance + lights[i].quadratic * distance * distance);
         lightColor *= attenuation;
 
         // Ambient
-        vec3 ambient = material.ambient * lightColor * ao;
+        vec3 ambient = material.ambient * lightColor;
 
-        // Diffuse 
+        // Diffuse (Lambert)
         float diff = max(dot(Normal, lightDir), 0.0);
         vec3 diffuse = material.diffuse * lightColor * diff;
 
-        // Specular (Blinn-Phong)
-        float spec = pow(max(dot(Normal, halfwayDir), 0.0), material.shininess * (1.0 - roughness));
-        vec3 specular = material.specular * spec * lightColor;
-
-        result += ambient + diffuse + specular;
+        result += ambient + diffuse;
     }
 
-    color = vec4(result * texColor, 1.0);
+    Tex = aTexCoords;
+    Vcolor = result;
+    gl_Position = projection * view * model * aPos;
 }
