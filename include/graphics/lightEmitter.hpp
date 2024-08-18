@@ -4,6 +4,7 @@
 #include <iostream>
 #include "game/component.hpp"
 #include "game/gameObject.hpp"
+#include "interpolatedTransform.hpp"
 #include "transform.hpp"
 
 struct LightInfo {
@@ -22,13 +23,22 @@ public:
         color(color), constant(constant), linear(linear), quadratic(quadratic) {}
 
     void initialize() override {
-        transform = gameObject->getComponent<Transform>();
+        const auto renderer = gameObject->getComponent<Renderer>();
+
+        if (renderer) {
+            interpolatedTransform = renderer->interpolatedTransform;
+            return;
+        }
+
+        const auto transform = gameObject->getComponent<Transform>();
         if (!transform) {
             std::cerr << "LightEmitter requires a Transform component.\n";
         }
+
+        interpolatedTransform = std::make_shared<InterpolatedTransform>(transform.get());
     }
 
-    [[nodiscard]] glm::vec4 getPosition() const { return transform->getPosition(); }
+    [[nodiscard]] glm::vec4 getPosition() const { return interpolatedTransform->getPosition(); }
 
     [[nodiscard]] glm::vec4 getColor() const { return color; }
 
@@ -36,11 +46,12 @@ public:
 
     [[nodiscard]] LightInfo getLight() const {
         // slightly above the object
-        return LightInfo{transform->getPosition() + glm::vec4(0, 1.2f, 0, 1.0f), color, constant, linear, quadratic};
+        return LightInfo{interpolatedTransform->getPosition() + glm::vec4(0, 1.2f, 0, 1.0f), color, constant, linear,
+                         quadratic};
     }
 
 private:
-    std::shared_ptr<Transform> transform;
+    std::shared_ptr<InterpolatedTransform> interpolatedTransform;
     glm::vec4 color;
     float constant = 1.0f;
     float linear = 0.09f;
