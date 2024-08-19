@@ -19,8 +19,12 @@ public:
 
         addComponent(std::make_shared<RigidBody>(mass));
 
-        addComponent(std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/sphere.obj"),
-                                                MaterialManager::getInstance().getMaterial(materialName)));
+        auto renderer = std::make_shared<Renderer>(MeshManager::getInstance().getMesh("resources/models/sphere.obj"),
+                                                   MaterialManager::getInstance().getMaterial(materialName));
+
+        addComponent(renderer);
+
+        renderer->setCustomVec3Property("starColor", color);
 
         addComponent(std::make_shared<LightEmitter>(color, 1.0f, 1.0e-2f, 2.0e-3f));
 

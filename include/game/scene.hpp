@@ -47,6 +47,9 @@ public:
 
         addObject(std::make_shared<Star>(Transform{glm::vec3(60.0f, -10.0f, -20.0f), glm::vec3(5.0f, 5.0f, 5.0f)}));
 
+        addObject(std::make_shared<Star>(Transform{glm::vec3(220.0f, -30.0f, 55.0f), glm::vec3(10.0f, 10.0f, 10.0f)},
+                                         glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 2.0e14f));
+
         initializePlatforms();
     }
 

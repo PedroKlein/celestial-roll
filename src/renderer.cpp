@@ -27,5 +27,24 @@ void Renderer::update(const float alpha) {
     }
 
     material->shader->setMat4("model", interpolatedTransform->getInterpolatedModelMatrix());
+    applyCustomProperties();
     mesh->draw(*material);
+}
+
+void Renderer::applyCustomProperties() {
+    for (const auto &[name, value]: customProperties.floatProperties) {
+        material->shader->setFloat(name, value);
+    }
+
+    for (const auto &[name, value]: customProperties.vec3Properties) {
+        material->shader->setVec3(name, value);
+    }
+}
+
+void Renderer::setCustomFloatProperty(const std::string &name, float value) {
+    customProperties.floatProperties[name] = value;
+}
+
+void Renderer::setCustomVec3Property(const std::string &name, const glm::vec3 &value) {
+    customProperties.vec3Properties[name] = value;
 }

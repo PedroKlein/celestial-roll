@@ -14,9 +14,11 @@ float noise(vec3 pos) {
     return fract(sin(t) * 43758.5453);
 }
 
+uniform vec3 starColor;
+
 void main() {
     float intensity = noise(normalize(FragPos) * time);
-    vec3 color = vec3(1.0, 0.0, 0.0) * intensity;
+    vec3 color = starColor * intensity;
 
     float dist = length(FragPos - viewPos);
     float corona = exp(-dist * 10.0) * intensity;

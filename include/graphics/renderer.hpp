@@ -5,6 +5,11 @@
 #include "graphics/mesh.hpp"
 #include "interpolatedTransform.hpp"
 
+struct CustomRenderProperties {
+    std::unordered_map<std::string, float> floatProperties;
+    std::unordered_map<std::string, glm::vec3> vec3Properties;
+};
+
 class Renderer final : public Component {
 public:
     std::shared_ptr<Mesh> mesh;
@@ -18,7 +23,14 @@ public:
 
     void update(float alpha) override;
 
+    void applyCustomProperties();
+
+    void setCustomFloatProperty(const std::string &name, float value);
+
+    void setCustomVec3Property(const std::string &name, const glm::vec3 &value);
+
 private:
     float offset;
     glm::vec4 *offsetOrientation;
+    CustomRenderProperties customProperties;
 };
