@@ -1,4 +1,7 @@
 # Celestial Roll Game Engine
+
+![alt text](./docs/images/banner.png)
+
 Celestial Roll is a physics-based 3D platformer where the player control a sphere navigating through space-themed level filled with various obstacles. The game is developed using a custom C++ game engine with  that employs a component-based architecture inspired by Unity. This architecture allows for high flexibility and modularity, enabling diverse behaviors and properties for game objects through the composition of different components.
 
 ## Game Engine Architecture
@@ -34,26 +37,24 @@ Utilizes the observer pattern, allowing objects to extend [InputObserver](./incl
 ## Installation and Running
 ### Prerequisites
 
-Ensure you have OpenGL and GLFW installed on your system. The game is cross-platform and can be built on Windows, macOS (Intel and ARM), and Linux.
+Ensure you have OpenGL and GLFW installed on your system and CMake 3.5.0 or higher. The game is cross-platform and can be built on Windows, macOS (Intel and ARM), and Linux.
 
 ### Building the Game
 
 1. Clone the repository:
 ```bash
 git clone https://github.com/PedroKlein/celestial-roll
-cd celestial_roll
+cd celestial-roll
 ```
 
 2. Run CMake to generate the build system:
 ```bash
-mkdir build
-cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE --no-warn-unused-cli -B./build
 ````
 
 3. Build the game:
 ```bash
-cmake --build .
+cmake --build ./build --config Release --target all -j 14
 ````
 ### Running the Game
 
@@ -129,11 +130,8 @@ After building, you can run the game executable directly from the build director
 
 ##### Time-based animations ($\Delta t$)
 
-> 
+> All movements ate [time-based](./include/game/game.hpp#47).
 
 #### Generative AI Usage
 
-
-
-### License
-Distributed under the MIT License. See LICENSE for more information.
+For this project there was havy usage of generative AI tools like chatGPT and Github Copilot. Initially these tools where used for generating code as well as explaning different methods used in game development. There was several ocurrences of bugs on code generated from these tools which was then used only for getting common pratices in game dev as well as a means to help better organize the code in a structured way that I desired.
