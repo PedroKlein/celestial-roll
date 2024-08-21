@@ -1,5 +1,3 @@
-# This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
-# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
 name: CMake on multiple platforms
 
 on:
@@ -13,15 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
-
-      # Set up a matrix to run the following 3 configurations:
-      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
-      # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
-      # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
-      #
-      # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
@@ -56,7 +46,6 @@ jobs:
           $env:CXX = 'g++'
 
       - name: Set reusable strings
-        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
         id: strings
         shell: bash
         run: |
@@ -64,26 +53,19 @@ jobs:
 
       - name: Configure CMake (Windows)
         if: matrix.os == 'windows-latest'
-        run: >
-          cmake -G "MinGW Makefiles"
-          -B ${{ steps.strings.outputs.build-output-dir }}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -S ${{ github.workspace }}
+        run: |
+          cmake -G "MinGW Makefiles" -B ${{ steps.strings.outputs.build-output-dir }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }}
 
       - name: Configure CMake (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: >
-          cmake
-          -B ${{ steps.strings.outputs.build-output-dir }}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -S ${{ github.workspace }}
+        run: |
+          cmake -B ${{ steps.strings.outputs.build-output-dir }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }}
 
       - name: Build
-        # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
       - name: Prepare release assets (Linux)
@@ -104,41 +86,47 @@ jobs:
           echo "release_assets_dir=${{ github.workspace }}/release_assets" >> "$GITHUB_OUTPUT"
         shell: pwsh
 
+    outputs:
+      release_assets_dir: ${{ steps.prepare_assets.outputs.release_assets_dir }}
+
   release:
     runs-on: ubuntu-latest
     needs: build
     steps:
       - name: Create Release
+        id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }} # Replace PAT with your secret name
         with:
           tag_name: ${{ github.ref_name }}
           release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
 
-      - name: Upload release assets
+      - name: Upload Linux binary
+        if: needs.build.outputs.release_assets_dir != ''
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ needs.build.outputs.release_assets_dir }}/celestial_roll
           asset_name: celestial_roll
           asset_content_type: application/octet-stream
 
       - name: Upload Windows binary (if available)
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: needs.build.outputs.release_assets_dir != '' && env.RUNNER_OS == 'Windows'
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ needs.build.outputs.release_assets_dir }}/celestial_roll.exe
           asset_name: celestial_roll.exe
           asset_content_type: application/octet-stream
 
       - name: Upload resources
+        if: needs.build.outputs.release_assets_dir != ''
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ${{ needs.build.outputs.release_assets_dir }}/resources
-          asset_name: resources
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ needs.build.outputs.release_assets_dir }}/resources.zip
+          asset_name: resources.zip
           asset_content_type: application/zip
