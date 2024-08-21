@@ -51,9 +51,9 @@ jobs:
       - name: Set GCC/MinGW as the compiler (Windows only)
         if: matrix.os == 'windows-latest'
         run: |
-          set PATH=C:\tools\mingw64\bin;%PATH%
-          set CC=gcc
-          set CXX=g++
+          $env:PATH = 'C:\tools\mingw64\bin;' + $env:PATH
+          $env:CC = 'gcc'
+          $env:CXX = 'g++'
 
       - name: Set reusable strings
         # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -62,11 +62,21 @@ jobs:
         run: |
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-      - name: Configure CMake
-        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      - name: Configure CMake (Windows)
+        if: matrix.os == 'windows-latest'
         run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          cmake -G "MinGW Makefiles"
+          -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -S ${{ github.workspace }}
+
+      - name: Configure CMake (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          cmake
+          -B ${{ steps.strings.outputs.build-output-dir }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
@@ -76,18 +86,23 @@ jobs:
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
-      - name: Prepare release assets
-        id: prepare_assets
+      - name: Prepare release assets (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p release_assets
+          cp -r ${{ github.workspace }}/resources release_assets/
+          cp ${{ steps.strings.outputs.build-output-dir }}/celestial_roll release_assets/
+          echo "release_assets_dir=${{ github.workspace }}/release_assets" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Prepare release assets (Windows)
+        if: matrix.os == 'windows-latest'
         run: |
           mkdir release_assets
           cp -r ${{ github.workspace }}/resources release_assets/
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            cp ${{ steps.strings.outputs.build-output-dir }}/celestial_roll.exe release_assets/
-          fi
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            cp ${{ steps.strings.outputs.build-output-dir }}/celestial_roll release_assets/
-          fi
+          cp ${{ steps.strings.outputs.build-output-dir }}/celestial_roll.exe release_assets/
           echo "release_assets_dir=${{ github.workspace }}/release_assets" >> "$GITHUB_OUTPUT"
+        shell: pwsh
 
   release:
     runs-on: ubuntu-latest
