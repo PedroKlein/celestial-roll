@@ -53,17 +53,23 @@ jobs:
 
       - name: Configure CMake (Windows)
         if: matrix.os == 'windows-latest'
-        run: |
-          cmake -G "MinGW Makefiles" -B ${{ steps.strings.outputs.build-output-dir }} \
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }}
+        run: >
+          cmake -G "MinGW Makefiles"
+          -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -S ${{ github.workspace }}
 
       - name: Configure CMake (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: |
-          cmake -B ${{ steps.strings.outputs.build-output-dir }} \
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }}
+        run: >
+          cmake
+          -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -S ${{ github.workspace }}
 
       - name: Build
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
@@ -74,7 +80,7 @@ jobs:
           mkdir -p release_assets
           cp -r ${{ github.workspace }}/resources release_assets/
           cp ${{ steps.strings.outputs.build-output-dir }}/celestial_roll release_assets/
-          echo "release_assets_dir=${{ github.workspace }}/release_assets" >> "$GITHUB_OUTPUT"
+          zip -r release_assets.zip release_assets
         shell: bash
 
       - name: Prepare release assets (Windows)
@@ -83,16 +89,29 @@ jobs:
           mkdir release_assets
           cp -r ${{ github.workspace }}/resources release_assets/
           cp ${{ steps.strings.outputs.build-output-dir }}/celestial_roll.exe release_assets/
-          echo "release_assets_dir=${{ github.workspace }}/release_assets" >> "$GITHUB_OUTPUT"
+          Compress-Archive -Path release_assets/* -DestinationPath release_assets.zip
         shell: pwsh
 
-    outputs:
-      release_assets_dir: ${{ steps.prepare_assets.outputs.release_assets_dir }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os }}-release-assets
+          path: release_assets.zip
 
   release:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Download Linux assets
+        uses: actions/download-artifact@v3
+        with:
+          name: ubuntu-latest-release-assets
+
+      - name: Download Windows assets
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-latest-release-assets
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -105,28 +124,33 @@ jobs:
           prerelease: false
 
       - name: Upload Linux binary
-        if: needs.build.outputs.release_assets_dir != ''
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ needs.build.outputs.release_assets_dir }}/celestial_roll
+          asset_path: ubuntu-latest-release-assets/celestial_roll
           asset_name: celestial_roll
           asset_content_type: application/octet-stream
 
-      - name: Upload Windows binary (if available)
-        if: needs.build.outputs.release_assets_dir != '' && env.RUNNER_OS == 'Windows'
+      - name: Upload Windows binary
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ needs.build.outputs.release_assets_dir }}/celestial_roll.exe
+          asset_path: windows-latest-release-assets/celestial_roll.exe
           asset_name: celestial_roll.exe
           asset_content_type: application/octet-stream
 
-      - name: Upload resources
-        if: needs.build.outputs.release_assets_dir != ''
+      - name: Upload resources (Linux)
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ needs.build.outputs.release_assets_dir }}/resources.zip
-          asset_name: resources.zip
+          asset_path: ubuntu-latest-release-assets/resources.zip
+          asset_name: resources-linux.zip
+          asset_content_type: application/zip
+
+      - name: Upload resources (Windows)
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: windows-latest-release-assets/resources.zip
+          asset_name: resources-windows.zip
           asset_content_type: application/zip
