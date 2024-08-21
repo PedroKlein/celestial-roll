@@ -61,7 +61,7 @@ cmake --build ./build --config Release --target all -j 14
 After building, you can run the game executable directly from the build directory:
 
 ```bash
-./celestial_roll
+./build/celestial_roll
 ```
 
 ### Controls:
@@ -130,7 +130,7 @@ After building, you can run the game executable directly from the build director
 
 ##### Time-based animations ($\Delta t$)
 
-> All movements ate [time-based](./include/game/game.hpp#47).
+> All movements are [time-based](./include/game/game.hpp#47).
 
 #### Generative AI Usage
 
